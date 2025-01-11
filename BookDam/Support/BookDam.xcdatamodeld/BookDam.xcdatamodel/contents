@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="BookEntity" representedClassName=".BookEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="author" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="bookDescription" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="cover" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="isbn" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="link" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="pubDate" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="publisher" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="title" attributeType="String" defaultValueString="&quot;&quot;"/>
+    </entity>
+</model>
