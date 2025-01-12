@@ -8,6 +8,10 @@
 import UIKit
 import CoreData
 
+protocol BooksDeletionDelegate: AnyObject {
+    func didDeleteBook(withIsbn isbn: String)
+}
+
 class BooksVC: UIViewController {
     
     private let bookCardCollectionVC = BookCardCollectionVC()
@@ -15,6 +19,8 @@ class BooksVC: UIViewController {
     
     private var books:[Book] = []
     private var filteredBooks: [Book] = []
+    
+    private var searchTimer: Timer?
     
     private var isSearching = false
     private var collectionViewTopConstraint: NSLayoutConstraint!
@@ -51,20 +57,20 @@ class BooksVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Constants.Colors.mainBackground
-        
         setupSearchController()
         setupUI()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         if !isSearching {
-            navigationController?.setNavigationBarHidden(true, animated: true)
-        }
-        
-        fetchAllBooks()
-        bookCardCollectionVC.reloadData(with: books)
-        
+             navigationController?.setNavigationBarHidden(true, animated: false)
+             // Only fetch and reload books if we're not searching
+             fetchAllBooks()
+             bookCardCollectionVC.reloadData(with: books)
+         }
     }
     
     // MARK: - UI Setup
@@ -115,13 +121,17 @@ class BooksVC: UIViewController {
         searchButton.addTarget(self, action: #selector(showSearchBar), for: .touchUpInside)
     }
         
-    @objc private func showSearchBar() {       
-        navigationController?.setNavigationBarHidden(false, animated: true)
+    @objc private func showSearchBar() {
+        isSearching = true  // Set this first
+        
+        navigationController?.setNavigationBarHidden(false, animated: false)
         searchController.isActive = true
         searchController.searchBar.becomeFirstResponder()
         
-        isSearching = true
         updateLayoutForSearchState()
+        
+        bookCardCollectionVC.reloadData(with: [])
+        
     }
     
     private func updateLayoutForSearchState() {
@@ -139,7 +149,7 @@ class BooksVC: UIViewController {
             self.view.layoutIfNeeded()
         }
     }
-    
+     
     func fetchAllBooks() {
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
             self.books = bookEntities.map { bookEntity in
@@ -158,24 +168,73 @@ class BooksVC: UIViewController {
             print("Failed to fetch books from Core Data")
         }
     }
+    
+    func resetSearchState() {
+        isSearching = false
+        searchController.isActive = false
+        updateLayoutForSearchState()
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        fetchAllBooks()
+        bookCardCollectionVC.reloadData(with: books)
+    }
+}
+
+extension BooksVC: BooksDeletionDelegate {
+    func didDeleteBook(withIsbn isbn: String) {
+        // Remove the book from both arrays
+        books.removeAll { $0.isbn == isbn }
+        filteredBooks.removeAll { $0.isbn == isbn }
+        
+        if isSearching {
+            // If searching, update with current filtered results
+            bookCardCollectionVC.reloadData(with: filteredBooks)
+        } else {
+            // If not searching, update with all books
+            bookCardCollectionVC.reloadData(with: books)
+        }
+    }
 }
 
 extension BooksVC:UISearchResultsUpdating, UISearchBarDelegate {
     
     func updateSearchResults(for searchController: UISearchController) {
-      
+        // Cancel any previous timer
+        searchTimer?.invalidate()
+        
+        // Create a new timer that will fire after 0.5 seconds
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            guard let self = self, self.isSearching else { return }
+            
+            guard let searchText = searchController.searchBar.text?.lowercased(), !searchText.isEmpty else {
+                self.bookCardCollectionVC.reloadData(with: [])
+                return
+            }
+            
+            self.filteredBooks = self.books.filter { book in
+                book.title.lowercased().contains(searchText) ||
+                book.author.lowercased().contains(searchText) ||
+                book.publisher.lowercased().contains(searchText)
+            }
+            
+            self.bookCardCollectionVC.reloadData(with: self.filteredBooks)
+        }
     }
 
       func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-          searchController.isActive = false
-          
-          isSearching = false
-          updateLayoutForSearchState()
-          navigationController?.setNavigationBarHidden(true, animated: true)
-          
-          // 탭바가 투명해지는 것을 방지하기 위해서
-          tabBarController?.tabBar.backgroundColor = Constants.Colors.mainBackground
+           searchController.isActive = false
+           
+           isSearching = false
+           updateLayoutForSearchState()
+           navigationController?.setNavigationBarHidden(true, animated: false)
+           
+           // Restore original book list
+           bookCardCollectionVC.reloadData(with: books)
+           
+           // Prevent tabbar from becoming transparent
+           tabBarController?.tabBar.backgroundColor = Constants.Colors.mainBackground
       }
+    
+    
 }
 
 

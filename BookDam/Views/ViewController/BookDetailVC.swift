@@ -11,7 +11,9 @@ class BookDetailVC: UIViewController {
     
     var book: Book? 
     var bookLink: String?
-    
+    var isSaved = false
+
+    weak var deletionDelegate: BooksDeletionDelegate?
 
     let imageShadowView: UIView = {
         let aView = UIView()
@@ -139,11 +141,17 @@ class BookDetailVC: UIViewController {
         let backButton = UIBarButtonItem()
         
         navigationController?.navigationBar.tintColor = Constants.Colors.accent
-
         backButton.title = "돌아가기"
         navigationController?.navigationBar.topItem?.backBarButtonItem = backButton
-           
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveButtonTapped))
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        
+        let deleteButton = UIBarButtonItem(title: "삭제", style: .done, target: self, action: #selector(removeButtonTapped))
+        deleteButton.tintColor = Constants.Colors.warning
+        let saveButton = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveButtonTapped))
+        saveButton.tintColor = nil
+        
+        navigationItem.rightBarButtonItem  = isSaved ? deleteButton:saveButton
+        
     }
     
     private func setupUI() {
@@ -212,20 +220,41 @@ class BookDetailVC: UIViewController {
         }
         
         if CoreDataManager.shared.isBookExist(isbn: book.isbn) {
-            print("존재하는 책입니다!")
+            self.showInfoAlert(title: "이미 저장된 책입니다", message: "", buttonTitle: "확인")
             return
         }
 
         CoreDataManager.shared.saveBook(book: book)
+        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+                
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.navigationController?.popViewController(animated: true)
+        }
+                
+    }
+    
+    @objc private func removeButtonTapped() {
+        
+        guard let book = book else {
+            print("No book data to save")
+            return
+        }
+        
+        self.showConfirmationAlert(title: "정말 삭제하시겠습니까?", message: "", confirmActionTitle: "삭제", cancelActionTitle: "취소") {
+            CoreDataManager.shared.deleteBookwithIsbn(by: book.isbn)
+            self.deletionDelegate?.didDeleteBook(withIsbn: book.isbn)
+            self.navigationController?.popToRootViewController(animated: true)
+        }
     }
 
     
-    func configure(with book: Book) {
+    func configure(with book: Book, isSaved: Bool = false) {
         self.book = book
         configureTitles(from: book.title)
         configureMetadata(author: book.author, publisher: book.publisher)
         configureOptionalFields(book)
         bookLink = book.link
+        self.isSaved = isSaved
         if let coverURL = book.cover {
             loadCoverImage(from: coverURL)
         }

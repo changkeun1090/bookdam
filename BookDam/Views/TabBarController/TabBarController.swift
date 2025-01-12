@@ -12,12 +12,10 @@ class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        UITabBar.appearance().tintColor = Constants.Colors.accent
-      
+        UITabBar.appearance().tintColor = Constants.Colors.accent      
         UITabBar.appearance().barTintColor = Constants.Colors.mainBackground
-      
         UITabBar.appearance().unselectedItemTintColor = Constants.Colors.subText
-
+        UITabBar.appearance().backgroundColor = Constants.Colors.subBackground
         
         viewControllers = [createBookNC(), createSearchNC(), createInfoNC()]
     }

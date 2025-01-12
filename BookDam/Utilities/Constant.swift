@@ -10,8 +10,10 @@ import UIKit
 
 struct Constants {
     struct Colors {
-        static let mainBackground = UIColor.secondarySystemBackground // Replace with your desired color
+        static let mainBackground = UIColor.secondarySystemBackground
+        static let subBackground = UIColor.tertiarySystemBackground
         static let accent = UIColor.systemBlue
+        static let warning = UIColor.systemRed
         static let mainText = UIColor.darkText
         static let subText = UIColor.systemGray
     }

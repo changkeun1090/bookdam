@@ -51,12 +51,9 @@ class BookListTableVC: UITableViewController {
     // Handle the cell tap to navigate to BookDetailVC
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedBook = books[indexPath.row]
-        let bookDetailVC = BookDetailVC()  // Create the BookDetailVC
-        
-        // Pass the book data to the BookDetailVC
+        let bookDetailVC = BookDetailVC()        
         bookDetailVC.configure(with: selectedBook)
-        
-        // Navigate to the BookDetailVC
+        bookDetailVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(bookDetailVC, animated: true)
     }
     
