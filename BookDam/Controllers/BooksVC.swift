@@ -19,16 +19,22 @@ class BooksVC: UIViewController {
     
     private var books:[Book] = []
     private var filteredBooks: [Book] = []
+    private var selectedBookISBNs = Set<String>()
     
     private var searchTimer: Timer?
     
     private var isSearching = false
+    private var isSelectMode = false
+
     private var collectionViewTopConstraint: NSLayoutConstraint!
     private var horizontalStackViewHeightConstraint: NSLayoutConstraint!
     
     private let tagButton = IconButton(title: "태그", image: nil, action: nil)
     private let moreButton = IconButton(title: nil, image: Constants.Icons.more, action: nil)
     private let searchButton = IconButton(title: nil, image: Constants.Icons.search, action: nil)
+    private let cancelButton = IconButton(title: "취소", image: nil, action: nil)
+    private let deleteButton = IconButton(title: "삭제", image: "", action: nil, color: Constants.Colors.warning)
+    private let selectAllButton = IconButton(title: "모두선택", image: "", action: nil)
     
     private lazy var rightStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [searchButton, moreButton])
@@ -57,7 +63,8 @@ class BooksVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Constants.Colors.mainBackground
-        setupSearchController()
+        configureSearchController()
+        configureMoreButton()
         setupUI()
         
     }
@@ -67,7 +74,6 @@ class BooksVC: UIViewController {
         
         if !isSearching {
              navigationController?.setNavigationBarHidden(true, animated: false)
-             // Only fetch and reload books if we're not searching
              fetchAllBooks()
              bookCardCollectionVC.reloadData(with: books)
          }
@@ -106,7 +112,7 @@ class BooksVC: UIViewController {
     }
     
     // MARK: - Search Setup
-    private func setupSearchController() {
+    private func configureSearchController() {
         searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
@@ -120,6 +126,83 @@ class BooksVC: UIViewController {
         
         searchButton.addTarget(self, action: #selector(showSearchBar), for: .touchUpInside)
     }
+    
+    // MARK: - MoreButton
+    private func configureMoreButton() {
+        // Create menu actions
+        let selectAction = UIAction(title: "선택하기", image: UIImage(systemName: Constants.Icons.checkWithCircle)) { [weak self] _ in
+            self?.enterSelectMode()  // Add this line
+
+            // We'll implement this functionality later
+            print("Select tapped")
+        }
+        
+        let sortRecentAction = UIAction(title: "최신 항목 순으로", image: UIImage(systemName: Constants.Icons.check)) { _ in
+            // We'll implement this functionality later
+            print("Sort by Recent tapped")
+        }
+        
+        let sortOldAction = UIAction(title: "오래된 항목 순으로", image: nil) { _ in
+            // We'll implement this functionality later
+            print("Sort by Old tapped")
+        }
+                        
+        let menu = UIMenu(children: [
+             selectAction,
+             UIMenu(title: "", options: .displayInline, children: [sortRecentAction, sortOldAction])
+         ])
+        
+        moreButton.menu = menu
+        moreButton.showsMenuAsPrimaryAction = true
+        
+    }
+
+    
+    private func enterSelectMode() {
+        isSelectMode = true
+        
+        tagButton.removeFromSuperview()
+        moreButton.removeFromSuperview()
+        searchButton.removeFromSuperview()
+        
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        selectAllButton.addTarget(self, action: #selector(selectAllButtonTapped), for: .touchUpInside)
+        
+        horizontalStackView.insertArrangedSubview(cancelButton, at: 0)
+        rightStackView.addArrangedSubview(selectAllButton)
+        rightStackView.addArrangedSubview(deleteButton)
+        
+        bookCardCollectionVC.enterSelectMode()
+
+    }
+
+    private func exitSelectMode() {
+        isSelectMode = false
+                
+        horizontalStackView.arrangedSubviews.first?.removeFromSuperview()
+        selectAllButton.removeFromSuperview()
+        deleteButton.removeFromSuperview()
+                
+        horizontalStackView.insertArrangedSubview(tagButton, at: 0)
+        rightStackView.addArrangedSubview(searchButton)
+        rightStackView.addArrangedSubview(moreButton)
+                                
+        bookCardCollectionVC.exitSelectMode()
+    }
+    
+    func updateSelectedBooks(_ isbns: [String]) {
+        selectedBookISBNs = Set(isbns)
+        
+        // Update UI based on selection state
+        deleteButton.isEnabled = !selectedBookISBNs.isEmpty
+        deleteButton.alpha = deleteButton.isEnabled ? 1.0 : 0.5
+        
+//        updateSelectAllButtonState()
+    }
+    
+    
+
         
     @objc private func showSearchBar() {
         isSearching = true  // Set this first
@@ -131,7 +214,49 @@ class BooksVC: UIViewController {
         updateLayoutForSearchState()
         
         bookCardCollectionVC.reloadData(with: [])
+    }
+    
+    @objc private func cancelButtonTapped() {
+        exitSelectMode()
+    }
+    
+    @objc private func deleteButtonTapped() {
+        print("Delete tapped")        
         
+        let selectedCount = selectedBookISBNs.count
+
+        self.showConfirmationAlert(title: "총 \(selectedCount)권을 삭제하시겠습니까?", message: "", confirmActionTitle: "삭제", cancelActionTitle: "취소") {
+            self.selectedBookISBNs.forEach { isbn in
+                CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
+            }
+            
+            // Remove deleted books from our arrays
+            self.books.removeAll { self.selectedBookISBNs.contains($0.isbn) }
+            self.filteredBooks.removeAll { self.selectedBookISBNs.contains($0.isbn) }
+            
+            // Exit select mode
+            self.exitSelectMode()
+            
+            // Reload collection view with updated data
+            self.bookCardCollectionVC.reloadData(with: self.books)
+        }
+
+    }
+
+    @objc private func selectAllButtonTapped() {
+        // Toggle select all in collection view
+        bookCardCollectionVC.toggleSelectAll()
+      
+      // Update select all button appearance based on selection state
+//        updateSelectAllButtonState()
+    }
+    
+    private func updateSelectAllButtonState() {
+        let allSelected = selectedBookISBNs.count == books.count
+        
+        // Update button image based on selection state
+        let imageName = allSelected ? "checkmark.circle.fill" : "checkmark.circle"
+        selectAllButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
     private func updateLayoutForSearchState() {

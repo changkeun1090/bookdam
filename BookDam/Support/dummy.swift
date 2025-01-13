@@ -1,27 +1,30 @@
-extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
-    func updateSearchResults(for searchController: UISearchController) {
-        guard let searchText = searchController.searchBar.text?.lowercased(), !searchText.isEmpty else {
-            isSearching = false
-            filteredBooks = books
-            bookCardCollectionVC.reloadData(with: books)
-            return
-        }
-        
-        isSearching = true
-        filteredBooks = books.filter { book in
-            book.title.lowercased().contains(searchText)
-        }
-        bookCardCollectionVC.reloadData(with: filteredBooks)
-    }
+private func enterSelectMode() {
+    isSelectMode = true
+    
+    // First, create the cancel button
+    let cancelButton = IconButton(title: "취소", image: nil, action: #selector(cancelButtonTapped))
+    
+    // Important: Add the cancel button BEFORE hiding other views
+    horizontalStackView.insertArrangedSubview(cancelButton, at: 0)
+    
+    // Now update the visibility of other buttons
+    tagButton.removeFromSuperview() // Remove instead of hiding
+    moreButton.removeFromSuperview() // Remove instead of hiding
+    
+    // Tell the collection view to enter select mode
+    bookCardCollectionVC.enterSelectMode()
+}
 
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchController.isActive = false
-        
-        isSearching = false
-        updateLayoutForSearchState()
-        bookCardCollectionVC.reloadData(with: books)
-        
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        tabBarController?.tabBar.backgroundColor = Constants.Colors.mainBackground
-    }
+private func exitSelectMode() {
+    isSelectMode = false
+    
+    // Remove the cancel button
+    horizontalStackView.arrangedSubviews.first?.removeFromSuperview()
+    
+    // Restore original buttons
+    horizontalStackView.insertArrangedSubview(tagButton, at: 0)
+    rightStackView.addArrangedSubview(moreButton)
+    
+    // Tell collection view to exit select mode
+    bookCardCollectionVC.exitSelectMode()
 }

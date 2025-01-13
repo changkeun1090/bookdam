@@ -32,10 +32,19 @@ class BookCardCell: UICollectionViewCell {
         return imageView
     }()
     
+    // new --
+    private let selectionIndicator: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "circle")
+        imageView.tintColor = Constants.Colors.accent // Using your app's accent color
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isHidden = true // Hidden by default
+        return imageView
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-//        contentView.addSubview(coverImageView)
         contentView.addSubview(imageShadowView)
         imageShadowView.addSubview(coverImageView)
         
@@ -45,6 +54,19 @@ class BookCardCell: UICollectionViewCell {
             coverImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             coverImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
+        
+        // new --
+        // Add the selection indicator to the cell's content view
+        contentView.addSubview(selectionIndicator)
+        
+        // Add constraints for the selection indicator
+        NSLayoutConstraint.activate([
+            selectionIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            selectionIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            selectionIndicator.widthAnchor.constraint(equalToConstant: 24),
+            selectionIndicator.heightAnchor.constraint(equalToConstant: 24)
+        ])
+        // new --
 
     }
     
@@ -71,5 +93,31 @@ class BookCardCell: UICollectionViewCell {
             }
         }
     }
+    
+    // new --
+    // Add these methods to handle selection state
+    func showSelectionIndicator(selected: Bool = false) {
+        selectionIndicator.isHidden = false
+        updateSelectionState(selected)
+    }
+    
+    func hideSelectionIndicator() {
+        selectionIndicator.isHidden = true
+    }
+    
+    func updateSelectionState(_ selected: Bool) {
+        
+        if selected {
+            selectionIndicator.image = UIImage(systemName: "checkmark.circle.fill")
+            coverImageView.layer.borderColor = Constants.Colors.accent.cgColor
+            coverImageView.layer.borderWidth = 1
+        } else {
+            selectionIndicator.image = UIImage(systemName: "circle")
+            coverImageView.layer.borderWidth = 0
+        }
+        
+        
+    }
+    // new --
 
 }

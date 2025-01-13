@@ -25,8 +25,6 @@ class CoreDataManager {
     // MARK: - Save Book
     func saveBook(book: Book) {
         let context = persistentContainer.viewContext
-        
-        // Check if the book with the same ISBN exists
         let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "isbn == %@", book.isbn)
 

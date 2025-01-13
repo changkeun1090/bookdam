@@ -4,6 +4,7 @@
         <attribute name="author" attributeType="String" defaultValueString="&quot;&quot;"/>
         <attribute name="bookDescription" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
         <attribute name="cover" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" defaultDateTimeInterval="758420460" usesScalarValueType="NO"/>
         <attribute name="isbn" attributeType="String" defaultValueString="&quot;&quot;"/>
         <attribute name="link" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>
         <attribute name="pubDate" optional="YES" attributeType="String" defaultValueString="&quot;&quot;"/>

@@ -9,10 +9,13 @@ import UIKit
 
 class BookCardCollectionVC: UIViewController {
     
-    // MARK: - Properties
     private var collectionView: UICollectionView!
     private let searchController = UISearchController(searchResultsController: nil)
     
+    // new --
+    private var isSelectMode = false
+    private var selectedIndexPaths = Set<IndexPath>()  // Track selected items
+      
     var books:[Book] = []
     
     // MARK: - Lifecycle
@@ -52,13 +55,96 @@ class BookCardCollectionVC: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
+    // new --
+    func enterSelectMode() {
+        isSelectMode = true
+        selectedIndexPaths.removeAll()  // Clear any previous selections
+        collectionView.allowsMultipleSelection = true  // Enable multiple selection
+        
+        // Update all visible cells to show selection indicators
+        collectionView.visibleCells.forEach { cell in
+            if let bookCell = cell as? BookCardCell {
+                bookCell.showSelectionIndicator()
+            }
+        }
+    }
+    
+    func exitSelectMode() {
+        isSelectMode = false
+        selectedIndexPaths.removeAll()
+        collectionView.allowsMultipleSelection = false
+        
+        // Hide selection indicators
+        collectionView.visibleCells.forEach { cell in
+            if let bookCell = cell as? BookCardCell {
+                bookCell.hideSelectionIndicator()
+            }
+        }
+    }
+    
+    // Add this method to handle select all functionality
+    func toggleSelectAll() {
+        guard isSelectMode else { return }
+        
+        // Check if all items are currently selected
+        let allSelected = selectedIndexPaths.count == books.count
+        
+        if allSelected {
+            // Deselect all items
+            selectedIndexPaths.forEach { indexPath in
+                collectionView.deselectItem(at: indexPath, animated: true)
+                if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
+                    cell.updateSelectionState(false)
+                }
+            }
+            selectedIndexPaths.removeAll()
+        } else {
+            // Select all items
+            // Create index paths for all items
+            let allIndexPaths = (0..<books.count).map { IndexPath(item: $0, section: 0) }
+            
+            // Select each item
+            allIndexPaths.forEach { indexPath in
+                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
+                if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
+                    cell.updateSelectionState(true)
+                }
+            }
+            selectedIndexPaths = Set(allIndexPaths)
+        }
+        
+        // Notify parent about selection change
+        updateParentAboutSelection()
+    }
+    
+    // new --
 }
 
 // MARK: - UICollectionViewDelegate
 extension BookCardCollectionVC: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedBook = books[indexPath.row]        
+        
+        if isSelectMode {
+            selectedIndexPaths.insert(indexPath)
+            if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
+                cell.updateSelectionState(true)
+            }
+            // Notify parent about selection change
+            updateParentAboutSelection()
+        } else {
+            // Your existing detail view navigation code
+            let selectedBook = books[indexPath.row]
+            let bookDetailVC = BookDetailVC()
+            bookDetailVC.configure(with: selectedBook, isSaved: true)
+            bookDetailVC.hidesBottomBarWhenPushed = true
+            bookDetailVC.deletionDelegate = self.parent as? BooksDeletionDelegate
+            
+            navigationController?.pushViewController(bookDetailVC, animated: true)        }
+        
+        /* 'old'
+        let selectedBook = books[indexPath.row]
         let bookDetailVC = BookDetailVC()
         
         bookDetailVC.configure(with: selectedBook, isSaved: true)
@@ -66,6 +152,24 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
         bookDetailVC.deletionDelegate = self.parent as? BooksDeletionDelegate
         
         navigationController?.pushViewController(bookDetailVC, animated: true)
+         */
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if isSelectMode {
+            selectedIndexPaths.remove(indexPath)
+            if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
+                cell.updateSelectionState(false)
+            }
+            // Notify parent about selection change
+            updateParentAboutSelection()
+        }
+    }
+    private func updateParentAboutSelection() {
+        if let parentVC = parent as? BooksVC {
+            let selectedBooks = selectedIndexPaths.map { books[$0.row].isbn }
+            parentVC.updateSelectedBooks(selectedBooks)
+        }
     }
 }
 

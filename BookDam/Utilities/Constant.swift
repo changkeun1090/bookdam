@@ -47,6 +47,8 @@ struct Constants {
         static let search = "magnifyingglass"
         static let orderList = "arrow.up.arrow.down"
         static let chevronForward = "chevron.forward"
+        static let check = "checkmark"
+        static let checkWithCircle = "checkmark.circle"
     }
     
     struct Size {

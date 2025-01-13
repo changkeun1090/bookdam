@@ -47,6 +47,7 @@ class NetworkManager {
             
             do {
                 let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
                 let decodedResponse = try decoder.decode(BookSearchResponse.self, from: data)
                 completion(.success(decodedResponse.item))
                 
