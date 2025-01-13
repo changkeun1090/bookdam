@@ -72,15 +72,18 @@ class BookCardCollectionVC: UIViewController {
     
     func exitSelectMode() {
         isSelectMode = false
-        selectedIndexPaths.removeAll()
         collectionView.allowsMultipleSelection = false
         
-        // Hide selection indicators
+        // Reset selection state for ALL visible cells, not just selected ones
         collectionView.visibleCells.forEach { cell in
             if let bookCell = cell as? BookCardCell {
+                bookCell.updateSelectionState(false)
                 bookCell.hideSelectionIndicator()
             }
         }
+        
+        // Clear selection tracking
+        selectedIndexPaths.removeAll()
     }
     
     // Add this method to handle select all functionality

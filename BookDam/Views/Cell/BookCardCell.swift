@@ -103,6 +103,9 @@ class BookCardCell: UICollectionViewCell {
     
     func hideSelectionIndicator() {
         selectionIndicator.isHidden = true
+        // Make sure to clear any selection-related styling
+        coverImageView.layer.borderWidth = 0
+        coverImageView.layer.borderColor = nil
     }
     
     func updateSelectionState(_ selected: Bool) {
