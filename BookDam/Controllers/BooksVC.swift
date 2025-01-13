@@ -22,7 +22,9 @@ class BooksVC: UIViewController {
     private var selectedBookISBNs = Set<String>()
     
     private var searchTimer: Timer?
-    
+    private var currentSortOrder: SortOrder = UserDefaultsManager.shared.sortOrder
+
+
     private var isSearching = false
     private var isSelectMode = false
 
@@ -74,8 +76,9 @@ class BooksVC: UIViewController {
         
         if !isSearching {
              navigationController?.setNavigationBarHidden(true, animated: false)
-             fetchAllBooks()
-             bookCardCollectionVC.reloadData(with: books)
+            fetchAllBooks()
+            sortBooks(by: currentSortOrder)
+            bookCardCollectionVC.reloadData(with: books)
          }
     }
     
@@ -132,26 +135,30 @@ class BooksVC: UIViewController {
         // Create menu actions
         let selectAction = UIAction(title: "선택하기", image: UIImage(systemName: Constants.Icons.checkWithCircle)) { [weak self] _ in
             self?.enterSelectMode()  // Add this line
+        }
+        
+        // Create sort actions with .displayInline option
+        let sortRecentAction = UIAction(
+            title: "최신 항목 순으로",
+            // Add state to indicate this is a checkmark item
+            state: currentSortOrder == .newest ? .on : .off
+        ) { [weak self] _ in
+            self?.sortBooks(by: .newest)
+        }
 
-            // We'll implement this functionality later
-            print("Select tapped")
+        let sortOldAction = UIAction(
+            title: "오래된 항목 순으로",
+            // Add state to indicate this is a checkmark item
+            state: currentSortOrder == .oldest ? .on : .off
+        ) { [weak self] _ in
+            self?.sortBooks(by: .oldest)
         }
-        
-        let sortRecentAction = UIAction(title: "최신 항목 순으로", image: UIImage(systemName: Constants.Icons.check)) { _ in
-            // We'll implement this functionality later
-            print("Sort by Recent tapped")
-        }
-        
-        let sortOldAction = UIAction(title: "오래된 항목 순으로", image: nil) { _ in
-            // We'll implement this functionality later
-            print("Sort by Old tapped")
-        }
+
+        // Create the menu with an array of actions
+        let sortMenu = UIMenu(title: "", options: .displayInline, children: [sortRecentAction, sortOldAction])
+
                         
-        let menu = UIMenu(children: [
-             selectAction,
-             UIMenu(title: "", options: .displayInline, children: [sortRecentAction, sortOldAction])
-         ])
-        
+        let menu = UIMenu(children: [selectAction, sortMenu])
         moreButton.menu = menu
         moreButton.showsMenuAsPrimaryAction = true
         
@@ -277,18 +284,7 @@ class BooksVC: UIViewController {
      
     func fetchAllBooks() {
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
-            self.books = bookEntities.map { bookEntity in
-                return Book(
-                    title: bookEntity.title ?? "",
-                    author: bookEntity.author ?? "",
-                    isbn: bookEntity.isbn ?? "",
-                    publisher: bookEntity.publisher ?? "",
-                    cover: bookEntity.cover,
-                    pubDate: bookEntity.pubDate,
-                    bookDescription: bookEntity.bookDescription,
-                    link: bookEntity.link
-                )
-            }
+            self.books = bookEntities
         } else {
             print("Failed to fetch books from Core Data")
         }
@@ -301,6 +297,28 @@ class BooksVC: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         fetchAllBooks()
         bookCardCollectionVC.reloadData(with: books)
+    }
+    
+    private func sortBooks(by order: SortOrder) {
+        // Update current sort order and save preference
+        currentSortOrder = order
+        UserDefaultsManager.shared.sortOrder = order
+        
+        switch order {
+        case .newest:
+            books.sort { ($0.createdAt ?? .distantPast) > ($1.createdAt ?? .distantPast) }
+        case .oldest:
+            books.sort { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
+        }
+        
+        // If we're currently showing filtered results, sort those too
+        if isSearching {
+            filteredBooks.sort { ($0.createdAt ?? .distantPast) > ($1.createdAt ?? .distantPast) }
+        }
+        
+        // After sorting, recreate the menu to update the check icons
+        configureMoreButton()
+        bookCardCollectionVC.reloadData(with: isSearching ? filteredBooks : books)
     }
 }
 
@@ -362,9 +380,3 @@ extension BooksVC:UISearchResultsUpdating, UISearchBarDelegate {
     
 }
 
-
-/*
-if let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last {
-    print("Documents Directory: \(documentsDirectoryURL)")
-}
-*/

@@ -31,7 +31,6 @@ class CoreDataManager {
         do {
             let existingBooks = try context.fetch(fetchRequest)
             if existingBooks.isEmpty {
-                // Create a new BookEntity and set its properties
                 let newBook = BookEntity(context: context)
                 newBook.title = book.title
                 newBook.author = book.author
@@ -41,7 +40,8 @@ class CoreDataManager {
                 newBook.pubDate = book.pubDate
                 newBook.bookDescription = book.bookDescription
                 newBook.link = book.link
-                
+                newBook.createdAt = Date()  // Set current date when saving
+
                 // Save the context
                 try context.save()
                 print("Book saved successfully.")
@@ -54,13 +54,26 @@ class CoreDataManager {
     }
     
     // MARK: - Fetch Books
-    func fetchBooks() -> [BookEntity]? {
+    func fetchBooks() -> [Book]? {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
 
         do {
-            return try context.fetch(fetchRequest)
-        } catch {
+             let results = try context.fetch(fetchRequest)
+             return results.map { entity in
+                 Book(
+                     title: entity.title ?? "",
+                     author: entity.author ?? "",
+                     isbn: entity.isbn ?? "",
+                     publisher: entity.publisher ?? "",
+                     cover: entity.cover,
+                     pubDate: entity.pubDate,
+                     bookDescription: entity.bookDescription,
+                     link: entity.link,
+                     createdAt: entity.createdAt  // Include createdAt when mapping
+                 )
+             }
+         } catch {
             print("Failed to fetch books: \(error.localizedDescription)")
             return nil
         }

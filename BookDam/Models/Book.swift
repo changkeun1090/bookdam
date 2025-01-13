@@ -19,11 +19,27 @@ struct Book: Decodable {
     let pubDate: String?
     let bookDescription: String?
     let link: String?
-    
+    let createdAt: Date?
+
     private enum CodingKeys: String, CodingKey {
         case bookDescription = "description"
-        case title, author, isbn, publisher, cover, pubDate, link
+        case title, author, isbn, publisher, cover, pubDate, link, createdAt
     }
+    
+    init(title: String, author: String, isbn: String, publisher: String,
+          cover: String? = nil, pubDate: String? = nil,
+          bookDescription: String? = nil, link: String? = nil,
+          createdAt: Date? = nil) {
+         self.title = title
+         self.author = author
+         self.isbn = isbn
+         self.publisher = publisher
+         self.cover = cover
+         self.pubDate = pubDate
+         self.bookDescription = bookDescription
+         self.link = link
+         self.createdAt = createdAt
+     }
 }
 
 struct BookSearchResponse: Decodable {

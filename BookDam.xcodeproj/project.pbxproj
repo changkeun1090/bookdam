@@ -33,6 +33,7 @@
 		BDD2C3972D2B3407009796AF /* GowunBatang-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */; };
 		BDD2C39C2D2B3E58009796AF /* QuotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD2C39B2D2B3E58009796AF /* QuotesView.swift */; };
 		BDD2C39F2D2B50DC009796AF /* Label+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD2C39E2D2B50DC009796AF /* Label+Ext.swift */; };
+		BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */; };
 		BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDB4C542D307CAF005B6701 /* UIViewController + Ext.swift */; };
 		BDF57DF12D2C7555006D9BBD /* BookListTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF57DF02D2C7555006D9BBD /* BookListTableVC.swift */; };
 		BDF57DF32D2C81DD006D9BBD /* BookListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */; };
@@ -71,6 +72,7 @@
 		BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunBatang-Regular.ttf"; sourceTree = "<group>"; };
 		BDD2C39B2D2B3E58009796AF /* QuotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotesView.swift; sourceTree = "<group>"; };
 		BDD2C39E2D2B50DC009796AF /* Label+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Label+Ext.swift"; sourceTree = "<group>"; };
+		BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultManager.swift; sourceTree = "<group>"; };
 		BDDB4C542D307CAF005B6701 /* UIViewController + Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + Ext.swift"; sourceTree = "<group>"; };
 		BDF57DF02D2C7555006D9BBD /* BookListTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListTableVC.swift; sourceTree = "<group>"; };
 		BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListCell.swift; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 			children = (
 				BD1F4F672D2A079F00C8D3E0 /* NetworkManager.swift */,
 				BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */,
+				BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -358,6 +361,7 @@
 				BD8A33C32D274D4500641D7D /* TabBarController.swift in Sources */,
 				BDF57DF52D2CA08B006D9BBD /* String+Ext.swift in Sources */,
 				BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */,
+				BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */,
 				BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */,
 				BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */,
 				BD756DC32D2769E6004FA956 /* BookCardCollectionVC.swift in Sources */,
