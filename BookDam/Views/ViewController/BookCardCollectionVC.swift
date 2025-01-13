@@ -49,7 +49,7 @@ class BookCardCollectionVC: UIViewController {
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -61,28 +61,13 @@ class BookCardCollectionVC: UIViewController {
         isSelectMode = true
         selectedIndexPaths.removeAll()  // Clear any previous selections
         collectionView.allowsMultipleSelection = true  // Enable multiple selection
-        
-        // Update all visible cells to show selection indicators
-        collectionView.visibleCells.forEach { cell in
-            if let bookCell = cell as? BookCardCell {
-                bookCell.showSelectionIndicator()
-            }
-        }
+        collectionView.reloadData()
     }
     
     func exitSelectMode() {
         isSelectMode = false
         collectionView.allowsMultipleSelection = false
-        
-        // Reset selection state for ALL visible cells, not just selected ones
-        collectionView.visibleCells.forEach { cell in
-            if let bookCell = cell as? BookCardCell {
-                bookCell.updateSelectionState(false)
-                bookCell.hideSelectionIndicator()
-            }
-        }
-        
-        // Clear selection tracking
+        collectionView.reloadData()
         selectedIndexPaths.removeAll()
     }
     
@@ -115,13 +100,14 @@ class BookCardCollectionVC: UIViewController {
                 }
             }
             selectedIndexPaths = Set(allIndexPaths)
+//            selectedIndexPaths = Set((0..<books.count).map { IndexPath(item: $0, section: 0) })
+
         }
-        
+        collectionView.reloadData()
+
         // Notify parent about selection change
         updateParentAboutSelection()
     }
-    
-    // new --
 }
 
 // MARK: - UICollectionViewDelegate
@@ -145,17 +131,6 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
             bookDetailVC.deletionDelegate = self.parent as? BooksDeletionDelegate
             
             navigationController?.pushViewController(bookDetailVC, animated: true)        }
-        
-        /* 'old'
-        let selectedBook = books[indexPath.row]
-        let bookDetailVC = BookDetailVC()
-        
-        bookDetailVC.configure(with: selectedBook, isSaved: true)
-        bookDetailVC.hidesBottomBarWhenPushed = true
-        bookDetailVC.deletionDelegate = self.parent as? BooksDeletionDelegate
-        
-        navigationController?.pushViewController(bookDetailVC, animated: true)
-         */
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -190,6 +165,12 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
         
         let book = books[indexPath.row]
         cell.configure(with: book)
+        
+        if isSelectMode {
+            cell.showSelectionIndicator(selected: selectedIndexPaths.contains(indexPath))
+        } else {
+            cell.hideSelectionIndicator()
+        }
         
         // Add context menu interaction to each cell
         let interaction = UIContextMenuInteraction(delegate: self)

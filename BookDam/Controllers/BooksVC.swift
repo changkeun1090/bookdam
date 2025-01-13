@@ -12,7 +12,6 @@ protocol BooksDeletionDelegate: AnyObject {
     func didDeleteBook(withIsbn isbn: String)
 }
 
-// Add these constants for consistent layout
 private enum Layout {
     static let stackViewHeight: CGFloat = 45
     static let stackViewTopPadding: CGFloat = 0  // Remove top margin from stack view
@@ -21,16 +20,11 @@ private enum Layout {
 
 class BooksVC: UIViewController {
     
-    // MARK: - Properties
-    
-    // Child View Controllers
+    private var searchController: UISearchController!
     private let bookCardCollectionVC = BookCardCollectionVC()
     
-    // Managers
     private let bookManager: BookManager = .shared
     
-    // UI Components
-    private var searchController: UISearchController!
     private let tagButton = IconButton(title: "태그", image: nil, action: nil)
     private let moreButton = IconButton(title: nil, image: Constants.Icons.more, action: nil)
     private let searchButton = IconButton(title: nil, image: Constants.Icons.search, action: nil)
@@ -38,7 +32,6 @@ class BooksVC: UIViewController {
     private let deleteButton = IconButton(title: "삭제", image: "", action: nil, color: Constants.Colors.warning)
     private let selectAllButton = IconButton(title: "모두선택", image: "", action: nil)
     
-    // Stack Views
     private lazy var rightStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [searchButton, moreButton])
         stackView.axis = .horizontal
@@ -55,37 +48,25 @@ class BooksVC: UIViewController {
         stackView.alignment = .center
         stackView.distribution = .equalSpacing
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.layoutMargins = UIEdgeInsets(
-            top: Layout.stackViewTopPadding,
-            left: Constants.Layout.layoutMargin,
-            bottom: 0,
-            right: Constants.Layout.layoutMargin
-        )
-        stackView.isLayoutMarginsRelativeArrangement = true
+        
         return stackView
     }()
     
-    
-    // State Management
     private var isSearching = false {
         didSet {
-            updateLayoutForSearchState()
+            horizontalStackView.isHidden = isSearching
         }
     }
     private var isSelectMode = false
     private var selectedBookISBNs = Set<String>()
     private var searchTimer: Timer?
-    
-    // Constraints
-    private var collectionViewTopConstraint: NSLayoutConstraint!
-    private var horizontalStackViewHeightConstraint: NSLayoutConstraint!
-    
+        
     // MARK: - Lifecycle Methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupInitialState()
         configureUI()
+        setupInitialState()
         setupDelegates()
     }
     
@@ -129,25 +110,19 @@ class BooksVC: UIViewController {
     // MARK: - UI Configuration
     
     private func setupStackViewConstraints() {
-        horizontalStackViewHeightConstraint = horizontalStackView.heightAnchor.constraint(equalToConstant: Layout.stackViewHeight)
-        
         NSLayoutConstraint.activate([
-            horizontalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            horizontalStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            horizontalStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            horizontalStackViewHeightConstraint
+            horizontalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Layout.layoutMargin),
+            horizontalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            horizontalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            horizontalStackView.heightAnchor.constraint(equalToConstant: Layout.stackViewHeight)
         ])
     }
     
     private func setupCollectionViewConstraints() {
         bookCardCollectionVC.view.translatesAutoresizingMaskIntoConstraints = false
-        collectionViewTopConstraint = bookCardCollectionVC.view.topAnchor.constraint(
-            equalTo: horizontalStackView.bottomAnchor,
-            constant: Layout.collectionViewTopMargin
-        )
-        
+
         NSLayoutConstraint.activate([
-            collectionViewTopConstraint,
+            bookCardCollectionVC.view.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: Constants.Layout.layoutMargin),
             bookCardCollectionVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bookCardCollectionVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bookCardCollectionVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -229,18 +204,18 @@ class BooksVC: UIViewController {
     
     private func enterSelectMode() {
         isSelectMode = true
-        updateUIForSelectMode(true)
+        updateNavForSelectMode(isSelectMode)
         bookCardCollectionVC.enterSelectMode()
     }
     
     private func exitSelectMode() {
         isSelectMode = false
         selectedBookISBNs.removeAll()
-        updateUIForSelectMode(false)
+        updateNavForSelectMode(false)
         bookCardCollectionVC.exitSelectMode()
     }
     
-    private func updateUIForSelectMode(_ isSelecting: Bool) {
+    private func updateNavForSelectMode(_ isSelecting: Bool) {
         if isSelecting {
             tagButton.removeFromSuperview()
             moreButton.removeFromSuperview()
@@ -286,16 +261,6 @@ class BooksVC: UIViewController {
     
     // MARK: - View State Updates
     
-    private func updateLayoutForSearchState() {
-        horizontalStackView.isHidden = isSearching
-        horizontalStackViewHeightConstraint.constant = isSearching ? 0 : Layout.stackViewHeight
-        collectionViewTopConstraint.constant = Layout.collectionViewTopMargin
-        
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-    
     private func handleViewWillAppear() {
         if !isSearching {
             navigationController?.setNavigationBarHidden(true, animated: false)
@@ -310,6 +275,7 @@ class BooksVC: UIViewController {
 
         isSearching = true
         navigationController?.setNavigationBarHidden(false, animated: false)
+        
         searchController.isActive = true
         searchController.searchBar.becomeFirstResponder()
     }
