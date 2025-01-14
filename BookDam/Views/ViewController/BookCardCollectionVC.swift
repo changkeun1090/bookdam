@@ -12,7 +12,6 @@ class BookCardCollectionVC: UIViewController {
     private var collectionView: UICollectionView!
     private let searchController = UISearchController(searchResultsController: nil)
     
-    // new --
     private var isSelectMode = false
     private var selectedIndexPaths = Set<IndexPath>()  // Track selected items
       

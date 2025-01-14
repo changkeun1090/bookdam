@@ -24,11 +24,9 @@ class BookManager {
     // Delegate to notify about changes
     weak var delegate: BookManagerDelegate?
     
-    // Main storage for books
-    private var books: [Book] = []
-    
-    // Filtered books for search results
-    private var filteredBooks: [Book] = []
+    private(set) var books: [Book] = []
+    private(set) var filteredBooks: [Book] = []
+     
     
     // Current sort order preference
     private var currentSortOrder: SortOrder {

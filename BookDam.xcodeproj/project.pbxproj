@@ -28,6 +28,7 @@
 		BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8A33BF2D274C4500641D7D /* InfoVC.swift */; };
 		BD8A33C32D274D4500641D7D /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8A33C22D274D4500641D7D /* TabBarController.swift */; };
 		BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */; };
+		BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */; };
 		BDD2C3932D2B33F1009796AF /* GowunDodum-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */; };
 		BDD2C3962D2B3407009796AF /* GowunBatang-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3942D2B3407009796AF /* GowunBatang-Bold.ttf */; };
 		BDD2C3972D2B3407009796AF /* GowunBatang-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */; };
@@ -68,6 +69,7 @@
 		BD8A33BF2D274C4500641D7D /* InfoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoVC.swift; sourceTree = "<group>"; };
 		BD8A33C22D274D4500641D7D /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButtonFactory.swift; sourceTree = "<group>"; };
 		BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunDodum-Regular.ttf"; sourceTree = "<group>"; };
 		BDD2C3942D2B3407009796AF /* GowunBatang-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunBatang-Bold.ttf"; sourceTree = "<group>"; };
 		BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunBatang-Regular.ttf"; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				BD1F4F642D29D10800C8D3E0 /* IconButton.swift */,
+				BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */,
 			);
 			path = Button;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				BDD687072D34E2A000F6FF91 /* BookManager.swift in Sources */,
 				BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */,
 				BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */,
+				BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */,
 				BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */,
 				BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */,
 				BD756DC32D2769E6004FA956 /* BookCardCollectionVC.swift in Sources */,
