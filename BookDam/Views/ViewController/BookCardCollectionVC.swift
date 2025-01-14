@@ -14,9 +14,20 @@ class BookCardCollectionVC: UIViewController {
     
     private var isSelectMode = false
     private var selectedIndexPaths = Set<IndexPath>()  // Track selected items
-      
-    var books:[Book] = []
     
+    private let countLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.Fonts.title
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var books: [Book] = [] {
+        didSet {
+            updateCountLabel()
+        }
+    }
+        
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +37,18 @@ class BookCardCollectionVC: UIViewController {
     // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = Constants.Colors.mainBackground
-        
+        setupCountLabel()
         configureCollectionView()
+    }
+    
+    private func setupCountLabel() {
+        view.addSubview(countLabel)
+        
+        NSLayoutConstraint.activate([
+            countLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.Layout.layoutMargin),
+            countLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
+//            countLabel.heightAnchor.constraint(equalToConstant: 24)
+        ])
     }
     
     private func configureCollectionView() {
@@ -48,23 +69,29 @@ class BookCardCollectionVC: UIViewController {
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: countLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
-    // new --
+    private func updateCountLabel() {
+        let formattedCount = String(format: "총 %d권", books.count)
+        countLabel.text = formattedCount
+    }
+    
     func enterSelectMode() {
         isSelectMode = true
-        selectedIndexPaths.removeAll()  // Clear any previous selections
-        collectionView.allowsMultipleSelection = true  // Enable multiple selection
+        countLabel.isHidden = true
+        selectedIndexPaths.removeAll()
+        collectionView.allowsMultipleSelection = true
         collectionView.reloadData()
     }
     
     func exitSelectMode() {
         isSelectMode = false
+        countLabel.isHidden = false
         collectionView.allowsMultipleSelection = false
         collectionView.reloadData()
         selectedIndexPaths.removeAll()
@@ -100,7 +127,6 @@ class BookCardCollectionVC: UIViewController {
             }
             selectedIndexPaths = Set(allIndexPaths)
 //            selectedIndexPaths = Set((0..<books.count).map { IndexPath(item: $0, section: 0) })
-
         }
         collectionView.reloadData()
 
@@ -180,6 +206,7 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
     
     func reloadData(with books: [Book]) {
         self.books = books
+        selectedIndexPaths.removeAll()
         collectionView.reloadData() // Reload the collection view with the new data
     }
 }
