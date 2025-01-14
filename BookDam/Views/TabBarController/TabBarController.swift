@@ -11,6 +11,7 @@ class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        delegate = self
         
         UITabBar.appearance().tintColor = Constants.Colors.accent      
         UITabBar.appearance().barTintColor = Constants.Colors.mainBackground
@@ -39,5 +40,23 @@ class TabBarController: UITabBarController {
         let infoIcon = UIImage(systemName: "ellipsis.circle")
         infoVC.tabBarItem = UITabBarItem(title: nil, image: infoIcon , tag: 2)
         return UINavigationController(rootViewController: infoVC)
+    }
+}
+
+// MARK: - UITabBarControllerDelegate
+extension TabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        // Check if we're tapping the same tab we're currently on
+        if viewController == tabBarController.selectedViewController {
+            // Get the navigation controller
+            if let navController = viewController as? UINavigationController {
+                // Get the root view controller (BooksVC)
+                if let booksVC = navController.viewControllers.first as? BooksVC {
+                    // Tell BooksVC to scroll to top
+                    booksVC.scrollToTop()
+                }
+            }
+        }
+        return true
     }
 }

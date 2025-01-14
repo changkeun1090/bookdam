@@ -126,12 +126,22 @@ class BookCardCollectionVC: UIViewController {
                 }
             }
             selectedIndexPaths = Set(allIndexPaths)
-//            selectedIndexPaths = Set((0..<books.count).map { IndexPath(item: $0, section: 0) })
         }
         collectionView.reloadData()
 
         // Notify parent about selection change
         updateParentAboutSelection()
+    }
+    
+    func scrollToTop() {
+        // Check if there are any items
+        guard books.count > 0 else { return }
+        
+        // Create an index path for the first item
+        let topIndexPath = IndexPath(item: 0, section: 0)
+        
+        // Scroll to top with animation
+        collectionView.scrollToItem(at: topIndexPath, at: .top, animated: true)
     }
 }
 

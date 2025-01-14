@@ -233,6 +233,11 @@ class BooksVC: UIViewController {
     }
     
     // MARK: - Button Actions
+    
+    func scrollToTop() {     
+        bookCardCollectionVC.scrollToTop()
+    }
+    
     @objc private func tagButtonTapped() {
         // Implement tag functionality
     }
