@@ -11,6 +11,7 @@ import UIKit
 class TagCollectionViewCell: UICollectionViewCell {
     static let identifier = "TagCollectionViewCell"
     
+    // MARK: - UI Components
     private let tagLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.Fonts.smallBodyBold
@@ -20,12 +21,15 @@ class TagCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    // MARK: - Selection State
     override var isSelected: Bool {
         didSet {
-            updateSelectionState()
+            // Only handle visual updates here, don't call other methods
+            updateVisualState()
         }
     }
     
+    // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -35,6 +39,7 @@ class TagCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - UI Setup
     private func setupUI() {
         contentView.backgroundColor = Constants.Colors.tagBackground
         contentView.layer.cornerRadius = 15
@@ -50,15 +55,21 @@ class TagCollectionViewCell: UICollectionViewCell {
         ])
     }
     
+    // MARK: - Configuration
     func configure(with tag: Tag) {
         tagLabel.text = "#\(tag.name)"
-        updateSelectionState()
     }
     
-    private func updateSelectionState() {
+    // MARK: - Visual State Management
+    private func updateVisualState() {
         UIView.animate(withDuration: 0.2) {
-            self.contentView.backgroundColor = self.isSelected ? Constants.Colors.tagSelectedBackground : Constants.Colors.tagBackground
-            self.tagLabel.textColor = self.isSelected ? Constants.Colors.tagSelettedText : Constants.Colors.tagText
+            self.contentView.backgroundColor = self.isSelected ?
+                Constants.Colors.tagSelectedBackground :
+                Constants.Colors.tagBackground
+            
+            self.tagLabel.textColor = self.isSelected ?
+                Constants.Colors.tagSelettedText :
+                Constants.Colors.tagText
         }
     }
 }

@@ -68,11 +68,6 @@ class TagView: UIView {
     func updateSelectionState(_ selected: Bool) {
         isSelected = selected
         
-        print("Selected: \(selected)")
-        print("Text Color: \(self.tagLabel.textColor!)")
-        print("Background Color: \(self.backgroundColor!)")
-        
-        
         UIView.animate(withDuration: 0.2) {
             self.backgroundColor = selected ? Constants.Colors.tagSelectedBackground : Constants.Colors.tagBackground
             self.tagLabel.textColor = selected ? Constants.Colors.tagSelettedText : Constants.Colors.tagText

@@ -350,6 +350,35 @@ extension CoreDataManager {
     }
 }
 
+// MARK: - BookEntity Extension
+extension BookEntity {
+    func toBook() -> Book {
+        return Book(
+            title: self.title ?? "",
+            author: self.author ?? "",
+            isbn: self.isbn ?? "",
+            publisher: self.publisher ?? "",
+            cover: self.cover,
+            pubDate: self.pubDate,
+            bookDescription: self.bookDescription,
+            link: self.link,
+            createdAt: self.createdAt,
+            tags: self.tags?.allObjects.compactMap { tagEntity in
+                guard let tagEntity = tagEntity as? TagEntity,
+                      let id = tagEntity.id,
+                      let name = tagEntity.name else {
+                    return nil
+                }
+                return Tag(
+                    id: id,
+                    name: name,
+                    createdAt: tagEntity.createdAt ?? Date()
+                )
+            }
+        )
+    }
+}
+
 //func fetchBooks() -> [Book]? {
 //    let context = persistentContainer.viewContext
 //    let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()

@@ -16,6 +16,9 @@ class BookDetailVC: UIViewController {
     private var selectedTagIds: Set<UUID> = []
 
     weak var deletionDelegate: BooksDeletionDelegate?
+    private let tagCellIdentifier = "TagCell"
+    
+    // MARK: - UI
 
     let imageShadowView: UIView = {
         let aView = UIView()
@@ -125,7 +128,27 @@ class BookDetailVC: UIViewController {
         return stackView
     }()
     
+    // MARK: - Tag UI
+    private let tagContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true // Initially hidden
+        return view
+    }()
     
+    private let tagCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 8
+        layout.itemSize = CGSize(width: 80, height: 28)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -135,6 +158,7 @@ class BookDetailVC: UIViewController {
         setupNavigationBar()
         setupUI()
         addTapGestureToLinkLabel()
+        
     }
     
     private func setupNavigationBar() {
@@ -146,13 +170,17 @@ class BookDetailVC: UIViewController {
         backButton.title = "돌아가기"
         navigationController?.navigationBar.topItem?.backBarButtonItem = backButton
         navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        let deleteButton = UIBarButtonItem(title: "삭제", style: .done, target: self, action: #selector(removeButtonTapped))
-        deleteButton.tintColor = Constants.Colors.warning
-        let saveButton = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveButtonTapped))
-        saveButton.tintColor = nil
-        
-        navigationItem.rightBarButtonItem  = isSaved ? deleteButton:saveButton
+
+        if isSaved {
+            let editButton = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
+            let deleteButton = UIBarButtonItem(title: "삭제", style: .done, target: self, action: #selector(removeButtonTapped))
+            deleteButton.tintColor = Constants.Colors.warning
+            
+            navigationItem.rightBarButtonItems = [deleteButton, editButton]
+        } else {
+            let saveButton = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveButtonTapped))
+            navigationItem.rightBarButtonItem = saveButton
+        }
         
     }
     
@@ -166,7 +194,13 @@ class BookDetailVC: UIViewController {
         view.addSubview(headerLabel)
         view.addSubview(bookDescriptionLabel)
         view.addSubview(linkLabel)
+        view.addSubview(tagContainerView)
+        tagContainerView.addSubview(tagCollectionView)
         
+        
+        tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: tagCellIdentifier)
+        tagCollectionView.delegate = self
+        tagCollectionView.dataSource = self
         let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
         
         
@@ -206,13 +240,25 @@ class BookDetailVC: UIViewController {
             bookDescriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
             bookDescriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
-        
+
         NSLayoutConstraint.activate([
+            // Update linkLabel constraint to attach to tagContainerView
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
             linkLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
+                                
+        NSLayoutConstraint.activate([
+            tagContainerView.topAnchor.constraint(equalTo: linkLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
+            tagContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            tagContainerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            
+            tagCollectionView.topAnchor.constraint(equalTo: tagContainerView.topAnchor),
+            tagCollectionView.leadingAnchor.constraint(equalTo: tagContainerView.leadingAnchor),
+            tagCollectionView.trailingAnchor.constraint(equalTo: tagContainerView.trailingAnchor),
+            tagCollectionView.heightAnchor.constraint(equalToConstant: 36),
+            tagCollectionView.bottomAnchor.constraint(equalTo: tagContainerView.bottomAnchor),
+        ])
         
-
     }
     
     @objc private func saveButtonTapped() {
@@ -225,32 +271,10 @@ class BookDetailVC: UIViewController {
             self.showInfoAlert(title: "이미 저장된 책입니다", message: "", buttonTitle: "확인")
             return
         }
-
-//        CoreDataManager.shared.saveBook(book: book)
-//        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
-//                
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            self.navigationController?.popViewController(animated: true)
-//        }
         
         showTagManagementSheet()
                 
     }
-    
-    @objc private func removeButtonTapped() {
-        
-        guard let book = book else {
-            print("No book data to save")
-            return
-        }
-        
-        self.showConfirmationAlert(title: "정말 삭제하시겠습니까?", message: "", confirmActionTitle: "삭제", cancelActionTitle: "취소") {
-            CoreDataManager.shared.deleteBookwithIsbn(by: book.isbn)
-            self.deletionDelegate?.didDeleteBook(withIsbn: book.isbn)
-            self.navigationController?.popToRootViewController(animated: true)
-        }
-    }
-
     
     func configure(with book: Book, isSaved: Bool = false) {
         self.book = book
@@ -259,9 +283,15 @@ class BookDetailVC: UIViewController {
         configureOptionalFields(book)
         bookLink = book.link
         self.isSaved = isSaved
+        
+        let hasTags = (book.tags?.count ?? 0) > 0
+        tagContainerView.isHidden = !isSaved || !hasTags
+        
         if let coverURL = book.cover {
             loadCoverImage(from: coverURL)
         }
+        
+        tagCollectionView.reloadData()
     }
     
     private func configureTitles(from title: String) {
@@ -308,6 +338,12 @@ class BookDetailVC: UIViewController {
         linkLabel.addGestureRecognizer(tapGesture)
     }
     
+    private func showTagManagementSheet() {
+        let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
+        tagSheet.delegate = self
+        present(tagSheet, animated: true)
+    }
+    
     @objc private func linkLabelTapped() {
         guard let link = bookLink else {return}
         if let url = URL(string: link) {
@@ -315,11 +351,24 @@ class BookDetailVC: UIViewController {
         }
     }
     
-    private func showTagManagementSheet() {
-        let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
-        tagSheet.delegate = self
-        present(tagSheet, animated: true)
+    @objc private func removeButtonTapped() {
+        
+        guard let book = book else {
+            print("No book data to save")
+            return
+        }
+        
+        self.showConfirmationAlert(title: "정말 삭제하시겠습니까?", message: "", confirmActionTitle: "삭제", cancelActionTitle: "취소") {
+            CoreDataManager.shared.deleteBookwithIsbn(by: book.isbn)
+            self.deletionDelegate?.didDeleteBook(withIsbn: book.isbn)
+            self.navigationController?.popToRootViewController(animated: true)
+        }
     }
+    
+    @objc private func editButtonTapped() {
+        showTagManagementSheet()
+    }
+
 
 }
 
@@ -330,30 +379,57 @@ extension BookDetailVC: TagManagementSheetDelegate {
     }
     
     func tagManagementSheetDidSave(_ sheet: TagManagementSheet) {
-        // Save the book with selected tags
         guard let book = book else {
             print("No book data to save")
             return
         }
         
-        // First save the book
-        CoreDataManager.shared.saveBook(book: book)
+        // Update CoreData
+        CoreDataManager.shared.saveBookWithTags(book: book, tagIds: selectedTagIds)
         
-        // Then assign all selected tags
-        for tagId in selectedTagIds {
-            CoreDataManager.shared.assignTag(tagId: tagId, toBook: book.isbn)
-        }
+        // Refresh book data to show updated tags
+//        if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: book.isbn)?.toBook() {
+//            configure(with: updatedBook, isSaved: true)
+//        }
         
-        // Show success message and dismiss
-        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
-        
+        sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+                
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.navigationController?.popViewController(animated: true)
         }
+
+        
+//        sheet.dismiss(animated: true)
     }
     
     func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
         // If user cancels, we don't need to do anything special
         // The sheet will dismiss itself
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+extension BookDetailVC: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return book?.tags?.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: tagCellIdentifier, for: indexPath) as? TagCollectionViewCell,
+              let tag = book?.tags?[indexPath.item] else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: tag)
+        cell.isUserInteractionEnabled = false // Make tags non-interactive in detail view
+        cell.isSelected = true
+        return cell
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension BookDetailVC: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
     }
 }

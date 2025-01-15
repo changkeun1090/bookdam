@@ -16,6 +16,7 @@ protocol TagManagementSheetDelegate: AnyObject {
 
 class TagManagementSheet: UIViewController {
 
+    private var initialSelectedTagIds: Set<UUID>
     
     // MARK: - Properties
     weak var delegate: TagManagementSheetDelegate?
@@ -94,6 +95,8 @@ class TagManagementSheet: UIViewController {
     // MARK: - Initialization
     init(selectedTagIds: Set<UUID> = []) {
         self.selectedTagIds = selectedTagIds
+        // Store the initial selection for cancel functionality
+        self.initialSelectedTagIds = selectedTagIds
         super.init(nibName: nil, bundle: nil)
         
         modalPresentationStyle = .custom
@@ -153,12 +156,32 @@ class TagManagementSheet: UIViewController {
     // MARK: - Data Loading
     private func loadTags() {
         tags = TagManager.shared.tags
+        
+        // First, clear any existing selections
+        collectionView.indexPathsForSelectedItems?.forEach { indexPath in
+            collectionView.deselectItem(at: indexPath, animated: false)
+        }
+        
+        // Then reload the data
         collectionView.reloadData()
         
-        // Restore selected state
-        selectedTagIds.forEach { tagId in
-            if let index = tags.firstIndex(where: { $0.id == tagId }) {
-                collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
+        // After reloading, we need to update all visible cells
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Update selection state for all tags
+            for (index, tag) in self.tags.enumerated() {
+                let indexPath = IndexPath(item: index, section: 0)
+                
+                if self.selectedTagIds.contains(tag.id) {
+                    // Select in collection view
+                    self.collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+                    
+                    // Update cell visual state
+                    if let cell = self.collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
+                        cell.isSelected = true
+                    }
+                }
             }
         }
     }
@@ -188,6 +211,13 @@ class TagManagementSheet: UIViewController {
     }
     
     @objc private func cancelButtonTapped() {
+        // Restore the original selection
+        selectedTagIds = initialSelectedTagIds
+        
+        // Reload the selection state
+        loadTags()
+        
+        // Notify delegate and dismiss
         delegate?.tagManagementSheetDidCancel(self)
         dismiss(animated: true)
     }
@@ -201,7 +231,7 @@ class TagManagementSheet: UIViewController {
 // MARK: - UICollectionViewDataSource
 extension TagManagementSheet: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return tags.count
+        tags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -212,26 +242,40 @@ extension TagManagementSheet: UICollectionViewDataSource {
         let tag = tags[indexPath.item]
         cell.configure(with: tag)
         
-        // Restore selection state
-        if selectedTagIds.contains(tag.id) {
-            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-        }
+        // Check if this tag was already selected (associated with the book)
+        let isSelected = selectedTagIds.contains(tag.id)
+        
+        // Update cell's visual state
+        cell.isSelected = isSelected
         
         return cell
     }
 }
+
 
 // MARK: - UICollectionViewDelegate
 extension TagManagementSheet: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let tagId = tags[indexPath.item].id
         selectedTagIds.insert(tagId)
+        
+        // Update cell visual state
+        if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
+            cell.isSelected = true
+        }
+        
         delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let tagId = tags[indexPath.item].id
         selectedTagIds.remove(tagId)
+        
+        // Update cell visual state
+        if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
+            cell.isSelected = false
+        }
+        
         delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
     }
 }
