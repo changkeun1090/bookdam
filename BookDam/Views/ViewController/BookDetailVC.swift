@@ -9,16 +9,16 @@ import UIKit
 
 class BookDetailVC: UIViewController {
     
-    var book: Book? 
-    var bookLink: String?
-    var isSaved = false
+    private var book: Book?
+    private var bookLink: String?
+    private var isSaved = false
     
     private var selectedTagIds: Set<UUID> = []
-
-    weak var deletionDelegate: BooksDeletionDelegate?
     private let tagCellIdentifier = "TagCell"
     
-    // MARK: - UI
+    weak var deletionDelegate: BooksDeletionDelegate?
+    
+    // MARK: UI - Book Info
 
     let imageShadowView: UIView = {
         let aView = UIView()
@@ -83,7 +83,7 @@ class BookDetailVC: UIViewController {
         return label
     }()
     
-    private let headerLabel: UILabel = {
+    private let descriptionHeaderLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.Fonts.bodyBold
         label.text = "책소개"
@@ -128,27 +128,26 @@ class BookDetailVC: UIViewController {
         return stackView
     }()
     
-    // MARK: - Tag UI
+    // MARK: UI - Tag
     private let tagContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.isHidden = true // Initially hidden
         return view
     }()
     
-    private let tagCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumInteritemSpacing = 8
-        layout.minimumLineSpacing = 8
-        layout.itemSize = CGSize(width: 80, height: 28)
+    private lazy var tagCollectionView: UICollectionView = {
+        let layout = LeftAlignedFlowLayout()
+        layout.minimumInteritemSpacing = Constants.Layout.smMargin
+        layout.minimumLineSpacing = Constants.Layout.smMargin
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
-        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -191,7 +190,7 @@ class BookDetailVC: UIViewController {
         view.addSubview(mainTitleLabel)
         view.addSubview(subTitleLabel)
         view.addSubview(subInfoStackView)
-        view.addSubview(headerLabel)
+        view.addSubview(descriptionHeaderLabel)
         view.addSubview(bookDescriptionLabel)
         view.addSubview(linkLabel)
         view.addSubview(tagContainerView)
@@ -230,13 +229,13 @@ class BookDetailVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            headerLabel.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
-            headerLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            headerLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            descriptionHeaderLabel.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
+            descriptionHeaderLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            descriptionHeaderLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
         
         NSLayoutConstraint.activate([
-            bookDescriptionLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: Constants.Layout.smMargin),
+            bookDescriptionLabel.topAnchor.constraint(equalTo: descriptionHeaderLabel.bottomAnchor, constant: Constants.Layout.smMargin),
             bookDescriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
             bookDescriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
@@ -283,9 +282,6 @@ class BookDetailVC: UIViewController {
         configureOptionalFields(book)
         bookLink = book.link
         self.isSaved = isSaved
-        
-        let hasTags = (book.tags?.count ?? 0) > 0
-        tagContainerView.isHidden = !isSaved || !hasTags
         
         if let coverURL = book.cover {
             loadCoverImage(from: coverURL)
@@ -421,9 +417,103 @@ extension BookDetailVC: UICollectionViewDataSource {
         }
         
         cell.configure(with: tag)
-        cell.isUserInteractionEnabled = false // Make tags non-interactive in detail view
-        cell.isSelected = true
+        if isSaved {
+            cell.isUserInteractionEnabled = true
+            
+            let interaction = UIContextMenuInteraction(delegate: self)
+            cell.interactions.forEach { if $0 is UIContextMenuInteraction { cell.removeInteraction($0) } }
+            cell.addInteraction(interaction)
+            
+            cell.tagId = tag.id
+        } else {
+            cell.isUserInteractionEnabled = false
+        }
         return cell
+    }
+}
+
+// MARK: - UIContextMenuInteractionDelegate
+extension BookDetailVC: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        // Get the point in collection view's coordinate space
+        let locationInCollectionView = interaction.location(in: tagCollectionView)
+        
+        // Get the index path for the cell at this location
+        guard let indexPath = tagCollectionView.indexPathForItem(at: locationInCollectionView),
+              let cell = tagCollectionView.cellForItem(at: indexPath) as? TagCollectionViewCell,
+              let tagId = cell.tagId,
+              let tag = book?.tags?.first(where: { $0.id == tagId }) else {
+            return nil
+        }
+        
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil
+        ) { _ in
+            // Create menu actions
+            let editAction = UIAction(
+                title: "태그 수정",
+                image: UIImage(systemName: "pencil")
+            ) { [weak self] _ in
+                self?.handleTagEdit(tag)
+            }
+            
+            let deleteAction = UIAction(
+                title: "태그 삭제",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { [weak self] _ in
+                self?.handleTagDelete(tag)
+            }
+            
+            return UIMenu(children: [editAction, deleteAction])
+        }
+    }
+    
+    private func handleTagEdit(_ tag: Tag) {
+        let alert = UIAlertController(title: "태그 수정", message: nil, preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.text = tag.name
+            textField.placeholder = "태그 이름을 입력하세요"
+        }
+        
+        let saveAction = UIAlertAction(title: "저장", style: .default) { [weak self] _ in
+            guard let newName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !newName.isEmpty else { return }
+            
+            // Update tag
+            TagManager.shared.updateTag(id: tag.id, newName: newName)
+            
+            // Refresh book data to show updated tag
+            if let book = self?.book {
+                self?.configure(with: book, isSaved: true)
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func handleTagDelete(_ tag: Tag) {
+        showConfirmationAlert(
+            title: "태그 삭제",
+            message: "이 태그를 삭제하시겠습니까?",
+            confirmActionTitle: "삭제",
+            cancelActionTitle: "취소"
+        ) { [weak self] in
+            // Delete tag
+            TagManager.shared.deleteTag(with: tag.id)
+            
+            // Refresh book data to show updated tags
+            if let book = self?.book {
+                self?.configure(with: book, isSaved: true)
+            }
+        }
     }
 }
 
@@ -433,3 +523,6 @@ extension BookDetailVC: UICollectionViewDelegate {
         collectionView.deselectItem(at: indexPath, animated: true)
     }
 }
+
+//MARK: TEMPORARY!!
+

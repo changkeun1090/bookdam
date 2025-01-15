@@ -26,8 +26,7 @@ class TagManager {
         loadTags()
     }
     
-    // MARK: - Public Methods
-    
+    // MARK: - Public Methods    
     func loadTags() {
         if let tagEntities = CoreDataManager.shared.fetchTags() {
             self.tags = tagEntities

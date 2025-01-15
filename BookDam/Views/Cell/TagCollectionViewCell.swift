@@ -9,8 +9,11 @@ import Foundation
 import UIKit
 
 class TagCollectionViewCell: UICollectionViewCell {
-    static let identifier = "TagCollectionViewCell"
     
+    static let identifier = "TagCollectionViewCell"
+
+    var tagId: UUID?
+
     // MARK: - UI Components
     private let tagLabel: UILabel = {
         let label = UILabel()
@@ -58,6 +61,7 @@ class TagCollectionViewCell: UICollectionViewCell {
     // MARK: - Configuration
     func configure(with tag: Tag) {
         tagLabel.text = "#\(tag.name)"
+        self.tagId = tag.id
     }
     
     // MARK: - Visual State Management

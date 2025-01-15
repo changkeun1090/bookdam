@@ -12,12 +12,15 @@ struct Constants {
     struct Colors {
         static let mainBackground = UIColor.secondarySystemBackground
         static let subBackground = UIColor.tertiarySystemBackground
+        
         static let tagBackground = UIColor.secondarySystemFill
         static let tagText = UIColor.secondaryLabel
         static let tagSelectedBackground = UIColor.systemBlue
         static let tagSelettedText = UIColor.lightText
+        
         static let accent = UIColor.systemBlue
         static let warning = UIColor.systemRed
+        
         static let mainText = UIColor.darkText
         static let subText = UIColor.systemGray
         
