@@ -14,7 +14,6 @@ class BookDetailVC: UIViewController {
     private var isSaved = false
     
     private var selectedTagIds: Set<UUID> = []
-    private let tagCellIdentifier = "TagCell"
     
     weak var deletionDelegate: BooksDeletionDelegate?
     
@@ -155,6 +154,7 @@ class BookDetailVC: UIViewController {
         view.backgroundColor = Constants.Colors.mainBackground
         
         setupNavigationBar()
+        setupCollectionView()
         setupUI()
         addTapGestureToLinkLabel()
         
@@ -168,7 +168,6 @@ class BookDetailVC: UIViewController {
         navigationController?.navigationBar.tintColor = Constants.Colors.accent
         backButton.title = "돌아가기"
         navigationController?.navigationBar.topItem?.backBarButtonItem = backButton
-        navigationController?.setNavigationBarHidden(false, animated: true)
 
         if isSaved {
             let editButton = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
@@ -181,6 +180,11 @@ class BookDetailVC: UIViewController {
             navigationItem.rightBarButtonItem = saveButton
         }
         
+    }
+    
+    private func setupCollectionView() {
+        tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: TagCollectionViewCell.identifier)
+        tagCollectionView.dataSource = self
     }
     
     private func setupUI() {
@@ -196,13 +200,8 @@ class BookDetailVC: UIViewController {
         view.addSubview(tagContainerView)
         tagContainerView.addSubview(tagCollectionView)
         
-        
-        tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: tagCellIdentifier)
-        tagCollectionView.delegate = self
-        tagCollectionView.dataSource = self
         let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
-        
-        
+                
         NSLayoutConstraint.activate([
             coverImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Layout.layoutMargin),
             coverImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -241,11 +240,10 @@ class BookDetailVC: UIViewController {
         ])
 
         NSLayoutConstraint.activate([
-            // Update linkLabel constraint to attach to tagContainerView
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
             linkLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
-                                
+                                    
         NSLayoutConstraint.activate([
             tagContainerView.topAnchor.constraint(equalTo: linkLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
             tagContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
@@ -272,17 +270,18 @@ class BookDetailVC: UIViewController {
         }
         
         showTagManagementSheet()
-                
     }
     
     func configure(with book: Book, isSaved: Bool = false) {
         self.book = book
+        self.isSaved = isSaved
+        self.selectedTagIds = Set(book.tags?.map { $0.id } ?? [])
+
         configureTitles(from: book.title)
         configureMetadata(author: book.author, publisher: book.publisher)
         configureOptionalFields(book)
         bookLink = book.link
-        self.isSaved = isSaved
-        
+                
         if let coverURL = book.cover {
             loadCoverImage(from: coverURL)
         }
@@ -369,33 +368,34 @@ class BookDetailVC: UIViewController {
 }
 
 extension BookDetailVC: TagManagementSheetDelegate {
+    
     func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>) {
-        // Update our local selected tags
-        selectedTagIds = tags
+        selectedTagIds = tags        
     }
     
     func tagManagementSheetDidSave(_ sheet: TagManagementSheet) {
-        guard let book = book else {
+        guard let currentBook = book else {
             print("No book data to save")
             return
         }
         
-        // Update CoreData
-        CoreDataManager.shared.saveBookWithTags(book: book, tagIds: selectedTagIds)
+        CoreDataManager.shared.updateBookWithTags(book: currentBook, tagIds: selectedTagIds)
         
-        // Refresh book data to show updated tags
-//        if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: book.isbn)?.toBook() {
-//            configure(with: updatedBook, isSaved: true)
-//        }
-        
-        sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+        if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: currentBook.isbn)?.toBook() {
+            // Update our local book property with the fresh data
+            self.book = updatedBook
+            
+            DispatchQueue.main.async {
+                sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
                 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.navigationController?.popViewController(animated: true)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    sheet.dismiss(animated: true) {
+                        // Now reload with the updated data
+                        self.tagCollectionView.reloadData()
+                    }
+                }
+            }
         }
-
-        
-//        sheet.dismiss(animated: true)
     }
     
     func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
@@ -411,118 +411,20 @@ extension BookDetailVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: tagCellIdentifier, for: indexPath) as? TagCollectionViewCell,
-              let tag = book?.tags?[indexPath.item] else {
+        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TagCollectionViewCell.identifier, for: indexPath) as? TagCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+                                
+        guard let tag = book?.tags?[indexPath.item] else {
             return UICollectionViewCell()
         }
         
         cell.configure(with: tag)
-        if isSaved {
-            cell.isUserInteractionEnabled = true
-            
-            let interaction = UIContextMenuInteraction(delegate: self)
-            cell.interactions.forEach { if $0 is UIContextMenuInteraction { cell.removeInteraction($0) } }
-            cell.addInteraction(interaction)
-            
-            cell.tagId = tag.id
-        } else {
-            cell.isUserInteractionEnabled = false
-        }
+        cell.isSelected = true // MARK: ???: 왜 true가 입력되었다 다시 false가 입력되는지 알 수 없음!
+        
         return cell
     }
 }
 
-// MARK: - UIContextMenuInteractionDelegate
-extension BookDetailVC: UIContextMenuInteractionDelegate {
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        // Get the point in collection view's coordinate space
-        let locationInCollectionView = interaction.location(in: tagCollectionView)
-        
-        // Get the index path for the cell at this location
-        guard let indexPath = tagCollectionView.indexPathForItem(at: locationInCollectionView),
-              let cell = tagCollectionView.cellForItem(at: indexPath) as? TagCollectionViewCell,
-              let tagId = cell.tagId,
-              let tag = book?.tags?.first(where: { $0.id == tagId }) else {
-            return nil
-        }
-        
-        return UIContextMenuConfiguration(
-            identifier: nil,
-            previewProvider: nil
-        ) { _ in
-            // Create menu actions
-            let editAction = UIAction(
-                title: "태그 수정",
-                image: UIImage(systemName: "pencil")
-            ) { [weak self] _ in
-                self?.handleTagEdit(tag)
-            }
-            
-            let deleteAction = UIAction(
-                title: "태그 삭제",
-                image: UIImage(systemName: "trash"),
-                attributes: .destructive
-            ) { [weak self] _ in
-                self?.handleTagDelete(tag)
-            }
-            
-            return UIMenu(children: [editAction, deleteAction])
-        }
-    }
-    
-    private func handleTagEdit(_ tag: Tag) {
-        let alert = UIAlertController(title: "태그 수정", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.text = tag.name
-            textField.placeholder = "태그 이름을 입력하세요"
-        }
-        
-        let saveAction = UIAlertAction(title: "저장", style: .default) { [weak self] _ in
-            guard let newName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  !newName.isEmpty else { return }
-            
-            // Update tag
-            TagManager.shared.updateTag(id: tag.id, newName: newName)
-            
-            // Refresh book data to show updated tag
-            if let book = self?.book {
-                self?.configure(with: book, isSaved: true)
-            }
-        }
-        
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
-        
-        alert.addAction(saveAction)
-        alert.addAction(cancelAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func handleTagDelete(_ tag: Tag) {
-        showConfirmationAlert(
-            title: "태그 삭제",
-            message: "이 태그를 삭제하시겠습니까?",
-            confirmActionTitle: "삭제",
-            cancelActionTitle: "취소"
-        ) { [weak self] in
-            // Delete tag
-            TagManager.shared.deleteTag(with: tag.id)
-            
-            // Refresh book data to show updated tags
-            if let book = self?.book {
-                self?.configure(with: book, isSaved: true)
-            }
-        }
-    }
-}
-
-// MARK: - UICollectionViewDelegate
-extension BookDetailVC: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.deselectItem(at: indexPath, animated: true)
-    }
-}
-
-//MARK: TEMPORARY!!
 

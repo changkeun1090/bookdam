@@ -24,6 +24,7 @@ struct Constants {
         static let mainText = UIColor.darkText
         static let subText = UIColor.systemGray
         
+        static let border = UIColor.systemGray
     }
     
     struct Layout {

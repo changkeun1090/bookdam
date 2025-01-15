@@ -18,15 +18,13 @@ class TagManagementSheet: UIViewController {
 
     private var initialSelectedTagIds: Set<UUID>
     
-    // MARK: - Properties
     weak var delegate: TagManagementSheetDelegate?
     private var selectedTagIds: Set<UUID>
-//    private var tagViews: [TagView] = []
     private var tags: [Tag] = []
 
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = Constants.Colors.mainBackground
+        view.backgroundColor = Constants.Colors.mainBackground        
         view.layer.cornerRadius = 12
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.clipsToBounds = true
@@ -36,16 +34,16 @@ class TagManagementSheet: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "태그 지정하기"
+        label.text = "태그 지정하기(선택)"
         label.font = Constants.Fonts.bodyBold
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 8
-        layout.minimumLineSpacing = 12
+        let layout = LeftAlignedFlowLayout()
+        layout.minimumInteritemSpacing = Constants.Layout.smMargin
+        layout.minimumLineSpacing = Constants.Layout.smMargin
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -60,7 +58,7 @@ class TagManagementSheet: UIViewController {
     
     private lazy var addButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.setImage(UIImage(systemName: "plus.app"), for: .normal)
         button.tintColor = Constants.Colors.accent
         button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -94,9 +92,10 @@ class TagManagementSheet: UIViewController {
     
     // MARK: - Initialization
     init(selectedTagIds: Set<UUID> = []) {
+        
         self.selectedTagIds = selectedTagIds
-        // Store the initial selection for cancel functionality
         self.initialSelectedTagIds = selectedTagIds
+        
         super.init(nibName: nil, bundle: nil)
         
         modalPresentationStyle = .custom
@@ -172,12 +171,10 @@ class TagManagementSheet: UIViewController {
             // Update selection state for all tags
             for (index, tag) in self.tags.enumerated() {
                 let indexPath = IndexPath(item: index, section: 0)
-                
                 if self.selectedTagIds.contains(tag.id) {
-                    // Select in collection view
+                    
                     self.collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
                     
-                    // Update cell visual state
                     if let cell = self.collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
                         cell.isSelected = true
                     }
@@ -191,7 +188,7 @@ class TagManagementSheet: UIViewController {
         let alert = UIAlertController(title: "태그 추가", message: nil, preferredStyle: .alert)
         
         alert.addTextField { textField in
-            textField.placeholder = "태그 이름을 입력하세요"
+            textField.placeholder = "추가할 태그를 입력하세요"
         }
         
         let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
@@ -223,8 +220,9 @@ class TagManagementSheet: UIViewController {
     }
     
     @objc private func saveButtonTapped() {
+        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
         delegate?.tagManagementSheetDidSave(self)
-        dismiss(animated: true)
+//        dismiss(animated: true)
     }
 }
 
@@ -259,24 +257,18 @@ extension TagManagementSheet: UICollectionViewDelegate {
         let tagId = tags[indexPath.item].id
         selectedTagIds.insert(tagId)
         
-        // Update cell visual state
         if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
             cell.isSelected = true
         }
-        
-        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let tagId = tags[indexPath.item].id
         selectedTagIds.remove(tagId)
         
-        // Update cell visual state
         if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
             cell.isSelected = false
         }
-        
-        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
     }
 }
 

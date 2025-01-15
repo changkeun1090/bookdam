@@ -8,8 +8,7 @@
 import Foundation
 import UIKit
 
-class TagCollectionViewCell: UICollectionViewCell {
-    
+class TagCollectionViewCell: UICollectionViewCell { 
     static let identifier = "TagCollectionViewCell"
 
     var tagId: UUID?
@@ -27,7 +26,6 @@ class TagCollectionViewCell: UICollectionViewCell {
     // MARK: - Selection State
     override var isSelected: Bool {
         didSet {
-            // Only handle visual updates here, don't call other methods
             updateVisualState()
         }
     }
@@ -66,14 +64,19 @@ class TagCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Visual State Management
     private func updateVisualState() {
-        UIView.animate(withDuration: 0.2) {
-            self.contentView.backgroundColor = self.isSelected ?
-                Constants.Colors.tagSelectedBackground :
-                Constants.Colors.tagBackground
-            
-            self.tagLabel.textColor = self.isSelected ?
-                Constants.Colors.tagSelettedText :
-                Constants.Colors.tagText
+        
+        print(isSelected, self.tagLabel.text ?? "")
+        
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.2) {
+                self.contentView.backgroundColor = self.isSelected ?
+                    Constants.Colors.tagSelectedBackground :
+                    Constants.Colors.tagBackground
+                
+                self.tagLabel.textColor = self.isSelected ?
+                    Constants.Colors.tagSelettedText :
+                    Constants.Colors.tagText
+            }
         }
     }
 }

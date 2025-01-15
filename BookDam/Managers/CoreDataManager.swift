@@ -66,6 +66,55 @@ class CoreDataManager {
         }
     }
     
+    func updateBookWithTags(book: Book, tagIds: Set<UUID>) {
+        let context = persistentContainer.viewContext
+        
+        // Create fetch request to find the existing book
+        let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isbn == %@", book.isbn)
+        
+        do {
+            let existingBooks = try context.fetch(fetchRequest)
+            
+            // Make sure we found the book we want to update
+            guard let existingBook = existingBooks.first else {
+                print("Book with ISBN \(book.isbn) not found")
+                return
+            }
+            
+            // Update basic book properties
+            // Note: We don't update createdAt since it should remain as original creation time
+            existingBook.title = book.title
+            existingBook.author = book.author
+            existingBook.publisher = book.publisher
+            existingBook.cover = book.cover
+            existingBook.pubDate = book.pubDate
+            existingBook.bookDescription = book.bookDescription
+            existingBook.link = book.link
+            
+            // Remove all existing tag relationships
+            if let existingTags = existingBook.tags {
+                existingBook.removeFromTags(existingTags)
+            }
+            
+            // Fetch and assign new tags
+            let tagFetchRequest: NSFetchRequest<TagEntity> = TagEntity.fetchRequest()
+            tagFetchRequest.predicate = NSPredicate(format: "id IN %@", tagIds as CVarArg)
+            
+            let newTags = try context.fetch(tagFetchRequest)
+            newTags.forEach { tag in
+                existingBook.addToTags(tag)
+            }
+            
+            // Save the context
+            try context.save()
+            print("Book updated successfully with new tags")
+            
+        } catch {
+            print("Failed to update book with tags: \(error.localizedDescription)")
+        }
+    }
+    
     func saveBook(book: Book) {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()

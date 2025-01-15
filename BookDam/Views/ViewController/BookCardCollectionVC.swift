@@ -284,4 +284,3 @@ extension BookCardCollectionVC: UIContextMenuInteractionDelegate {
         print("Deleted book: \(book.title)")
     }
 }
-
