@@ -29,6 +29,11 @@
 		BD8A33C32D274D4500641D7D /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8A33C22D274D4500641D7D /* TabBarController.swift */; };
 		BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */; };
 		BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */; };
+		BDCEFB272D36FC9A00F2FA0C /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB262D36FC9A00F2FA0C /* Tag.swift */; };
+		BDCEFB2D2D370E2F00F2FA0C /* TagManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */; };
+		BDCEFB2F2D37110800F2FA0C /* TagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB2E2D37110800F2FA0C /* TagView.swift */; };
+		BDCEFB312D37119300F2FA0C /* TagManagementSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB302D37119300F2FA0C /* TagManagementSheet.swift */; };
+		BDCEFB332D37163800F2FA0C /* TagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB322D37163800F2FA0C /* TagCollectionViewCell.swift */; };
 		BDD2C3932D2B33F1009796AF /* GowunDodum-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */; };
 		BDD2C3962D2B3407009796AF /* GowunBatang-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3942D2B3407009796AF /* GowunBatang-Bold.ttf */; };
 		BDD2C3972D2B3407009796AF /* GowunBatang-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */; };
@@ -70,6 +75,11 @@
 		BD8A33C22D274D4500641D7D /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButtonFactory.swift; sourceTree = "<group>"; };
+		BDCEFB262D36FC9A00F2FA0C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManager.swift; sourceTree = "<group>"; };
+		BDCEFB2E2D37110800F2FA0C /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
+		BDCEFB302D37119300F2FA0C /* TagManagementSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManagementSheet.swift; sourceTree = "<group>"; };
+		BDCEFB322D37163800F2FA0C /* TagCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCollectionViewCell.swift; sourceTree = "<group>"; };
 		BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunDodum-Regular.ttf"; sourceTree = "<group>"; };
 		BDD2C3942D2B3407009796AF /* GowunBatang-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunBatang-Bold.ttf"; sourceTree = "<group>"; };
 		BDD2C3952D2B3407009796AF /* GowunBatang-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunBatang-Regular.ttf"; sourceTree = "<group>"; };
@@ -128,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				BD756DC42D27A082004FA956 /* Book.swift */,
+				BDCEFB262D36FC9A00F2FA0C /* Tag.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -140,6 +151,7 @@
 				BDFB04172D2CCE83007F81E0 /* BookDetailVC.swift */,
 				BD4162082D2E414D00F8C285 /* WebViewVC.swift */,
 				BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */,
+				BDCEFB302D37119300F2FA0C /* TagManagementSheet.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -149,6 +161,7 @@
 			children = (
 				BD756DC92D27B1FD004FA956 /* BookCardCell.swift */,
 				BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */,
+				BDCEFB322D37163800F2FA0C /* TagCollectionViewCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -228,6 +241,7 @@
 				BD9B623E2D31E04300AC3176 /* CoreDataManager.swift */,
 				BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */,
 				BDD687062D34E2A000F6FF91 /* BookManager.swift */,
+				BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -255,6 +269,7 @@
 			children = (
 				BDD2C39B2D2B3E58009796AF /* QuotesView.swift */,
 				BDFB04152D2CCD0C007F81E0 /* BookDetailView.swift */,
+				BDCEFB2E2D37110800F2FA0C /* TagView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -360,6 +375,7 @@
 				BD8A339F2D2736C700641D7D /* AppDelegate.swift in Sources */,
 				BD756DC02D275B17004FA956 /* Constant.swift in Sources */,
 				BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */,
+				BDCEFB272D36FC9A00F2FA0C /* Tag.swift in Sources */,
 				BDFB04182D2CCE83007F81E0 /* BookDetailVC.swift in Sources */,
 				BD8A33A12D2736C700641D7D /* SceneDelegate.swift in Sources */,
 				BD756DC52D27A082004FA956 /* Book.swift in Sources */,
@@ -367,16 +383,20 @@
 				BD8A33C32D274D4500641D7D /* TabBarController.swift in Sources */,
 				BDF57DF52D2CA08B006D9BBD /* String+Ext.swift in Sources */,
 				BDD687072D34E2A000F6FF91 /* BookManager.swift in Sources */,
+				BDCEFB2D2D370E2F00F2FA0C /* TagManager.swift in Sources */,
 				BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */,
 				BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */,
 				BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */,
 				BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */,
 				BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */,
+				BDCEFB312D37119300F2FA0C /* TagManagementSheet.swift in Sources */,
 				BD756DC32D2769E6004FA956 /* BookCardCollectionVC.swift in Sources */,
 				BD8A33BC2D274BDD00641D7D /* BooksVC.swift in Sources */,
 				BDD2C39C2D2B3E58009796AF /* QuotesView.swift in Sources */,
 				BD4162092D2E414D00F8C285 /* WebViewVC.swift in Sources */,
+				BDCEFB332D37163800F2FA0C /* TagCollectionViewCell.swift in Sources */,
 				BDF57DF12D2C7555006D9BBD /* BookListTableVC.swift in Sources */,
+				BDCEFB2F2D37110800F2FA0C /* TagView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

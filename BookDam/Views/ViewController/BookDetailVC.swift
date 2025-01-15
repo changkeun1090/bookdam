@@ -12,6 +12,8 @@ class BookDetailVC: UIViewController {
     var book: Book? 
     var bookLink: String?
     var isSaved = false
+    
+    private var selectedTagIds: Set<UUID> = []
 
     weak var deletionDelegate: BooksDeletionDelegate?
 
@@ -224,12 +226,14 @@ class BookDetailVC: UIViewController {
             return
         }
 
-        CoreDataManager.shared.saveBook(book: book)
-        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
-                
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.navigationController?.popViewController(animated: true)
-        }
+//        CoreDataManager.shared.saveBook(book: book)
+//        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+//                
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            self.navigationController?.popViewController(animated: true)
+//        }
+        
+        showTagManagementSheet()
                 
     }
     
@@ -310,6 +314,46 @@ class BookDetailVC: UIViewController {
             presentSafariVC(with: url)
         }
     }
+    
+    private func showTagManagementSheet() {
+        let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
+        tagSheet.delegate = self
+        present(tagSheet, animated: true)
+    }
 
 }
 
+extension BookDetailVC: TagManagementSheetDelegate {
+    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>) {
+        // Update our local selected tags
+        selectedTagIds = tags
+    }
+    
+    func tagManagementSheetDidSave(_ sheet: TagManagementSheet) {
+        // Save the book with selected tags
+        guard let book = book else {
+            print("No book data to save")
+            return
+        }
+        
+        // First save the book
+        CoreDataManager.shared.saveBook(book: book)
+        
+        // Then assign all selected tags
+        for tagId in selectedTagIds {
+            CoreDataManager.shared.assignTag(tagId: tagId, toBook: book.isbn)
+        }
+        
+        // Show success message and dismiss
+        self.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
+        // If user cancels, we don't need to do anything special
+        // The sheet will dismiss itself
+    }
+}

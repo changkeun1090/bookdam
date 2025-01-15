@@ -1,12 +1,28 @@
-// TagManagementSheet.swift
+//
+//  TagManagementVC.swift
+//  BookDam
+//
+//  Created by ChangKeun Ji on 1/15/25.
+//
+
+import Foundation
+import UIKit
+
+protocol TagManagementSheetDelegate: AnyObject {
+    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>)
+    func tagManagementSheetDidSave(_ sheet: TagManagementSheet)
+    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet)
+}
 
 class TagManagementSheet: UIViewController {
+
     
     // MARK: - Properties
     weak var delegate: TagManagementSheetDelegate?
     private var selectedTagIds: Set<UUID>
+//    private var tagViews: [TagView] = []
     private var tags: [Tag] = []
-    
+
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = Constants.Colors.mainBackground
@@ -41,7 +57,39 @@ class TagManagementSheet: UIViewController {
         return collectionView
     }()
     
-    // ... (keep other UI elements the same)
+    private lazy var addButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.tintColor = Constants.Colors.accent
+        button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var buttonStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private lazy var cancelButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("취소", for: .normal)
+        button.setTitleColor(Constants.Colors.subText, for: .normal)
+        button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var saveButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("저장", for: .normal)
+        button.setTitleColor(Constants.Colors.accent, for: .normal)
+        button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        return button
+    }()
     
     // MARK: - Initialization
     init(selectedTagIds: Set<UUID> = []) {
@@ -50,6 +98,10 @@ class TagManagementSheet: UIViewController {
         
         modalPresentationStyle = .custom
         transitioningDelegate = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - Lifecycle
@@ -111,7 +163,39 @@ class TagManagementSheet: UIViewController {
         }
     }
     
-    // ... (keep other methods the same)
+    // MARK: - Actions
+    @objc private func addButtonTapped() {
+        let alert = UIAlertController(title: "태그 추가", message: nil, preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "태그 이름을 입력하세요"
+        }
+        
+        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
+            guard let tagName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !tagName.isEmpty else { return }
+            
+            TagManager.shared.createTag(name: tagName)
+            self?.loadTags()
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(addAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    @objc private func cancelButtonTapped() {
+        delegate?.tagManagementSheetDidCancel(self)
+        dismiss(animated: true)
+    }
+    
+    @objc private func saveButtonTapped() {
+        delegate?.tagManagementSheetDidSave(self)
+        dismiss(animated: true)
+    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -149,5 +233,78 @@ extension TagManagementSheet: UICollectionViewDelegate {
         let tagId = tags[indexPath.item].id
         selectedTagIds.remove(tagId)
         delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+    }
+}
+
+// MARK: - TagViewDelegate
+extension TagManagementSheet: TagViewDelegate {
+    func tagViewDidSelect(_ tagView: TagView) {
+        selectedTagIds.insert(tagView.tagId)
+        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+    }
+    
+    func tagViewDidDeselect(_ tagView: TagView) {
+        selectedTagIds.remove(tagView.tagId)
+        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+    }
+}
+
+// MARK: - UIViewControllerTransitioningDelegate
+extension TagManagementSheet: UIViewControllerTransitioningDelegate {
+    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+        return TagManagementPresentationController(presentedViewController: presented, presenting: presenting)
+    }
+}
+
+// TagManagementPresentationController.swift
+
+class TagManagementPresentationController: UIPresentationController {
+    
+    private let dimmedView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        view.alpha = 0
+        return view
+    }()
+    
+    override var frameOfPresentedViewInContainerView: CGRect {
+        guard let containerView = containerView else { return .zero }
+        
+        return CGRect(x: 0,
+                     y: containerView.frame.height - 300,
+                     width: containerView.frame.width,
+                     height: 300)
+    }
+    
+    override func presentationTransitionWillBegin() {
+        guard let containerView = containerView else { return }
+        
+        dimmedView.frame = containerView.bounds
+        containerView.addSubview(dimmedView)
+        
+        guard let coordinator = presentedViewController.transitionCoordinator else {
+            dimmedView.alpha = 1
+            return
+        }
+        
+        coordinator.animate { [weak self] _ in
+            self?.dimmedView.alpha = 1
+        }
+    }
+    
+    override func dismissalTransitionWillBegin() {
+        guard let coordinator = presentedViewController.transitionCoordinator else {
+            dimmedView.alpha = 0
+            return
+        }
+        
+        coordinator.animate { [weak self] _ in
+            self?.dimmedView.alpha = 0
+        }
+    }
+    
+    override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
+        presentedView?.frame = frameOfPresentedViewInContainerView
     }
 }
