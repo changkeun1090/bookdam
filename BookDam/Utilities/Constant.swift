@@ -58,6 +58,7 @@ struct Constants {
         static let chevronForward = "chevron.forward"
         static let check = "checkmark"
         static let checkWithCircle = "checkmark.circle"
+        static let addTag = "plus.app"
     }
     
     struct Size {
@@ -96,6 +97,7 @@ struct Constants {
     
     struct Configuration {
         static let icon = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        static let largeIcon = UIImage.SymbolConfiguration(pointSize: 36, weight: .regular)
     }
 
 }

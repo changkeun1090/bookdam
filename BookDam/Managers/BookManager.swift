@@ -117,7 +117,7 @@ class BookManager {
     ///   - order: Sort order to apply
     ///   - isFiltered: Whether to sort filtered books or all books
     private func sortBooks(by order: SortOrder, isFiltered: Bool = false) {
-        let booksToSort = isFiltered ? filteredBooks : books
+        let _ = isFiltered ? filteredBooks : books
         
         switch order {
         case .newest:

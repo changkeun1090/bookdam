@@ -16,10 +16,12 @@ protocol TagManagementSheetDelegate: AnyObject {
 
 class TagManagementSheet: UIViewController {
 
-    private var initialSelectedTagIds: Set<UUID>
-    
+    let tagManager = TagManager.shared
     weak var delegate: TagManagementSheetDelegate?
+    
+    private var initialSelectedTagIds: Set<UUID>
     private var selectedTagIds: Set<UUID>
+    
     private var tags: [Tag] = []
 
     private let containerView: UIView = {
@@ -43,7 +45,7 @@ class TagManagementSheet: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let layout = LeftAlignedFlowLayout()
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
-        layout.minimumLineSpacing = Constants.Layout.smMargin
+        layout.minimumLineSpacing = Constants.Layout.mdMargin
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -57,12 +59,7 @@ class TagManagementSheet: UIViewController {
     }()
     
     private lazy var addButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(systemName: "plus.app"), for: .normal)
-        button.tintColor = Constants.Colors.accent
-        button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+        ButtonFactory.createImageButton(image: Constants.Icons.addTag, size: .large, target: self, action: #selector(addIconTapped))
     }()
     
     private lazy var buttonStackView: UIStackView = {
@@ -74,32 +71,21 @@ class TagManagementSheet: UIViewController {
         return stackView
     }()
     
-    private lazy var cancelButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("취소", for: .normal)
-        button.setTitleColor(Constants.Colors.subText, for: .normal)
-        button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        return button
+    private lazy var saveButton: UIButton = {
+        ButtonFactory.createTextButton(title: "저장", style: .accent, target: self, action: #selector(saveButtonTapped))
     }()
     
-    private lazy var saveButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("저장", for: .normal)
-        button.setTitleColor(Constants.Colors.accent, for: .normal)
-        button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        return button
+    
+    private lazy var cancelButton: UIButton = {
+        ButtonFactory.createTextButton(title: "취소", target: self, action: #selector(cancelButtonTapped))
     }()
+    
     
     // MARK: - Initialization
     init(selectedTagIds: Set<UUID> = []) {
-        
         self.selectedTagIds = selectedTagIds
         self.initialSelectedTagIds = selectedTagIds
-        
         super.init(nibName: nil, bundle: nil)
-        
-        modalPresentationStyle = .custom
-        transitioningDelegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -109,13 +95,15 @@ class TagManagementSheet: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        
         loadTags()
+        configureSheet()
+        setupUI()
     }
     
     // MARK: - UI Setup
     private func setupUI() {
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        view.backgroundColor = Constants.Colors.subBackground
         
         view.addSubview(containerView)
         containerView.addSubview(titleLabel)
@@ -127,82 +115,91 @@ class TagManagementSheet: UIViewController {
         buttonStackView.addArrangedSubview(saveButton)
         
         NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            containerView.heightAnchor.constraint(equalToConstant: 300),
             
-            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: Constants.Layout.layoutMargin),
             titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
+            collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
+            collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            collectionView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -Constants.Layout.layoutMargin),
             
-            addButton.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor, constant: -16),
+            addButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: Constants.Layout.layoutMargin),
+            addButton.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor, constant: -Constants.Layout.layoutMargin),
             addButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            addButton.heightAnchor.constraint(equalToConstant: 44),
-            addButton.widthAnchor.constraint(equalToConstant: 44),
             
-            buttonStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            buttonStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            buttonStackView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            buttonStackView.heightAnchor.constraint(equalToConstant: 44)
+            buttonStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            buttonStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            buttonStackView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.layoutMargin),
+//            buttonStackView.heightAnchor.constraint(equalToConstant: 44)
         ])
+    }
+    
+    private func configureSheet() {
+        modalPresentationStyle = .pageSheet
+        
+        if let sheet = sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 12
+//            sheet.prefersScrollingExpandsWhenScrolled = true
+            sheet.prefersEdgeAttachedInCompactHeight = true
+        }
     }
     
     // MARK: - Data Loading
     private func loadTags() {
-        tags = TagManager.shared.tags
-        
-        // First, clear any existing selections
-        collectionView.indexPathsForSelectedItems?.forEach { indexPath in
-            collectionView.deselectItem(at: indexPath, animated: false)
-        }
-        
-        // Then reload the data
-        collectionView.reloadData()
-        
-        // After reloading, we need to update all visible cells
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Update selection state for all tags
-            for (index, tag) in self.tags.enumerated() {
-                let indexPath = IndexPath(item: index, section: 0)
-                if self.selectedTagIds.contains(tag.id) {
-                    
-                    self.collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-                    
-                    if let cell = self.collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
-                        cell.isSelected = true
-                    }
-                }
-            }
-        }
+        tagManager.delegate = self
+        tagManager.loadTags()
+        print("----------TAG!---------", self.tags)
     }
-    
+ 
     // MARK: - Actions
-    @objc private func addButtonTapped() {
+    
+    @objc private func addIconTapped() {
         let alert = UIAlertController(title: "태그 추가", message: nil, preferredStyle: .alert)
         
         alert.addTextField { textField in
             textField.placeholder = "추가할 태그를 입력하세요"
+//            textField.returnKeyType = .done
         }
         
         let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
             guard let tagName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !tagName.isEmpty else { return }
             
-            TagManager.shared.createTag(name: tagName)
-            self?.loadTags()
+            self?.tagManager.createTag(name: tagName)
+                        
+            DispatchQueue.main.async {
+                self?.collectionView.reloadData()
+            }
         }
         
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        addAction.isEnabled = false
         
-        alert.addAction(addAction)
+        let cancelAction = UIAlertAction(title: "취소", style: .default)
+        
+        addAction.setValue(Constants.Colors.accent, forKey: "titleTextColor")
+        cancelAction.setValue(Constants.Colors.warning, forKey: "titleTextColor")
+        
         alert.addAction(cancelAction)
+        alert.addAction(addAction)
+        
+        if let textField = alert.textFields?.first {
+            textField.delegate = self
+            textField.addAction(UIAction { _ in
+                if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !text.isEmpty {
+                    addAction.isEnabled = true
+                } else {
+                    addAction.isEnabled = false
+                }
+            }, for: .editingChanged)
+        }
         
         present(alert, animated: true)
     }
@@ -233,23 +230,19 @@ extension TagManagementSheet: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+                
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TagCollectionViewCell.identifier, for: indexPath) as? TagCollectionViewCell else {
             fatalError("Failed to dequeue TagCollectionViewCell")
         }
         
         let tag = tags[indexPath.item]
-        cell.configure(with: tag)
-        
-        // Check if this tag was already selected (associated with the book)
         let isSelected = selectedTagIds.contains(tag.id)
         
-        // Update cell's visual state
-        cell.isSelected = isSelected
-        
+        cell.configure(with: tag, isSelected: isSelected)
+    
         return cell
     }
 }
-
 
 // MARK: - UICollectionViewDelegate
 extension TagManagementSheet: UICollectionViewDelegate {
@@ -258,7 +251,7 @@ extension TagManagementSheet: UICollectionViewDelegate {
         selectedTagIds.insert(tagId)
         
         if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
-            cell.isSelected = true
+            cell.isTagSelected = true
         }
     }
     
@@ -267,23 +260,36 @@ extension TagManagementSheet: UICollectionViewDelegate {
         selectedTagIds.remove(tagId)
         
         if let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell {
-            cell.isSelected = false
+            cell.isTagSelected = false
         }
     }
 }
 
-// MARK: - TagViewDelegate
-extension TagManagementSheet: TagViewDelegate {
-    func tagViewDidSelect(_ tagView: TagView) {
-        selectedTagIds.insert(tagView.tagId)
-        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+extension TagManagementSheet: TagManagerDelegate {
+    func tagManager(_ manager: TagManager, didUpdateTags tags: [Tag]) {
+        self.tags = tags
+        print("TAG DidUPDATE!!", self.tags)
+
     }
     
-    func tagViewDidDeselect(_ tagView: TagView) {
-        selectedTagIds.remove(tagView.tagId)
-        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+    func tagManager(_ manager: TagManager, didDeleteTags ids: Set<UUID>) {
     }
 }
+
+// MARK: - UITextFieldDelegate
+extension TagManagementSheet: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !text.isEmpty {
+            TagManager.shared.createTag(name: text)
+            loadTags()
+            dismiss(animated: true)
+        }
+        return true
+    }
+}
+
+/*
 
 // MARK: - UIViewControllerTransitioningDelegate
 extension TagManagementSheet: UIViewControllerTransitioningDelegate {
@@ -292,8 +298,7 @@ extension TagManagementSheet: UIViewControllerTransitioningDelegate {
     }
 }
 
-// TagManagementPresentationController.swift
-
+// MARK: TagManagementPresentationController
 class TagManagementPresentationController: UIPresentationController {
     
     private let dimmedView: UIView = {
@@ -344,3 +349,19 @@ class TagManagementPresentationController: UIPresentationController {
         presentedView?.frame = frameOfPresentedViewInContainerView
     }
 }
+ 
+ */
+
+
+// MARK: - TagViewDelegate
+//extension TagManagementSheet: TagViewDelegate {
+//    func tagViewDidSelect(_ tagView: TagView) {
+//        selectedTagIds.insert(tagView.tagId)
+//        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+//    }
+//
+//    func tagViewDidDeselect(_ tagView: TagView) {
+//        selectedTagIds.remove(tagView.tagId)
+//        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
+//    }
+//}

@@ -277,29 +277,16 @@ class BookDetailVC: UIViewController {
         self.isSaved = isSaved
         self.selectedTagIds = Set(book.tags?.map { $0.id } ?? [])
 
-        configureTitles(from: book.title)
-        configureMetadata(author: book.author, publisher: book.publisher)
-        configureOptionalFields(book)
-        bookLink = book.link
-                
-        if let coverURL = book.cover {
-            loadCoverImage(from: coverURL)
-        }
-        
+        configureBookData(book)
         tagCollectionView.reloadData()
     }
-    
-    private func configureTitles(from title: String) {
-        mainTitleLabel.text = title.onlyMainTitle()
-        subTitleLabel.text = title.onlySubTitle()
-    }
 
-    private func configureMetadata(author: String, publisher: String) {
-        authorLabel.text = author.formatAuthors()
-        publisherLabel.text = publisher.formatForHorizontalStackView()
-    }
-
-    private func configureOptionalFields(_ book: Book) {
+    private func configureBookData(_ book: Book) {
+        mainTitleLabel.text = book.title.onlyMainTitle()
+        subTitleLabel.text = book.title.onlySubTitle()
+        
+        authorLabel.text = book.author.formatAuthors()
+        publisherLabel.text = book.publisher.formatForHorizontalStackView()
         
         if let pubDate = book.pubDate {
             pubDateLabel.text = pubDate.formattedDate()?.formatForHorizontalStackView()
@@ -312,6 +299,13 @@ class BookDetailVC: UIViewController {
         } else {
             bookDescriptionLabel.text = ""
         }
+        
+        self.bookLink = book.link
+        
+        if let coverURL = book.cover {
+            loadCoverImage(from: coverURL)
+        }
+    
     }
 
     private func loadCoverImage(from urlString: String) {
@@ -332,13 +326,7 @@ class BookDetailVC: UIViewController {
         linkLabel.isUserInteractionEnabled = true
         linkLabel.addGestureRecognizer(tapGesture)
     }
-    
-    private func showTagManagementSheet() {
-        let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
-        tagSheet.delegate = self
-        present(tagSheet, animated: true)
-    }
-    
+
     @objc private func linkLabelTapped() {
         guard let link = bookLink else {return}
         if let url = URL(string: link) {
@@ -363,7 +351,13 @@ class BookDetailVC: UIViewController {
     @objc private func editButtonTapped() {
         showTagManagementSheet()
     }
-
+    
+    private func showTagManagementSheet() {
+        print("Selected TAG", selectedTagIds)
+        let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
+        tagSheet.delegate = self
+        present(tagSheet, animated: true)
+    }
 
 }
 
@@ -382,7 +376,6 @@ extension BookDetailVC: TagManagementSheetDelegate {
         CoreDataManager.shared.updateBookWithTags(book: currentBook, tagIds: selectedTagIds)
         
         if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: currentBook.isbn)?.toBook() {
-            // Update our local book property with the fresh data
             self.book = updatedBook
             
             DispatchQueue.main.async {
@@ -399,8 +392,6 @@ extension BookDetailVC: TagManagementSheetDelegate {
     }
     
     func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
-        // If user cancels, we don't need to do anything special
-        // The sheet will dismiss itself
     }
 }
 
@@ -411,7 +402,7 @@ extension BookDetailVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+                    
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TagCollectionViewCell.identifier, for: indexPath) as? TagCollectionViewCell else {
             return UICollectionViewCell()
         }
@@ -421,7 +412,8 @@ extension BookDetailVC: UICollectionViewDataSource {
         }
         
         cell.configure(with: tag)
-        cell.isSelected = true // MARK: ???: 왜 true가 입력되었다 다시 false가 입력되는지 알 수 없음!
+        
+        collectionView.allowsSelection = false
         
         return cell
     }

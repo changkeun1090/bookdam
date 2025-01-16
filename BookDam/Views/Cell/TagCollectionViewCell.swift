@@ -24,11 +24,13 @@ class TagCollectionViewCell: UICollectionViewCell {
     }()
     
     // MARK: - Selection State
-    override var isSelected: Bool {
+    var isTagSelected: Bool = false {
         didSet {
             updateVisualState()
         }
     }
+    
+//    var isTagSelected: Bool = false
     
     // MARK: - Initialization
     override init(frame: CGRect) {
@@ -57,26 +59,23 @@ class TagCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Configuration
-    func configure(with tag: Tag) {
+    func configure(with tag: Tag, isSelected: Bool = false) {
         tagLabel.text = "#\(tag.name)"
         self.tagId = tag.id
+        self.isTagSelected = isSelected
     }
     
     // MARK: - Visual State Management
     private func updateVisualState() {
-        
-        print(isSelected, self.tagLabel.text ?? "")
-        
+                
         DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.2) {
-                self.contentView.backgroundColor = self.isSelected ?
+                self.contentView.backgroundColor = self.isTagSelected ?
                     Constants.Colors.tagSelectedBackground :
                     Constants.Colors.tagBackground
                 
-                self.tagLabel.textColor = self.isSelected ?
+                self.tagLabel.textColor = self.isTagSelected ?
                     Constants.Colors.tagSelettedText :
                     Constants.Colors.tagText
-            }
         }
     }
 }

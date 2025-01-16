@@ -15,6 +15,7 @@
 		BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */; };
 		BD42687F2D2CF75800C89DCD /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = BD42687E2D2CF75800C89DCD /* SwiftSoup */; };
 		BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */; };
+		BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E22D38659300BE78BC /* ButtonFactory.swift */; };
 		BD756DC02D275B17004FA956 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DBF2D275B17004FA956 /* Constant.swift */; };
 		BD756DC32D2769E6004FA956 /* BookCardCollectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DC22D2769E6004FA956 /* BookCardCollectionVC.swift */; };
 		BD756DC52D27A082004FA956 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DC42D27A082004FA956 /* Book.swift */; };
@@ -32,7 +33,6 @@
 		BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */; };
 		BDCEFB272D36FC9A00F2FA0C /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB262D36FC9A00F2FA0C /* Tag.swift */; };
 		BDCEFB2D2D370E2F00F2FA0C /* TagManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */; };
-		BDCEFB2F2D37110800F2FA0C /* TagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB2E2D37110800F2FA0C /* TagView.swift */; };
 		BDCEFB312D37119300F2FA0C /* TagManagementSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB302D37119300F2FA0C /* TagManagementSheet.swift */; };
 		BDCEFB332D37163800F2FA0C /* TagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDCEFB322D37163800F2FA0C /* TagCollectionViewCell.swift */; };
 		BDD2C3932D2B33F1009796AF /* GowunDodum-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */; };
@@ -58,6 +58,7 @@
 		BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoadingVC.swift; sourceTree = "<group>"; };
 		BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetcher.swift; sourceTree = "<group>"; };
 		BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedFlowLayout.swift; sourceTree = "<group>"; };
+		BD5C18E22D38659300BE78BC /* ButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFactory.swift; sourceTree = "<group>"; };
 		BD756DBF2D275B17004FA956 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		BD756DC22D2769E6004FA956 /* BookCardCollectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCardCollectionVC.swift; sourceTree = "<group>"; };
 		BD756DC42D27A082004FA956 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
@@ -78,7 +79,6 @@
 		BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButtonFactory.swift; sourceTree = "<group>"; };
 		BDCEFB262D36FC9A00F2FA0C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManager.swift; sourceTree = "<group>"; };
-		BDCEFB2E2D37110800F2FA0C /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
 		BDCEFB302D37119300F2FA0C /* TagManagementSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManagementSheet.swift; sourceTree = "<group>"; };
 		BDCEFB322D37163800F2FA0C /* TagCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCollectionViewCell.swift; sourceTree = "<group>"; };
 		BDD2C3922D2B33F1009796AF /* GowunDodum-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GowunDodum-Regular.ttf"; sourceTree = "<group>"; };
@@ -130,6 +130,7 @@
 			children = (
 				BD1F4F642D29D10800C8D3E0 /* IconButton.swift */,
 				BDCD1E682D35E22200224B0F /* NavigationButtonFactory.swift */,
+				BD5C18E22D38659300BE78BC /* ButtonFactory.swift */,
 			);
 			path = Button;
 			sourceTree = "<group>";
@@ -277,7 +278,6 @@
 			isa = PBXGroup;
 			children = (
 				BDD2C39B2D2B3E58009796AF /* QuotesView.swift */,
-				BDCEFB2E2D37110800F2FA0C /* TagView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -373,6 +373,7 @@
 			files = (
 				BD0D28F12D2B21E400299966 /* Quotes.swift in Sources */,
 				BD8A33A92D2736C700641D7D /* BookDam.xcdatamodeld in Sources */,
+				BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */,
 				BD8A33BE2D274BF200641D7D /* SearchVC.swift in Sources */,
 				BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */,
 				BD756DCA2D27B1FD004FA956 /* BookCardCell.swift in Sources */,
@@ -404,7 +405,6 @@
 				BD4162092D2E414D00F8C285 /* WebViewVC.swift in Sources */,
 				BDCEFB332D37163800F2FA0C /* TagCollectionViewCell.swift in Sources */,
 				BDF57DF12D2C7555006D9BBD /* BookListTableVC.swift in Sources */,
-				BDCEFB2F2D37110800F2FA0C /* TagView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

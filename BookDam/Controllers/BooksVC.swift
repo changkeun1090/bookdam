@@ -19,7 +19,6 @@ class BooksVC: UIViewController {
     private let bookCardCollectionVC = BookCardCollectionVC()
     private let bookManager: BookManager = .shared
         
-    // Track current state
     private var isSearching = false {
         didSet {
             updateNavigationItems()
@@ -28,62 +27,63 @@ class BooksVC: UIViewController {
     private var isSelectMode = false
     private var selectedBookISBNs = Set<String>()
     private var searchTimer: Timer?
-    
+        
     // MARK: - Navigation Items
-    
     private lazy var tagBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createTextButton(
+        ButtonFactory.createNavTextButton(
             title: "태그",
             style: .accent,
             target: self,
             action: #selector(tagButtonTapped)
         )
     }()
-    
+
     private lazy var searchBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createImageButton(
+        ButtonFactory.createNavImageButton(
             image: Constants.Icons.search,
             style: .accent,
+            size: .medium,
             target: self,
             action: #selector(showSearchBar)
         )
     }()
-    
+
     private lazy var moreBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createMenuButton(
+        ButtonFactory.createNavMenuButton(
             image: Constants.Icons.more,
             menu: createMoreButtonMenu(),
-            style: .accent
+            style: .accent,
+            size: .medium
         )
     }()
-    
+
     private lazy var cancelBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createTextButton(
+        ButtonFactory.createNavTextButton(
             title: "취소",
             style: .accent,
             target: self,
             action: #selector(cancelButtonTapped)
         )
     }()
-    
+
     private lazy var selectAllBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createTextButton(
+        ButtonFactory.createNavTextButton(
             title: "모두선택",
             style: .accent,
             target: self,
             action: #selector(selectAllButtonTapped)
         )
     }()
-    
+
     private lazy var deleteBarButton: UIBarButtonItem = {
-        NavigationButtonFactory.createTextButton(
+        ButtonFactory.createNavTextButton(
             title: "삭제",
             style: .warning,
             target: self,
             action: #selector(deleteButtonTapped)
         )
     }()
-    
+
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
