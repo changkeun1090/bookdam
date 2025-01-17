@@ -17,16 +17,30 @@ class BookDetailVC: UIViewController {
     
     weak var deletionDelegate: BooksDeletionDelegate?
     
+    // MARK: UI - Container
+        
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     // MARK: UI - Book Info
 
     let imageShadowView: UIView = {
-        let aView = UIView()
-        aView.layer.shadowOffset = CGSize(width: 2, height: 2)
-        aView.layer.shadowOpacity = 0.3
-        aView.layer.shadowRadius = 10
-        aView.layer.shadowColor = UIColor.gray.cgColor
-        aView.translatesAutoresizingMaskIntoConstraints = false
-        return aView
+        let view = UIView()
+        view.layer.shadowOffset = CGSize(width: 2, height: 2)
+        view.layer.shadowOpacity = 0.3
+        view.layer.shadowRadius = 10
+        view.layer.shadowColor = UIColor.gray.cgColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     private let coverImageView: UIImageView = {
@@ -138,12 +152,16 @@ class BookDetailVC: UIViewController {
         let layout = LeftAlignedFlowLayout()
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
         layout.minimumLineSpacing = Constants.Layout.smMargin
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+//        layout.itemSize = UICollectionViewFlowLayout.automaticSize
+            
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        collectionView.backgroundColor = .clear
+        collectionView.backgroundColor = .systemBrown
+
         return collectionView
     }()
     
@@ -158,6 +176,17 @@ class BookDetailVC: UIViewController {
         setupUI()
         addTapGestureToLinkLabel()
         
+    }
+    
+    // MARK: DEBUG
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        print("After layout:")
+        print("View frame: \(view.frame)")
+        print("ScrollView frame: \(scrollView.frame)")
+        print("ScrollView content size: \(scrollView.contentSize)")
+        print("ContentView frame: \(contentView.frame)")
+        print("tagCollectionView.frame: ", tagCollectionView.frame)
     }
     
     private func setupNavigationBar() {
@@ -189,73 +218,96 @@ class BookDetailVC: UIViewController {
     
     private func setupUI() {
         
-        view.addSubview(imageShadowView)
+        scrollView.frame = self.view.bounds
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+                
+        contentView.addSubview(imageShadowView)
         imageShadowView.addSubview(coverImageView)
-        view.addSubview(mainTitleLabel)
-        view.addSubview(subTitleLabel)
-        view.addSubview(subInfoStackView)
-        view.addSubview(descriptionHeaderLabel)
-        view.addSubview(bookDescriptionLabel)
-        view.addSubview(linkLabel)
-        view.addSubview(tagContainerView)
+        contentView.addSubview(mainTitleLabel)
+        contentView.addSubview(subTitleLabel)
+        contentView.addSubview(subInfoStackView)
+        contentView.addSubview(descriptionHeaderLabel)
+        contentView.addSubview(bookDescriptionLabel)
+        contentView.addSubview(linkLabel)
+        contentView.addSubview(tagContainerView)
         tagContainerView.addSubview(tagCollectionView)
         
+        // MARK: DEBUG
+        print("View frame: \(view.frame)")
+        print("ScrollView frame: \(scrollView.frame)")
+        print("ContentView frame: \(contentView.frame)")
+        print("tagCollectionView.frame: ", tagCollectionView.frame)
+        
         let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
+
+        NSLayoutConstraint.activate([
+           scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+           scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+           scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+           scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+           
+           contentView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+           contentView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+           contentView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+           contentView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+           contentView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+        ])
                 
         NSLayoutConstraint.activate([
-            coverImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Layout.layoutMargin),
-            coverImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            coverImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.Layout.layoutMargin),
+            coverImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             coverImageView.heightAnchor.constraint(equalToConstant: imageHeight),
             coverImageView.widthAnchor.constraint(equalToConstant: imageWidth)
         ])
         
         NSLayoutConstraint.activate([
             mainTitleLabel.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: Constants.Layout.lgMargin),
-            mainTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            mainTitleLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            mainTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            mainTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
         
         NSLayoutConstraint.activate([
             subTitleLabel.topAnchor.constraint(equalTo: mainTitleLabel.bottomAnchor, constant: Constants.Layout.smMargin),
-            subTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            subTitleLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            subTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            subTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
         
         NSLayoutConstraint.activate([
-            subInfoStackView.topAnchor.constraint(equalTo: subTitleLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
-            subInfoStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            subInfoStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            subInfoStackView.topAnchor.constraint(equalTo: subTitleLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
+            subInfoStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            subInfoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
         
         NSLayoutConstraint.activate([
             descriptionHeaderLabel.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
-            descriptionHeaderLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            descriptionHeaderLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            descriptionHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            descriptionHeaderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
         
         NSLayoutConstraint.activate([
             bookDescriptionLabel.topAnchor.constraint(equalTo: descriptionHeaderLabel.bottomAnchor, constant: Constants.Layout.smMargin),
-            bookDescriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            bookDescriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            bookDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            bookDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
 
         NSLayoutConstraint.activate([
-            linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
-            linkLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
+            linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
         ])
                                     
         NSLayoutConstraint.activate([
-            tagContainerView.topAnchor.constraint(equalTo: linkLabel.bottomAnchor, constant: Constants.Layout.mdMargin),
-            tagContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            tagContainerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.Layout.layoutMargin),
-            
+            tagContainerView.topAnchor.constraint(equalTo: linkLabel.bottomAnchor, constant: Constants.Layout.lgMargin),
+            tagContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            tagContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            tagContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.lgMargin),
+//            tagContainerView.heightAnchor.constraint(equalToConstant: 300),
+
             tagCollectionView.topAnchor.constraint(equalTo: tagContainerView.topAnchor),
             tagCollectionView.leadingAnchor.constraint(equalTo: tagContainerView.leadingAnchor),
             tagCollectionView.trailingAnchor.constraint(equalTo: tagContainerView.trailingAnchor),
-            tagCollectionView.heightAnchor.constraint(equalToConstant: 36),
             tagCollectionView.bottomAnchor.constraint(equalTo: tagContainerView.bottomAnchor),
         ])
-        
     }
     
     @objc private func saveButtonTapped() {
@@ -280,6 +332,7 @@ class BookDetailVC: UIViewController {
         configureBookData(book)
         tagCollectionView.reloadData()
     }
+
 
     private func configureBookData(_ book: Book) {
         mainTitleLabel.text = book.title.onlyMainTitle()
@@ -411,10 +464,10 @@ extension BookDetailVC: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        cell.configure(with: tag)
+        cell.configure(with: tag)        
         
         collectionView.allowsSelection = false
-        
+
         return cell
     }
 }

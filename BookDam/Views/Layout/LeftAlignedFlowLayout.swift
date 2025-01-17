@@ -10,6 +10,8 @@ import UIKit
 
 final class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
     
+    private let fixedHeight: CGFloat = 36 // Adjust this value as needed
+
     // MARK: - Layout Attributes
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let originalAttributes = super.layoutAttributesForElements(in: rect) else {
@@ -29,7 +31,7 @@ final class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
             if layoutAttribute.frame.minY >= maxY {
                 leftMargin = sectionInset.left
             }
-            
+                        
             layoutAttribute.frame.origin.x = leftMargin
             
             leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing

@@ -268,8 +268,6 @@ extension TagManagementSheet: UICollectionViewDelegate {
 extension TagManagementSheet: TagManagerDelegate {
     func tagManager(_ manager: TagManager, didUpdateTags tags: [Tag]) {
         self.tags = tags
-        print("TAG DidUPDATE!!", self.tags)
-
     }
     
     func tagManager(_ manager: TagManager, didDeleteTags ids: Set<UUID>) {
