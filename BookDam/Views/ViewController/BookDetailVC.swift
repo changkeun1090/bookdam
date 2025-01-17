@@ -17,6 +17,12 @@ class BookDetailVC: UIViewController {
     
     weak var deletionDelegate: BooksDeletionDelegate?
     
+    private var tagCollectionViewHeightConstraint: NSLayoutConstraint?
+    private var tagContainerMarginBottom: CGFloat {
+        return book?.tags?.isEmpty ?? true ? 0 : Constants.Layout.lgMargin
+    }
+    private var tagContainerBottomConstraint: NSLayoutConstraint?
+
     // MARK: UI - Container
         
     private let scrollView: UIScrollView = {
@@ -154,13 +160,14 @@ class BookDetailVC: UIViewController {
         layout.minimumLineSpacing = Constants.Layout.smMargin
         
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-//        layout.itemSize = UICollectionViewFlowLayout.automaticSize
+//        layout.sectionInset = UIEdgeInsets(top: Constants.Layout.smMargin, left: 0, bottom: Constants.Layout.smMargin, right: 0)
             
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-//        collectionView.backgroundColor = .clear
-        collectionView.backgroundColor = .systemBrown
+        collectionView.backgroundColor = .clear
+//        collectionView.backgroundColor = .systemBrown
+                
 
         return collectionView
     }()
@@ -175,18 +182,7 @@ class BookDetailVC: UIViewController {
         setupCollectionView()
         setupUI()
         addTapGestureToLinkLabel()
-        
-    }
-    
-    // MARK: DEBUG
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        print("After layout:")
-        print("View frame: \(view.frame)")
-        print("ScrollView frame: \(scrollView.frame)")
-        print("ScrollView content size: \(scrollView.contentSize)")
-        print("ContentView frame: \(contentView.frame)")
-        print("tagCollectionView.frame: ", tagCollectionView.frame)
+        updateTagContainerBottomConstraint()
     }
     
     private func setupNavigationBar() {
@@ -217,7 +213,7 @@ class BookDetailVC: UIViewController {
     }
     
     private func setupUI() {
-        
+                
         scrollView.frame = self.view.bounds
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -227,17 +223,15 @@ class BookDetailVC: UIViewController {
         contentView.addSubview(mainTitleLabel)
         contentView.addSubview(subTitleLabel)
         contentView.addSubview(subInfoStackView)
+                
+        contentView.addSubview(tagContainerView)
+        tagContainerView.addSubview(tagCollectionView)
+                
         contentView.addSubview(descriptionHeaderLabel)
         contentView.addSubview(bookDescriptionLabel)
         contentView.addSubview(linkLabel)
-        contentView.addSubview(tagContainerView)
-        tagContainerView.addSubview(tagCollectionView)
+ 
         
-        // MARK: DEBUG
-        print("View frame: \(view.frame)")
-        print("ScrollView frame: \(scrollView.frame)")
-        print("ContentView frame: \(contentView.frame)")
-        print("tagCollectionView.frame: ", tagCollectionView.frame)
         
         let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
 
@@ -280,9 +274,25 @@ class BookDetailVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            descriptionHeaderLabel.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
+            tagContainerView.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
+            tagContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            tagContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            tagContainerView.bottomAnchor.constraint(equalTo: descriptionHeaderLabel.topAnchor, constant: -tagContainerMarginBottom),
+
+            tagCollectionView.topAnchor.constraint(equalTo: tagContainerView.topAnchor),
+            tagCollectionView.leadingAnchor.constraint(equalTo: tagContainerView.leadingAnchor),
+            tagCollectionView.trailingAnchor.constraint(equalTo: tagContainerView.trailingAnchor),
+            tagCollectionView.bottomAnchor.constraint(equalTo: tagContainerView.bottomAnchor),
+        ])
+        
+        tagCollectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: 0)
+        tagCollectionViewHeightConstraint?.isActive = true
+        
+        NSLayoutConstraint.activate([
+            descriptionHeaderLabel.topAnchor.constraint(equalTo: tagContainerView.bottomAnchor, constant: 0),
             descriptionHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
             descriptionHeaderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            descriptionHeaderLabel.bottomAnchor.constraint(equalTo: bookDescriptionLabel.topAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
@@ -294,20 +304,10 @@ class BookDetailVC: UIViewController {
         NSLayoutConstraint.activate([
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
                                     
-        NSLayoutConstraint.activate([
-            tagContainerView.topAnchor.constraint(equalTo: linkLabel.bottomAnchor, constant: Constants.Layout.lgMargin),
-            tagContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
-            tagContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
-            tagContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.lgMargin),
-//            tagContainerView.heightAnchor.constraint(equalToConstant: 300),
-
-            tagCollectionView.topAnchor.constraint(equalTo: tagContainerView.topAnchor),
-            tagCollectionView.leadingAnchor.constraint(equalTo: tagContainerView.leadingAnchor),
-            tagCollectionView.trailingAnchor.constraint(equalTo: tagContainerView.trailingAnchor),
-            tagCollectionView.bottomAnchor.constraint(equalTo: tagContainerView.bottomAnchor),
-        ])
+ 
     }
     
     @objc private func saveButtonTapped() {
@@ -328,7 +328,7 @@ class BookDetailVC: UIViewController {
         self.book = book
         self.isSaved = isSaved
         self.selectedTagIds = Set(book.tags?.map { $0.id } ?? [])
-
+        
         configureBookData(book)
         tagCollectionView.reloadData()
     }
@@ -412,6 +412,35 @@ class BookDetailVC: UIViewController {
         present(tagSheet, animated: true)
     }
 
+    private func calculateCollectionViewHeight() -> CGFloat {
+        tagCollectionView.layoutIfNeeded()
+        
+        return tagCollectionView.collectionViewLayout.collectionViewContentSize.height
+    }
+    
+    private func updateCollectionViewHeight() {
+
+        tagCollectionViewHeightConstraint?.constant = tagCollectionView.collectionViewLayout.collectionViewContentSize.height + 8
+        
+        print("CollectionViewHeight: ", tagCollectionView.collectionViewLayout.collectionViewContentSize.height)
+        
+        view.layoutIfNeeded()
+    }
+    
+    func updateTagContainerBottomConstraint() {
+        tagContainerBottomConstraint?.isActive = false
+        
+        tagContainerBottomConstraint = tagContainerView.bottomAnchor.constraint(
+            equalTo: descriptionHeaderLabel.topAnchor,
+            constant: -tagContainerMarginBottom
+        )
+        tagContainerBottomConstraint?.isActive = true
+    }
+    
+    private func updateLayoutForTags() {
+        updateTagContainerBottomConstraint()
+        view.layoutIfNeeded()
+    }
 }
 
 extension BookDetailVC: TagManagementSheetDelegate {
@@ -435,8 +464,8 @@ extension BookDetailVC: TagManagementSheetDelegate {
                 sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    sheet.dismiss(animated: true) {
-                        // Now reload with the updated data
+                    sheet.dismiss(animated: true) {        
+                        self.updateLayoutForTags()
                         self.tagCollectionView.reloadData()
                     }
                 }
@@ -451,6 +480,9 @@ extension BookDetailVC: TagManagementSheetDelegate {
 // MARK: - UICollectionViewDataSource
 extension BookDetailVC: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        DispatchQueue.main.async {
+            self.updateCollectionViewHeight()
+        }
         return book?.tags?.count ?? 0
     }
     
