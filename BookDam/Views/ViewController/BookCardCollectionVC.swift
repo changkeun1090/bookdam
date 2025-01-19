@@ -13,7 +13,7 @@ class BookCardCollectionVC: UIViewController {
     private let searchController = UISearchController(searchResultsController: nil)
     
     private var isSelectMode = false
-    private var selectedIndexPaths = Set<IndexPath>()  // Track selected items
+    private var selectedIndexPaths = Set<IndexPath>()
     
     private let countLabel: UILabel = {
         let label = UILabel()
@@ -37,24 +37,8 @@ class BookCardCollectionVC: UIViewController {
     // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = Constants.Colors.mainBackground
-        setupCountLabel()
-        configureCollectionView()
-    }
-    
-    private func setupCountLabel() {
-        view.addSubview(countLabel)
-        
-        NSLayoutConstraint.activate([
-            countLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.Layout.layoutMargin),
-            countLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
-//            countLabel.heightAnchor.constraint(equalToConstant: 24)
-        ])
-    }
-    
-    private func configureCollectionView() {
         
         let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 0, left: Constants.Layout.layoutMargin, bottom: Constants.Layout.layoutMargin, right: Constants.Layout.layoutMargin)
         layout.minimumLineSpacing = Constants.Layout.gutter
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -66,12 +50,18 @@ class BookCardCollectionVC: UIViewController {
         
         collectionView.register(BookCardCell.self, forCellWithReuseIdentifier: BookCardCell.identifier)
         
+        view.addSubview(countLabel)
         view.addSubview(collectionView)
+
+        NSLayoutConstraint.activate([
+            countLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.Layout.layoutMargin),
+            countLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
+        ])
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: countLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -149,16 +139,25 @@ class BookCardCollectionVC: UIViewController {
 extension BookCardCollectionVC: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        print("SELECT!!!!")
         if isSelectMode {
-            selectedIndexPaths.insert(indexPath)
+            
+            let isSelected = selectedIndexPaths.contains(indexPath)
+            
             if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
-                cell.updateSelectionState(true)
+                cell.updateSelectionState(!isSelected)
             }
-            // Notify parent about selection change
+            
+            if isSelected {
+                selectedIndexPaths.remove(indexPath)
+            } else {
+                selectedIndexPaths.insert(indexPath)
+            }
+            
             updateParentAboutSelection()
+            
         } else {
-            // Your existing detail view navigation code
+            
             let selectedBook = books[indexPath.row]
             let bookDetailVC = BookDetailVC()
             bookDetailVC.configure(with: selectedBook, isSaved: true)
@@ -169,15 +168,25 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        print("DEEE---SELECT!!!!")
         if isSelectMode {
-            selectedIndexPaths.remove(indexPath)
+                        
+            let isSelected = selectedIndexPaths.contains(indexPath)
+            
             if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
-                cell.updateSelectionState(false)
+                cell.updateSelectionState(!isSelected)
             }
-            // Notify parent about selection change
+            
+            if isSelected {
+                selectedIndexPaths.remove(indexPath)
+            } else {
+                selectedIndexPaths.insert(indexPath)
+            }
+                     
             updateParentAboutSelection()
         }
     }
+    
     private func updateParentAboutSelection() {
         if let parentVC = parent as? BooksVC {
             let selectedBooks = selectedIndexPaths.map { books[$0.row].isbn }
@@ -194,6 +203,7 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BookCardCell.identifier, for: indexPath) as? BookCardCell else {
             fatalError("Unable to dequeue BookCardCell")
         }
@@ -202,7 +212,8 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
         cell.configure(with: book)
         
         if isSelectMode {
-            cell.showSelectionIndicator(selected: selectedIndexPaths.contains(indexPath))
+            cell.showSelectionIndicator()
+//            cell.showSelectionIndicator(selected: selectedIndexPaths.contains(indexPath))
         } else {
             cell.hideSelectionIndicator()
         }

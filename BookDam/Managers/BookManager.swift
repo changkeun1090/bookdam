@@ -51,9 +51,7 @@ class BookManager {
             delegate?.bookManager(self, didUpdateBooks: books)
         }
     }
-    
-    /// Filters books based on search text
-    /// - Parameter searchText: Text to filter books by
+        
     func filterBooks(with searchText: String) {
         guard !searchText.isEmpty else {
             filteredBooks = []
@@ -67,9 +65,8 @@ class BookManager {
             book.author.lowercased().contains(lowercasedText) ||
             book.publisher.lowercased().contains(lowercasedText)
         }
-        
-        // Apply current sort order to filtered results
-        sortBooks(by: currentSortOrder, isFiltered: true)
+                
+//        sortBooks(by: currentSortOrder, isFiltered: true)
         delegate?.bookManager(self, didUpdateBooks: filteredBooks)
     }
     

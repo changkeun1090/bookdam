@@ -18,13 +18,14 @@ class BooksVC: UIViewController {
     private var searchController: UISearchController!
     private let bookCardCollectionVC = BookCardCollectionVC()
     private let bookManager: BookManager = .shared
-        
+    
     private var isSearching = false {
         didSet {
             updateNavigationItems()
         }
     }
     private var isSelectMode = false
+    
     private var selectedBookISBNs = Set<String>()
     private var searchTimer: Timer?
         
@@ -44,7 +45,7 @@ class BooksVC: UIViewController {
             style: .accent,
             size: .medium,
             target: self,
-            action: #selector(showSearchBar)
+            action: #selector(searchButtonTapped)
         )
     }()
 
@@ -57,7 +58,7 @@ class BooksVC: UIViewController {
         )
     }()
 
-    private lazy var cancelBarButton: UIBarButtonItem = {
+    private lazy var selectCancelBarButton: UIBarButtonItem = {
         ButtonFactory.createNavTextButton(
             title: "취소",
             style: .accent,
@@ -88,9 +89,9 @@ class BooksVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialState()
-        configureUI()
-        setupDelegates()
-        
+        configureSearchController()
+        setupBookCardCollectionVC()
+        updateNavigationItems()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -101,29 +102,12 @@ class BooksVC: UIViewController {
     // MARK: - Setup Methods
     private func setupInitialState() {
         view.backgroundColor = Constants.Colors.mainBackground
-        bookManager.delegate = self  // ??
+        bookManager.delegate = self
     }
-    
-    private func configureUI() {
-        configureSearchController()
-        setupChildViewController()
-        updateNavigationItems()
-    }
-    
-    private func setupDelegates() {
-        searchController.searchResultsUpdater = self
-        searchController.searchBar.delegate = self
-    }
-    
-    private func setupChildViewController() {
+   
+    private func setupBookCardCollectionVC() {
         addChild(bookCardCollectionVC)
         view.addSubview(bookCardCollectionVC.view)
-        setupCollectionViewConstraints()
-        bookCardCollectionVC.didMove(toParent: self)
-    }
-     
-    // MARK: - UI Configuration
-    private func setupCollectionViewConstraints() {
         bookCardCollectionVC.view.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -132,8 +116,10 @@ class BooksVC: UIViewController {
             bookCardCollectionVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bookCardCollectionVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        bookCardCollectionVC.didMove(toParent: self)
     }
-    
+         
     private func configureSearchController() {
         searchController = UISearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
@@ -142,25 +128,46 @@ class BooksVC: UIViewController {
         
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
+        
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
     }
     
-    // MARK: - Navigation Item Management
-    private func updateNavigationItems() {
-        
-        if isSelectMode {
-            navigationItem.leftBarButtonItem = cancelBarButton
-            navigationItem.rightBarButtonItems = [deleteBarButton, selectAllBarButton]
-            navigationItem.searchController = nil
-        } else if isSearching {
-            navigationItem.leftBarButtonItem = nil
-            navigationItem.rightBarButtonItems = nil
-            navigationItem.searchController = searchController
-        } else {
-            navigationItem.leftBarButtonItem = tagBarButton
-            navigationItem.rightBarButtonItems = [moreBarButton, searchBarButton]
-            navigationItem.searchController = nil
+    private func showSearchController() {
+        navigationItem.searchController = searchController
+        searchController.isActive = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.searchController.searchBar.becomeFirstResponder()
         }
     }
+
+    private func updateNavigationItems() {
+        
+        // 선택모드
+        if isSelectMode {
+            navigationItem.leftBarButtonItem = selectCancelBarButton
+            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+            spacer.width = Constants.Layout.mdMargin
+            navigationItem.rightBarButtonItems = [deleteBarButton, spacer, selectAllBarButton]
+            navigationItem.searchController = nil
+            return
+        }
+
+        // 검색모드
+        if isSearching {
+            navigationItem.leftBarButtonItem = nil
+            navigationItem.rightBarButtonItems = nil
+            showSearchController()
+            return
+        }
+        
+        // 일반모드
+        navigationItem.leftBarButtonItem = tagBarButton
+        navigationItem.rightBarButtonItems = [moreBarButton, searchBarButton]
+        navigationItem.searchController = nil
+    }
+    
+    // MARK: - Helper Methods
     
     private func createMoreButtonMenu() -> UIMenu {
         let actions = createMoreButtonActions()
@@ -168,7 +175,7 @@ class BooksVC: UIViewController {
     }
     
     private func createMoreButtonActions() -> [UIMenuElement] {
-        // Create the selection action
+        
         let selectAction = UIAction(
             title: "선택하기",
             image: UIImage(systemName: Constants.Icons.checkWithCircle)
@@ -234,19 +241,22 @@ class BooksVC: UIViewController {
     
     // MARK: - Button Actions
     
-    func scrollToTop() {     
-        bookCardCollectionVC.scrollToTop()
+    func scrollToTop() {
+        if isSearching {
+            isSearching = false
+            bookManager.loadBooks()
+        } else {
+            bookCardCollectionVC.scrollToTop()
+        }
     }
     
     @objc private func tagButtonTapped() {
-        // Implement tag functionality
+        
     }
     
-    @objc private func showSearchBar() {
+    @objc private func searchButtonTapped() {
         bookCardCollectionVC.reloadData(with: [])
         isSearching = true
-        searchController.isActive = true
-        searchController.searchBar.becomeFirstResponder()
     }
     
     @objc private func cancelButtonTapped() {
@@ -309,7 +319,6 @@ extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
             guard let self = self,
                   self.isSearching else { return }
-            
             self.bookManager.filterBooks(with: searchText)
         }
     }
@@ -317,7 +326,5 @@ extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         bookManager.loadBooks()
         isSearching = false
-        searchController.isActive = false
-        tabBarController?.tabBar.backgroundColor = Constants.Colors.mainBackground
     }
 }

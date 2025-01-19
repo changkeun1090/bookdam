@@ -9,7 +9,7 @@ import UIKit
 
 class BookCardCell: UICollectionViewCell {
     
-    static let identifier = "BookCardCell"
+    static let identifier = "BookCardCell"        
     
     private var book: Book?
     
@@ -121,6 +121,5 @@ class BookCardCell: UICollectionViewCell {
         
         
     }
-    // new --
 
 }
