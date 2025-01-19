@@ -86,40 +86,28 @@ class BookCardCollectionVC: UIViewController {
         collectionView.reloadData()
         selectedIndexPaths.removeAll()
     }
-    
-    // Add this method to handle select all functionality
+        
     func toggleSelectAll() {
         guard isSelectMode else { return }
-        
-        // Check if all items are currently selected
+                
         let allSelected = selectedIndexPaths.count == books.count
         
         if allSelected {
-            // Deselect all items
             selectedIndexPaths.forEach { indexPath in
                 collectionView.deselectItem(at: indexPath, animated: true)
-                if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
-                    cell.updateSelectionState(false)
-                }
             }
             selectedIndexPaths.removeAll()
         } else {
-            // Select all items
-            // Create index paths for all items
             let allIndexPaths = (0..<books.count).map { IndexPath(item: $0, section: 0) }
-            
-            // Select each item
+                        
             allIndexPaths.forEach { indexPath in
                 collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
-                if let cell = collectionView.cellForItem(at: indexPath) as? BookCardCell {
-                    cell.updateSelectionState(true)
-                }
             }
             selectedIndexPaths = Set(allIndexPaths)
         }
+        
         collectionView.reloadData()
-
-        // Notify parent about selection change
+        
         updateParentAboutSelection()
     }
     
@@ -139,7 +127,7 @@ class BookCardCollectionVC: UIViewController {
 extension BookCardCollectionVC: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("SELECT!!!!")
+        
         if isSelectMode {
             
             let isSelected = selectedIndexPaths.contains(indexPath)
@@ -168,7 +156,7 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        print("DEEE---SELECT!!!!")
+        
         if isSelectMode {
                         
             let isSelected = selectedIndexPaths.contains(indexPath)
@@ -212,14 +200,12 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
         cell.configure(with: book)
         
         if isSelectMode {
-            cell.showSelectionIndicator()
-//            cell.showSelectionIndicator(selected: selectedIndexPaths.contains(indexPath))
+            cell.showSelectionIndicator(selected: selectedIndexPaths.contains(indexPath))
         } else {
             cell.hideSelectionIndicator()
         }
-        
-        // Add context menu interaction to each cell
-        let interaction = UIContextMenuInteraction(delegate: self)
+                
+        let interaction = UIContextMenuInteraction(delegate: self) // 삭제기능
         cell.addInteraction(interaction)
         
         return cell
@@ -228,7 +214,7 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
     func reloadData(with books: [Book]) {
         self.books = books
         selectedIndexPaths.removeAll()
-        collectionView.reloadData() // Reload the collection view with the new data
+        collectionView.reloadData()
     }
 }
 

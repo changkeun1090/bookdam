@@ -24,7 +24,11 @@ class BooksVC: UIViewController {
             updateNavigationItems()
         }
     }
-    private var isSelectMode = false
+    private var isSelectMode = false {
+        didSet {
+            updateNavigationItems()
+        }
+    }
     
     private var selectedBookISBNs = Set<String>()
     private var searchTimer: Timer?
@@ -167,7 +171,7 @@ class BooksVC: UIViewController {
         navigationItem.searchController = nil
     }
     
-    // MARK: - Helper Methods
+    // MARK: - Menu Methods
     
     private func createMoreButtonMenu() -> UIMenu {
         let actions = createMoreButtonActions()
@@ -209,17 +213,15 @@ class BooksVC: UIViewController {
         return [selectAction, sortMenu]
     }
     
-    // MARK: - Selection Mode Handling
+    // MARK: - Selection Methods
     private func enterSelectMode() {
         isSelectMode = true
-        updateNavigationItems()
         bookCardCollectionVC.enterSelectMode()
     }
     
     private func exitSelectMode() {
         isSelectMode = false
-        selectedBookISBNs.removeAll()
-        updateNavigationItems()
+        selectedBookISBNs.removeAll()    
         bookCardCollectionVC.exitSelectMode()
     }
     

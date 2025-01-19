@@ -32,7 +32,6 @@ class BookCardCell: UICollectionViewCell {
         return imageView
     }()
     
-    // new --
     private let selectionIndicator: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "circle")
@@ -55,7 +54,6 @@ class BookCardCell: UICollectionViewCell {
             coverImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
-        // new --
         // Add the selection indicator to the cell's content view
         contentView.addSubview(selectionIndicator)
         
@@ -66,7 +64,7 @@ class BookCardCell: UICollectionViewCell {
             selectionIndicator.widthAnchor.constraint(equalToConstant: 24),
             selectionIndicator.heightAnchor.constraint(equalToConstant: 24)
         ])
-        // new --
+   
 
     }
     
@@ -94,7 +92,6 @@ class BookCardCell: UICollectionViewCell {
         }
     }
     
-    // new --
     // Add these methods to handle selection state
     func showSelectionIndicator(selected: Bool = false) {
         selectionIndicator.isHidden = false
@@ -110,6 +107,8 @@ class BookCardCell: UICollectionViewCell {
     
     func updateSelectionState(_ selected: Bool) {
         
+        print("CARD CELL: ", selected)
+        
         if selected {
             selectionIndicator.image = UIImage(systemName: "checkmark.circle.fill")
             coverImageView.layer.borderColor = Constants.Colors.accent.cgColor
@@ -118,8 +117,6 @@ class BookCardCell: UICollectionViewCell {
             selectionIndicator.image = UIImage(systemName: "circle")
             coverImageView.layer.borderWidth = 0
         }
-        
-        
     }
 
 }
