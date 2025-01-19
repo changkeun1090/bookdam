@@ -54,10 +54,8 @@ class BookCardCell: UICollectionViewCell {
             coverImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
-        // Add the selection indicator to the cell's content view
         contentView.addSubview(selectionIndicator)
         
-        // Add constraints for the selection indicator
         NSLayoutConstraint.activate([
             selectionIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             selectionIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -92,7 +90,6 @@ class BookCardCell: UICollectionViewCell {
         }
     }
     
-    // Add these methods to handle selection state
     func showSelectionIndicator(selected: Bool = false) {
         selectionIndicator.isHidden = false
         updateSelectionState(selected)
@@ -100,14 +97,11 @@ class BookCardCell: UICollectionViewCell {
     
     func hideSelectionIndicator() {
         selectionIndicator.isHidden = true
-        // Make sure to clear any selection-related styling
         coverImageView.layer.borderWidth = 0
         coverImageView.layer.borderColor = nil
     }
     
-    func updateSelectionState(_ selected: Bool) {
-        
-        print("CARD CELL: ", selected)
+    func updateSelectionState(_ selected: Bool) {                
         
         if selected {
             selectionIndicator.image = UIImage(systemName: "checkmark.circle.fill")

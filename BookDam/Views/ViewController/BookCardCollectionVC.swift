@@ -93,16 +93,9 @@ class BookCardCollectionVC: UIViewController {
         let allSelected = selectedIndexPaths.count == books.count
         
         if allSelected {
-            selectedIndexPaths.forEach { indexPath in
-                collectionView.deselectItem(at: indexPath, animated: true)
-            }
             selectedIndexPaths.removeAll()
         } else {
             let allIndexPaths = (0..<books.count).map { IndexPath(item: $0, section: 0) }
-                        
-            allIndexPaths.forEach { indexPath in
-                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
-            }
             selectedIndexPaths = Set(allIndexPaths)
         }
         
@@ -112,13 +105,10 @@ class BookCardCollectionVC: UIViewController {
     }
     
     func scrollToTop() {
-        // Check if there are any items
         guard books.count > 0 else { return }
         
-        // Create an index path for the first item
         let topIndexPath = IndexPath(item: 0, section: 0)
         
-        // Scroll to top with animation
         collectionView.scrollToItem(at: topIndexPath, at: .top, animated: true)
     }
 }
@@ -204,9 +194,6 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
         } else {
             cell.hideSelectionIndicator()
         }
-                
-        let interaction = UIContextMenuInteraction(delegate: self) // 삭제기능
-        cell.addInteraction(interaction)
         
         return cell
     }
@@ -226,58 +213,5 @@ extension BookCardCollectionVC: UICollectionViewDelegateFlowLayout {
         let (cardWidth, cardHeight) = Constants.Size.calculateImageSize()
         
         return CGSize(width: cardWidth, height: cardHeight)
-    }
-}
-
-// MARK: - UIContextMenuInteractionDelegate
-extension BookCardCollectionVC: UIContextMenuInteractionDelegate {
-    
-    // Create context menu with delete action
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
-//        let locationInCollectionView = collectionView.convert(location, from: collectionView.superview)
-        let locationInCollectionView = interaction.location(in: collectionView.superview) // 위 둘 사이의 차이점??
-        print(locationInCollectionView)
-        
-        // Get the index path for the item at the specified location
-        guard let indexPath = collectionView.indexPathForItem(at: locationInCollectionView) else {
-            print("No item at this location")
-            return nil
-        }
-        
-        // Retrieve the book corresponding to the index path
-        let book = books[indexPath.row]
-        print("Selected Book: \(book.title)") // For debugging
-        
-        // Create the delete action
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { _ in
-            print("Deleting book: \(book.title)") // Perform the delete action here
-            self.deleteBook(at: indexPath, book: book)
-
-            // Call your delete function from CoreDataManager or similar
-        }
-        
-        // Create and return the context menu
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            UIMenu(title: "", children: [deleteAction])
-        }
-    }
-
-    // Function to delete the book from the array and collection view
-    func deleteBook(at indexPath: IndexPath, book: Book) {
-        // Remove from data source (array)
-        books.remove(at: indexPath.row)
-        
-        // Remove from collection view
-        collectionView.deleteItems(at: [indexPath])
-        
-        CoreDataManager.shared.deleteBookwithIsbn(by: book.isbn)
-        
-        reloadData(with: books)
-        
-        // Optionally delete from Core Data or your persistence layer
-        // Example: CoreDataManager.shared.deleteBook(by: book.isbn)
-        
-        print("Deleted book: \(book.title)")
     }
 }
