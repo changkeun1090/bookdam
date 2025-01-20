@@ -274,8 +274,6 @@ class CoreDataManager {
     
 }
 
-// CoreDataManager.swift (Add these methods)
-
 extension CoreDataManager {
     
     // MARK: - Tag Operations
@@ -427,29 +425,3 @@ extension BookEntity {
         )
     }
 }
-
-//func fetchBooks() -> [Book]? {
-//    let context = persistentContainer.viewContext
-//    let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
-//
-//    do {
-//         let results = try context.fetch(fetchRequest)
-//         return results.map { entity in
-//             Book(
-//                 title: entity.title ?? "",
-//                 author: entity.author ?? "",
-//                 isbn: entity.isbn ?? "",
-//                 publisher: entity.publisher ?? "",
-//                 cover: entity.cover,
-//                 pubDate: entity.pubDate,
-//                 bookDescription: entity.bookDescription,
-//                 link: entity.link,
-//                 createdAt: entity.createdAt
-////                     tags: convertTagEntitiesToModels(entity.tags)
-//             )
-//         }
-//     } catch {
-//        print("Failed to fetch books: \(error.localizedDescription)")
-//        return nil
-//    }
-//}

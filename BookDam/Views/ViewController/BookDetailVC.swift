@@ -23,7 +23,7 @@ class BookDetailVC: UIViewController {
     }
     private var tagContainerBottomConstraint: NSLayoutConstraint?
 
-    // MARK: UI - Container
+    // MARK: UI - Container 
         
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -167,11 +167,9 @@ class BookDetailVC: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .clear
 //        collectionView.backgroundColor = .systemBrown
-                
 
         return collectionView
     }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -230,8 +228,6 @@ class BookDetailVC: UIViewController {
         contentView.addSubview(descriptionHeaderLabel)
         contentView.addSubview(bookDescriptionLabel)
         contentView.addSubview(linkLabel)
- 
-        
         
         let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
 
@@ -443,6 +439,8 @@ class BookDetailVC: UIViewController {
     }
 }
 
+// MARK: - TagManagementSheetDelegate
+
 extension BookDetailVC: TagManagementSheetDelegate {
     
     func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>) {
@@ -455,29 +453,45 @@ extension BookDetailVC: TagManagementSheetDelegate {
             return
         }
         
-        CoreDataManager.shared.updateBookWithTags(book: currentBook, tagIds: selectedTagIds)
+        // 새로 저장하는 경우
+        guard isSaved else {            
+            CoreDataManager.shared.saveBookWithTags(book: currentBook, tagIds: selectedTagIds)
+            didSaveBook(sheet)
+            return
+        }
         
+        // 이미 저장된 경우
+        CoreDataManager.shared.updateBookWithTags(book: currentBook, tagIds: selectedTagIds)
         if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: currentBook.isbn)?.toBook() {
             self.book = updatedBook
-            
-            DispatchQueue.main.async {
-                sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    sheet.dismiss(animated: true) {        
-                        self.updateLayoutForTags()
-                        self.tagCollectionView.reloadData()
-                    }
-                }
-            }
+            didSaveBook(sheet, isSaved: true)
         }
+        
     }
     
     func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
     }
+    
+    func didSaveBook(_ sheet: TagManagementSheet, isSaved: Bool = false) {
+        DispatchQueue.main.async {
+            sheet.showAutoDismissAlert(title: "저장 완료되었습니다", message: "", duration: 0.5)
+                   
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    sheet.dismiss(animated: true) {
+                        if isSaved {
+                            self.updateLayoutForTags()
+                            self.tagCollectionView.reloadData()
+                        }
+                        self.navigationController?.popToRootViewController(animated: true)
+                    }
+                }
+        }
+    }
+    
 }
 
 // MARK: - UICollectionViewDataSource
+
 extension BookDetailVC: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         DispatchQueue.main.async {
