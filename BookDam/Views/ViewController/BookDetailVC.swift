@@ -28,6 +28,7 @@ class BookDetailVC: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false 
         return scrollView
     }()
     
@@ -454,7 +455,7 @@ extension BookDetailVC: TagManagementSheetDelegate {
         }
         
         // 새로 저장하는 경우
-        guard isSaved else {            
+        guard isSaved else {
             CoreDataManager.shared.saveBookWithTags(book: currentBook, tagIds: selectedTagIds)
             didSaveBook(sheet)
             return

@@ -170,10 +170,25 @@ class TagManagementSheet: UIViewController {
             guard let tagName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !tagName.isEmpty else { return }
             
-            self?.tagManager.createTag(name: tagName)
-                        
-            DispatchQueue.main.async {
-                self?.collectionView.reloadData()
+            let result = self?.tagManager.createTag(name: tagName)
+            
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    self?.collectionView.reloadData()
+                }
+                
+            case .duplicateExists:
+                DispatchQueue.main.async {
+                    self?.showDuplicateTagAlert(tagName: tagName)
+                }
+                
+            case .invalid:
+                DispatchQueue.main.async {
+                    self?.showAlert(title: "오류", message: "유효하지 않은 태그명입니다")
+                }
+            case .none:
+                return
             }
         }
         
@@ -188,7 +203,6 @@ class TagManagementSheet: UIViewController {
         alert.addAction(addAction)
         
         if let textField = alert.textFields?.first {
-            textField.delegate = self
             textField.addAction(UIAction { _ in
                 if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
                    !text.isEmpty {
@@ -247,8 +261,6 @@ extension TagManagementSheet: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension TagManagementSheet: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("SELECT!!!!!")
-        
         let tagId = tags[indexPath.item].id
         selectedTagIds.insert(tagId)
         
@@ -258,7 +270,6 @@ extension TagManagementSheet: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        print("DESELECT-----")
         let tagId = tags[indexPath.item].id
         selectedTagIds.remove(tagId)
         
@@ -277,16 +288,33 @@ extension TagManagementSheet: TagManagerDelegate {
     }
 }
 
-// MARK: - UITextFieldDelegate
-extension TagManagementSheet: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !text.isEmpty {
-            TagManager.shared.createTag(name: text)
-            loadTags()
-            dismiss(animated: true)
-        }
-        return true
+// MARK: - Tag Alert
+extension TagManagementSheet {
+    private func showDuplicateTagAlert(tagName: String) {
+        let alert = UIAlertController(
+            title: "중복된 태그",
+            message: "'\(tagName)' 태그가 이미 존재합니다",
+            preferredStyle: .alert
+        )
+        
+        let okAction = UIAlertAction(title: "확인", style: .default)
+        okAction.setValue(Constants.Colors.accent, forKey: "titleTextColor")
+        alert.addAction(okAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let okAction = UIAlertAction(title: "확인", style: .default)
+        okAction.setValue(Constants.Colors.accent, forKey: "titleTextColor")
+        alert.addAction(okAction)
+        
+        present(alert, animated: true)
     }
 }
-

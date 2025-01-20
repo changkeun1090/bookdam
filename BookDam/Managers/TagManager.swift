@@ -13,6 +13,12 @@ protocol TagManagerDelegate: AnyObject {
     func tagManager(_ manager: TagManager, didDeleteTags ids: Set<UUID>)
 }
 
+enum TagCreationResult {
+    case success
+    case duplicateExists
+    case invalid
+}
+
 class TagManager {
     
     // MARK: - Properties
@@ -34,20 +40,21 @@ class TagManager {
         }
     }
     
-    func createTag(name: String) {
+    func createTag(name: String) -> TagCreationResult {
         // Validate tag name
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedName.isEmpty else { return }
+        guard !trimmedName.isEmpty else { return .invalid }
         
         // Check for duplicates
         guard !tags.contains(where: { $0.name.lowercased() == trimmedName.lowercased() }) else {
-            return
+            return .duplicateExists
         }
         
         // Create new tag
         let newTag = Tag(name: trimmedName)
         CoreDataManager.shared.saveTag(tag: newTag)
         loadTags()
+        return .success
     }
     
     func deleteTag(with id: UUID) {
