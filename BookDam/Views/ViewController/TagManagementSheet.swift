@@ -155,7 +155,6 @@ class TagManagementSheet: UIViewController {
     private func loadTags() {
         tagManager.delegate = self
         tagManager.loadTags()
-        print("----------TAG!---------", self.tags)
     }
  
     // MARK: - Actions
@@ -165,7 +164,6 @@ class TagManagementSheet: UIViewController {
         
         alert.addTextField { textField in
             textField.placeholder = "추가할 태그를 입력하세요"
-//            textField.returnKeyType = .done
         }
         
         let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
@@ -205,13 +203,10 @@ class TagManagementSheet: UIViewController {
     }
     
     @objc private func cancelButtonTapped() {
-        // Restore the original selection
         selectedTagIds = initialSelectedTagIds
         
-        // Reload the selection state
         loadTags()
         
-        // Notify delegate and dismiss
         delegate?.tagManagementSheetDidCancel(self)
         dismiss(animated: true)
     }
@@ -236,17 +231,24 @@ extension TagManagementSheet: UICollectionViewDataSource {
         }
         
         let tag = tags[indexPath.item]
-        let isSelected = selectedTagIds.contains(tag.id)
+        let isTagSelected = selectedTagIds.contains(tag.id)
         
-        cell.configure(with: tag, isSelected: isSelected)
-    
+        cell.configure(with: tag, isTagSelected: isTagSelected)
+        
+        if isTagSelected {
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        }
+                    
         return cell
     }
+    
 }
 
 // MARK: - UICollectionViewDelegate
 extension TagManagementSheet: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("SELECT!!!!!")
+        
         let tagId = tags[indexPath.item].id
         selectedTagIds.insert(tagId)
         
@@ -256,6 +258,7 @@ extension TagManagementSheet: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        print("DESELECT-----")
         let tagId = tags[indexPath.item].id
         selectedTagIds.remove(tagId)
         
@@ -287,79 +290,3 @@ extension TagManagementSheet: UITextFieldDelegate {
     }
 }
 
-/*
-
-// MARK: - UIViewControllerTransitioningDelegate
-extension TagManagementSheet: UIViewControllerTransitioningDelegate {
-    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return TagManagementPresentationController(presentedViewController: presented, presenting: presenting)
-    }
-}
-
-// MARK: TagManagementPresentationController
-class TagManagementPresentationController: UIPresentationController {
-    
-    private let dimmedView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-        view.alpha = 0
-        return view
-    }()
-    
-    override var frameOfPresentedViewInContainerView: CGRect {
-        guard let containerView = containerView else { return .zero }
-        
-        return CGRect(x: 0,
-                     y: containerView.frame.height - 300,
-                     width: containerView.frame.width,
-                     height: 300)
-    }
-    
-    override func presentationTransitionWillBegin() {
-        guard let containerView = containerView else { return }
-        
-        dimmedView.frame = containerView.bounds
-        containerView.addSubview(dimmedView)
-        
-        guard let coordinator = presentedViewController.transitionCoordinator else {
-            dimmedView.alpha = 1
-            return
-        }
-        
-        coordinator.animate { [weak self] _ in
-            self?.dimmedView.alpha = 1
-        }
-    }
-    
-    override func dismissalTransitionWillBegin() {
-        guard let coordinator = presentedViewController.transitionCoordinator else {
-            dimmedView.alpha = 0
-            return
-        }
-        
-        coordinator.animate { [weak self] _ in
-            self?.dimmedView.alpha = 0
-        }
-    }
-    
-    override func containerViewDidLayoutSubviews() {
-        super.containerViewDidLayoutSubviews()
-        presentedView?.frame = frameOfPresentedViewInContainerView
-    }
-}
- 
- */
-
-
-// MARK: - TagViewDelegate
-//extension TagManagementSheet: TagViewDelegate {
-//    func tagViewDidSelect(_ tagView: TagView) {
-//        selectedTagIds.insert(tagView.tagId)
-//        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
-//    }
-//
-//    func tagViewDidDeselect(_ tagView: TagView) {
-//        selectedTagIds.remove(tagView.tagId)
-//        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
-//    }
-//}

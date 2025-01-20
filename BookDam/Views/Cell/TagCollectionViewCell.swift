@@ -59,10 +59,10 @@ class TagCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Configuration
-    func configure(with tag: Tag, isSelected: Bool = false) {
+    func configure(with tag: Tag, isTagSelected: Bool = false) {
         tagLabel.text = "#\(tag.name)"
         self.tagId = tag.id
-        self.isTagSelected = isSelected
+        self.isTagSelected = isTagSelected
     }
     
     // MARK: - Visual State Management
@@ -78,20 +78,4 @@ class TagCollectionViewCell: UICollectionViewCell {
                     Constants.Colors.tagText
         }
     }
-    
-    //MARK: TEMPORARY
-//    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-//        let attributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-//        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 32) // Fixed height
-//        
-//        // This will allow the width to adjust based on content while keeping fixed height
-//        let size = contentView.systemLayoutSizeFitting(
-//            targetSize,
-//            withHorizontalFittingPriority: .fittingSizeLevel,
-//            verticalFittingPriority: .required
-//        )
-//        
-//        attributes.frame.size = size
-//        return attributes
-//    }
 }
