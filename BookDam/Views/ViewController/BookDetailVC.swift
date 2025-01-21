@@ -15,7 +15,7 @@ class BookDetailVC: UIViewController {
     
     private var selectedTagIds: Set<UUID> = []
     
-    weak var deletionDelegate: BooksDeletionDelegate?
+    weak var delegate: BooksVCDelegate?
     
     private var tagCollectionViewHeightConstraint: NSLayoutConstraint?
     private var tagContainerMarginBottom: CGFloat {
@@ -186,21 +186,26 @@ class BookDetailVC: UIViewController {
     
     private func setupNavigationBar() {
         navigationItem.title = .none
-        
-        let backButton = UIBarButtonItem()
-        
+        navigationItem.backButtonTitle = "돌아가기"
         navigationController?.navigationBar.tintColor = Constants.Colors.accent
-        backButton.title = "돌아가기"
-        navigationController?.navigationBar.topItem?.backBarButtonItem = backButton
+        if #available(iOS 16.0, *) {
+            navigationItem.backAction = UIAction { [weak self] _ in
+                self?.backButtonTapped()
+            }
+        }
 
         if isSaved {
-            let editButton = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
-            let deleteButton = UIBarButtonItem(title: "삭제", style: .done, target: self, action: #selector(removeButtonTapped))
-            deleteButton.tintColor = Constants.Colors.warning
             
+            let editButton = ButtonFactory.createNavTextButton(title: "편집", style:.accent, target: self , action: #selector(editButtonTapped))
+  
+            let deleteButton = ButtonFactory.createNavTextButton(title: "삭제", style:.warning, target: self , action: #selector(removeButtonTapped))
+            
+            deleteButton.tintColor = Constants.Colors.warning
             navigationItem.rightBarButtonItems = [deleteButton, editButton]
         } else {
-            let saveButton = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveButtonTapped))
+            
+            let saveButton = ButtonFactory.createNavTextButton(title: "저장", style:.accent, target: self , action: #selector(saveButtonTapped))
+            
             navigationItem.rightBarButtonItem = saveButton
         }
         
@@ -321,6 +326,13 @@ class BookDetailVC: UIViewController {
         showTagManagementSheet()
     }
     
+    @objc private func backButtonTapped() {
+        DispatchQueue.main.async {
+            self.navigationController?.popToRootViewController(animated: true)
+            self.delegate?.backToHome()
+        }
+    }
+    
     func configure(with book: Book, isSaved: Bool = false) {
         self.book = book
         self.isSaved = isSaved
@@ -393,7 +405,7 @@ class BookDetailVC: UIViewController {
         
         self.showConfirmationAlert(title: "정말 삭제하시겠습니까?", message: "", confirmActionTitle: "삭제", cancelActionTitle: "취소") {
             CoreDataManager.shared.deleteBookwithIsbn(by: book.isbn)
-            self.deletionDelegate?.didDeleteBook(withIsbn: book.isbn)
+            self.delegate?.didDeleteBook(withIsbn: book.isbn)
             self.navigationController?.popToRootViewController(animated: true)
         }
     }
@@ -403,7 +415,6 @@ class BookDetailVC: UIViewController {
     }
     
     private func showTagManagementSheet() {
-        print("Selected TAG", selectedTagIds)
         let tagSheet = TagManagementSheet(selectedTagIds: selectedTagIds)
         tagSheet.delegate = self
         present(tagSheet, animated: true)
@@ -418,9 +429,7 @@ class BookDetailVC: UIViewController {
     private func updateCollectionViewHeight() {
 
         tagCollectionViewHeightConstraint?.constant = tagCollectionView.collectionViewLayout.collectionViewContentSize.height + 8
-        
-        print("CollectionViewHeight: ", tagCollectionView.collectionViewLayout.collectionViewContentSize.height)
-        
+                
         view.layoutIfNeeded()
     }
     
@@ -483,7 +492,7 @@ extension BookDetailVC: TagSelectionVCDelegate {
                             self.tagCollectionView.reloadData()
                         } else {
                             self.navigationController?.popToRootViewController(animated: true)
-                        }                                                
+                        }
                     }
                 }
         }

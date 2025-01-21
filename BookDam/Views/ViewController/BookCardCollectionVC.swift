@@ -14,6 +14,7 @@ class BookCardCollectionVC: UIViewController {
     
     private var isSelectMode = false
     private var isFilterMode = false
+    private var isSearchMode = false
     
     private var selectedIndexPaths = Set<IndexPath>()
     private var appliedTags: Set<UUID> = []
@@ -181,6 +182,17 @@ class BookCardCollectionVC: UIViewController {
             parent.tagSelectionVC(parent, didUpdateSelectedTags: [])
         }
     }
+    
+    func updateSearchState(_ isSearching: Bool) {
+        
+        if isSearching {
+            self.isSearchMode = true
+            countLabel.isHidden = true
+        } else {
+            self.isSearchMode = false
+            countLabel.isHidden = false
+        }
+    }
 }
 
 // MARK: - UICollectionViewDelegate
@@ -210,7 +222,7 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
             let bookDetailVC = BookDetailVC()
             bookDetailVC.configure(with: selectedBook, isSaved: true)
             bookDetailVC.hidesBottomBarWhenPushed = true
-            bookDetailVC.deletionDelegate = self.parent as? BooksDeletionDelegate
+            bookDetailVC.delegate = self.parent as? BooksVCDelegate
             
             navigationController?.pushViewController(bookDetailVC, animated: true)        }
     }

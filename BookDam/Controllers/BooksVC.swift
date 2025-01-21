@@ -8,8 +8,9 @@
 import UIKit
 import CoreData
 
-protocol BooksDeletionDelegate: AnyObject {
+protocol BooksVCDelegate: AnyObject {
     func didDeleteBook(withIsbn isbn: String)
+    func backToHome()
 }
 
 class BooksVC: UIViewController {
@@ -22,6 +23,7 @@ class BooksVC: UIViewController {
     private var isSearching = false {
         didSet {
             updateNavigationItems()
+            bookCardCollectionVC.updateSearchState(isSearching)
         }
     }
     private var isSelectMode = false {
@@ -140,7 +142,7 @@ class BooksVC: UIViewController {
     private func showSearchController() {
         navigationItem.searchController = searchController
         searchController.isActive = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.searchController.searchBar.becomeFirstResponder()
         }
     }
@@ -166,6 +168,7 @@ class BooksVC: UIViewController {
         }
         
         // 일반모드
+        print("----", isSearching, isSelectMode, "----")
         navigationItem.leftBarButtonItem = tagBarButton
         navigationItem.rightBarButtonItems = [moreBarButton, searchBarButton]
         navigationItem.searchController = nil
@@ -297,7 +300,12 @@ extension BooksVC: BookManagerDelegate {
 }
 
 // MARK: - BooksDeletionDelegate
-extension BooksVC: BooksDeletionDelegate {
+extension BooksVC: BooksVCDelegate {
+    func backToHome() {
+        print("BACK TO HOME------")
+        isSearching = false
+    }
+    
     func didDeleteBook(withIsbn isbn: String) {
         bookManager.deleteBook(with: isbn)
     }
