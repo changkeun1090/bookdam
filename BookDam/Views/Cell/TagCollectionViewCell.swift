@@ -78,4 +78,5 @@ class TagCollectionViewCell: UICollectionViewCell {
                     Constants.Colors.tagText
         }
     }
+    
 }

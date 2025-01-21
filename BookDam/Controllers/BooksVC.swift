@@ -252,10 +252,6 @@ class BooksVC: UIViewController {
         }
     }
     
-    @objc private func tagButtonTapped() {
-        
-    }
-    
     @objc private func searchButtonTapped() {
         bookCardCollectionVC.reloadData(with: [])
         isSearching = true
@@ -328,5 +324,22 @@ extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         bookManager.loadBooks()
         isSearching = false
+    }
+}
+
+// MARK: - Tag Filtering
+
+extension BooksVC: TagSelectionVCDelegate {
+    
+    @objc func tagButtonTapped() {
+        let filterSheet = TagFilterSheet(selectedTagIds: bookManager.appliedTagFilters)
+        filterSheet.delegate = self
+        present(filterSheet, animated: true)
+    }
+    
+    func tagSelectionVC(_ controller: UIViewController, didUpdateSelectedTags tags: Set<UUID>) {
+        let filteredBooks = bookManager.getFilteredBooks(byTags: tags)
+        
+        bookCardCollectionVC.reloadData(with: filteredBooks)
     }
 }

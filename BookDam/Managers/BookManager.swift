@@ -26,9 +26,9 @@ class BookManager {
     
     private(set) var books: [Book] = []
     private(set) var filteredBooks: [Book] = []
-     
     
-    // Current sort order preference
+    private(set) var appliedTagFilters: Set<UUID> = []
+
     private var currentSortOrder: SortOrder {
         get { UserDefaultsManager.shared.sortOrder }
         set { UserDefaultsManager.shared.sortOrder = newValue }
@@ -37,7 +37,6 @@ class BookManager {
     // MARK: - Initialization
     
     private init() {
-        // Private initializer to enforce singleton pattern
         loadBooks()
     }
     
@@ -130,5 +129,30 @@ class BookManager {
                 books.sort { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
             }
         }
+    }
+    
+    // MARK: - TAG Filterling
+    
+    func getFilteredBooks(byTags tagIds: Set<UUID>) -> [Book] {
+        appliedTagFilters = tagIds
+        
+        if tagIds.isEmpty {
+            return books
+        }
+        
+        return books.filter { book in
+            guard let bookTags = book.tags else {
+                return false
+            }
+            
+            let bookTagIds = Set(bookTags.map { $0.id })
+            return !tagIds.isDisjoint(with: bookTagIds)
+        }
+    }
+    
+    // Optional: Method to clear filters
+    func clearTagFilters() {
+        appliedTagFilters.removeAll()
+        loadBooks() // This will trigger delegate update with all books
     }
 }

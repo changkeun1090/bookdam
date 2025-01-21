@@ -30,6 +30,7 @@ class ButtonFactory {
     enum ButtonSize {
         case small
         case medium
+        case mediumLarge
         case large
         case custom(CGFloat)
         
@@ -37,6 +38,7 @@ class ButtonFactory {
             switch self {
             case .small: return 14
             case .medium: return 16
+            case .mediumLarge: return 20
             case .large: return 24
             case .custom(let size): return size
             }
@@ -72,7 +74,6 @@ class ButtonFactory {
     ) -> UIBarButtonItem {
         let configuration = UIImage.SymbolConfiguration(pointSize: size.pointSize)
         let image = UIImage(systemName: image, withConfiguration: configuration)
-        
         let button = UIBarButtonItem(
             image: image,
             style: .plain,
@@ -107,6 +108,7 @@ class ButtonFactory {
     static func createTextButton(
         title: String,
         style: ButtonStyle = .plain,
+        size: ButtonSize = .medium,
         isEnabled: Bool = true,
         translatesAutoresizingMaskIntoConstraints: Bool = false,
         target: Any? = nil,
@@ -114,6 +116,7 @@ class ButtonFactory {
     ) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: size.pointSize)
         button.tintColor = style.color
         button.isEnabled = isEnabled
         button.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
