@@ -37,6 +37,7 @@ final class TagListVC: UIViewController {
         setupUI()
         configureTagManager()
         calculateTagUsage()
+        sortTagOrder()
     }
     
     // MARK: - Setup
@@ -91,9 +92,10 @@ final class TagListVC: UIViewController {
         }
     }
     
-    // MARK: - Actions
-    @objc private func backButtonTapped() {
-        navigationController?.popViewController(animated: true)
+    private func sortTagOrder() {
+        self.tags = tags.sorted {
+            (tagUsageCounts[$0.id] ?? 0) > (tagUsageCounts[$1.id] ?? 0)
+        }
     }
 }
 
@@ -180,9 +182,11 @@ extension TagListVC: TagManagerDelegate {
     func tagManager(_ manager: TagManager, didUpdateTags tags: [Tag]) {
         self.tags = tags
         calculateTagUsage()
+        sortTagOrder()
     }
     
     func tagManager(_ manager: TagManager, didDeleteTags ids: Set<UUID>) {
         calculateTagUsage()
+        sortTagOrder()
     }
 }
