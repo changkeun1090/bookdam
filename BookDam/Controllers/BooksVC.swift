@@ -339,7 +339,7 @@ extension BooksVC: TagSelectionVCDelegate {
     func tagSelectionVC(_ controller: UIViewController, didUpdateSelectedTags tags: Set<UUID>) {
         let filteredBooks = bookManager.getFilteredBooks(byTags: tags)
         
-        bookCardCollectionVC.reloadData(with: filteredBooks)
+        bookCardCollectionVC.reloadData(with: filteredBooks, appliedTags: tags)
     }
     
     func tagSelectionVCDidSave(_ sheet: TagManagementSheet) {}

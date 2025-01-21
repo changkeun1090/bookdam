@@ -59,6 +59,7 @@ struct Constants {
         static let check = "checkmark"
         static let checkWithCircle = "checkmark.circle"
         static let addTag = "plus.app"
+        static let xmark = "x.circle"
     }
     
     struct Size {

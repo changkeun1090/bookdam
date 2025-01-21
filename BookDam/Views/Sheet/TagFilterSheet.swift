@@ -12,7 +12,7 @@ class TagFilterSheet: UIViewController, TagSelectionVC {
         
     let tagManager = TagManager.shared
     weak var delegate: TagSelectionVCDelegate?
-    
+     
     var selectedTagIds: Set<UUID>
     private var tags: [Tag] = []
     

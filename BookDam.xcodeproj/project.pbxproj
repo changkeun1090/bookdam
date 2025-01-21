@@ -14,6 +14,8 @@
 		BD41620B2D2E489200F8C285 /* DataLoadingVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */; };
 		BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */; };
 		BD42687F2D2CF75800C89DCD /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = BD42687E2D2CF75800C89DCD /* SwiftSoup */; };
+		BD43978F2D3F5B85003061CA /* AppliedTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD43978E2D3F5B85003061CA /* AppliedTagsView.swift */; };
+		BD4397912D3F66ED003061CA /* HeaderContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4397902D3F66ED003061CA /* HeaderContainerView.swift */; };
 		BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */; };
 		BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E22D38659300BE78BC /* ButtonFactory.swift */; };
 		BD756DC02D275B17004FA956 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DBF2D275B17004FA956 /* Constant.swift */; };
@@ -59,6 +61,8 @@
 		BD4162082D2E414D00F8C285 /* WebViewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewVC.swift; sourceTree = "<group>"; };
 		BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoadingVC.swift; sourceTree = "<group>"; };
 		BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetcher.swift; sourceTree = "<group>"; };
+		BD43978E2D3F5B85003061CA /* AppliedTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppliedTagsView.swift; sourceTree = "<group>"; };
+		BD4397902D3F66ED003061CA /* HeaderContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderContainerView.swift; sourceTree = "<group>"; };
 		BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedFlowLayout.swift; sourceTree = "<group>"; };
 		BD5C18E22D38659300BE78BC /* ButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFactory.swift; sourceTree = "<group>"; };
 		BD756DBF2D275B17004FA956 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
@@ -292,6 +296,8 @@
 			isa = PBXGroup;
 			children = (
 				BDD2C39B2D2B3E58009796AF /* QuotesView.swift */,
+				BD43978E2D3F5B85003061CA /* AppliedTagsView.swift */,
+				BD4397902D3F66ED003061CA /* HeaderContainerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -388,6 +394,7 @@
 				BD0D28F12D2B21E400299966 /* Quotes.swift in Sources */,
 				BD8A33A92D2736C700641D7D /* BookDam.xcdatamodeld in Sources */,
 				BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */,
+				BD43978F2D3F5B85003061CA /* AppliedTagsView.swift in Sources */,
 				BD8A33BE2D274BF200641D7D /* SearchVC.swift in Sources */,
 				BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */,
 				BD756DCA2D27B1FD004FA956 /* BookCardCell.swift in Sources */,
@@ -401,6 +408,7 @@
 				BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */,
 				BD8B7D282D3EFEBD00F529B7 /* TagSelectionVC.swift in Sources */,
 				BDCEFB272D36FC9A00F2FA0C /* Tag.swift in Sources */,
+				BD4397912D3F66ED003061CA /* HeaderContainerView.swift in Sources */,
 				BDFB04182D2CCE83007F81E0 /* BookDetailVC.swift in Sources */,
 				BD8A33A12D2736C700641D7D /* SceneDelegate.swift in Sources */,
 				BD756DC52D27A082004FA956 /* Book.swift in Sources */,

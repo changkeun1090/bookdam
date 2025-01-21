@@ -13,13 +13,30 @@ class BookCardCollectionVC: UIViewController {
     private let searchController = UISearchController(searchResultsController: nil)
     
     private var isSelectMode = false
+    private var isFilterMode = false
+    
     private var selectedIndexPaths = Set<IndexPath>()
+    private var appliedTags: Set<UUID> = []
+    
+    private let headerContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private let countLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.Fonts.title
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private lazy var appliedTagsView: AppliedTagsView = {
+        let view = AppliedTagsView()
+        view.isHidden = true
+        view.delegate = self
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     var books: [Book] = [] {
@@ -44,26 +61,62 @@ class BookCardCollectionVC: UIViewController {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .clear
-        
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.dataSource = self
         collectionView.delegate = self
         
         collectionView.register(BookCardCell.self, forCellWithReuseIdentifier: BookCardCell.identifier)
         
-        view.addSubview(countLabel)
+        view.addSubview(headerContainer)
+        headerContainer.addSubview(countLabel)
+        headerContainer.addSubview(appliedTagsView)
         view.addSubview(collectionView)
 
         NSLayoutConstraint.activate([
-            countLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.Layout.layoutMargin),
-            countLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            headerContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            headerContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            headerContainer.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: countLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
+            // Add constraints for countLabel
+            countLabel.topAnchor.constraint(equalTo: headerContainer.topAnchor),
+            countLabel.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+            countLabel.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+            countLabel.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor),
+            
+            // Add constraints for appliedTagsView
+            appliedTagsView.topAnchor.constraint(equalTo: headerContainer.topAnchor),
+            appliedTagsView.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+            appliedTagsView.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+            appliedTagsView.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor),
+            
+        ])
+  
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: Constants.Layout.layoutMargin),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.layoutMargin),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    func reloadData(with books: [Book], appliedTags: Set<UUID> = []) {
+        
+        self.books = books
+        self.appliedTags = appliedTags
+        
+        if !appliedTags.isEmpty {
+            let tags = TagManager.shared.tags.filter { appliedTags.contains($0.id) }
+            enterFilterMode(with: tags)
+        } else if isFilterMode {
+            exitFilterMode()
+        }
+        
+        selectedIndexPaths.removeAll()
+        collectionView.reloadData()
+        
     }
     
     private func updateCountLabel() {
@@ -110,6 +163,23 @@ class BookCardCollectionVC: UIViewController {
         let topIndexPath = IndexPath(item: 0, section: 0)
         
         collectionView.scrollToItem(at: topIndexPath, at: .top, animated: true)
+    }
+    
+    func enterFilterMode(with tags: [Tag]) {
+        isFilterMode = true
+        countLabel.isHidden = true
+        appliedTagsView.isHidden = false
+        appliedTagsView.configure(with: tags)
+    }
+
+    func exitFilterMode() {
+        isFilterMode = false
+        countLabel.isHidden = false
+        appliedTagsView.isHidden = true
+        appliedTags.removeAll()
+        if let parent = parent as? BooksVC {
+            parent.tagSelectionVC(parent, didUpdateSelectedTags: [])
+        }
     }
 }
 
@@ -197,12 +267,7 @@ extension BookCardCollectionVC: UICollectionViewDataSource {
         
         return cell
     }
-    
-    func reloadData(with books: [Book]) {
-        self.books = books
-        selectedIndexPaths.removeAll()
-        collectionView.reloadData()
-    }
+
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
@@ -213,5 +278,19 @@ extension BookCardCollectionVC: UICollectionViewDelegateFlowLayout {
         let (cardWidth, cardHeight) = Constants.Size.calculateImageSize()
         
         return CGSize(width: cardWidth, height: cardHeight)
+    }
+}
+
+// MARK: - AppliedTagsViewDelegate
+extension BookCardCollectionVC: AppliedTagsViewDelegate {
+    func appliedTagsView(_ view: AppliedTagsView, didDeselectTag tagId: UUID) {
+        appliedTags.remove(tagId)
+        if let parent = parent as? BooksVC {
+            parent.tagSelectionVC(parent, didUpdateSelectedTags: appliedTags)
+        }
+    }
+    
+    func appliedTagsViewDidClearAll(_ view: AppliedTagsView) {
+        exitFilterMode()
     }
 }
