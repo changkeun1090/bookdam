@@ -18,7 +18,7 @@ class TabBarController: UITabBarController {
         UITabBar.appearance().unselectedItemTintColor = Constants.Colors.subText
         UITabBar.appearance().backgroundColor = Constants.Colors.subBackground
         
-        viewControllers = [createBookNC(), createSearchNC(), createInfoNC()]
+        viewControllers = [createBookNC(), createSearchNC(), createMoreNC()]
     }
      
     func createBookNC() -> UINavigationController {
@@ -35,11 +35,11 @@ class TabBarController: UITabBarController {
         return UINavigationController(rootViewController: searchVC)
     }
     
-    func createInfoNC() -> UINavigationController {
-        let infoVC = InfoVC()
+    func createMoreNC() -> UINavigationController {
+        let moreVC = MoreVC()
         let infoIcon = UIImage(systemName: "ellipsis.circle")
-        infoVC.tabBarItem = UITabBarItem(title: nil, image: infoIcon , tag: 2)
-        return UINavigationController(rootViewController: infoVC)
+        moreVC.tabBarItem = UITabBarItem(title: nil, image: infoIcon , tag: 2)
+        return UINavigationController(rootViewController: moreVC)
     }
 }
 

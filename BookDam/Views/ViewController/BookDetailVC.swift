@@ -186,8 +186,8 @@ class BookDetailVC: UIViewController {
     
     private func setupNavigationBar() {
         navigationItem.title = .none
-        navigationItem.backButtonTitle = "돌아가기"
-        navigationController?.navigationBar.tintColor = Constants.Colors.accent
+//        navigationItem.backButtonTitle = "돌아가기"
+//        navigationController?.navigationBar.tintColor = Constants.Colors.accent
         if #available(iOS 16.0, *) {
             navigationItem.backAction = UIAction { [weak self] _ in
                 self?.backButtonTapped()

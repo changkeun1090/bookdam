@@ -33,9 +33,7 @@ class SearchVC: DataLoadingVC {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = Constants.Colors.mainBackground
-
-        
+        view.backgroundColor = Constants.Colors.mainBackground        
         setupUI()
     }
     

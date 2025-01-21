@@ -46,6 +46,8 @@
 		BDD2C39F2D2B50DC009796AF /* Label+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD2C39E2D2B50DC009796AF /* Label+Ext.swift */; };
 		BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */; };
 		BDD687072D34E2A000F6FF91 /* BookManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD687062D34E2A000F6FF91 /* BookManager.swift */; };
+		BDD88EC02D403C21004033E4 /* MoreVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD88EBF2D403C21004033E4 /* MoreVC.swift */; };
+		BDD88EC22D404A7C004033E4 /* TagListingVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD88EC12D404A7C004033E4 /* TagListingVC.swift */; };
 		BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDB4C542D307CAF005B6701 /* UIViewController + Ext.swift */; };
 		BDF57DF12D2C7555006D9BBD /* BookListTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF57DF02D2C7555006D9BBD /* BookListTableVC.swift */; };
 		BDF57DF32D2C81DD006D9BBD /* BookListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */; };
@@ -96,6 +98,8 @@
 		BDD2C39E2D2B50DC009796AF /* Label+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Label+Ext.swift"; sourceTree = "<group>"; };
 		BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultManager.swift; sourceTree = "<group>"; };
 		BDD687062D34E2A000F6FF91 /* BookManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookManager.swift; sourceTree = "<group>"; };
+		BDD88EBF2D403C21004033E4 /* MoreVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreVC.swift; sourceTree = "<group>"; };
+		BDD88EC12D404A7C004033E4 /* TagListingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagListingVC.swift; sourceTree = "<group>"; };
 		BDDB4C542D307CAF005B6701 /* UIViewController + Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + Ext.swift"; sourceTree = "<group>"; };
 		BDF57DF02D2C7555006D9BBD /* BookListTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListTableVC.swift; sourceTree = "<group>"; };
 		BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListCell.swift; sourceTree = "<group>"; };
@@ -168,6 +172,7 @@
 				BDFB04172D2CCE83007F81E0 /* BookDetailVC.swift */,
 				BD4162082D2E414D00F8C285 /* WebViewVC.swift */,
 				BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */,
+				BDD88EC12D404A7C004033E4 /* TagListingVC.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 				BD8A33BB2D274BDD00641D7D /* BooksVC.swift */,
 				BD8A33BD2D274BF200641D7D /* SearchVC.swift */,
 				BD8A33BF2D274C4500641D7D /* InfoVC.swift */,
+				BDD88EBF2D403C21004033E4 /* MoreVC.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -392,6 +398,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BD0D28F12D2B21E400299966 /* Quotes.swift in Sources */,
+				BDD88EC02D403C21004033E4 /* MoreVC.swift in Sources */,
 				BD8A33A92D2736C700641D7D /* BookDam.xcdatamodeld in Sources */,
 				BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */,
 				BD43978F2D3F5B85003061CA /* AppliedTagsView.swift in Sources */,
@@ -418,6 +425,7 @@
 				BDD687072D34E2A000F6FF91 /* BookManager.swift in Sources */,
 				BDCEFB2D2D370E2F00F2FA0C /* TagManager.swift in Sources */,
 				BDDB4C552D307CAF005B6701 /* UIViewController + Ext.swift in Sources */,
+				BDD88EC22D404A7C004033E4 /* TagListingVC.swift in Sources */,
 				BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */,
 				BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */,
 				BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */,

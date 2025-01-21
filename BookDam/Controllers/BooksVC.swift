@@ -149,6 +149,9 @@ class BooksVC: UIViewController {
 
     private func updateNavigationItems() {
         
+        navigationItem.backButtonTitle = "돌아가기"
+        navigationController?.navigationBar.tintColor = Constants.Colors.accent
+        
         // 선택모드
         if isSelectMode {
             navigationItem.leftBarButtonItem = selectCancelBarButton
