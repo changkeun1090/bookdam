@@ -10,6 +10,8 @@ import UIKit
 
 protocol TagSelectionVCDelegate: AnyObject {
     func tagSelectionVC(_ controller: UIViewController, didUpdateSelectedTags tags: Set<UUID>)
+    func tagSelectionVCDidSave(_ sheet: TagManagementSheet)
+    func tagSelectionVCDidCancel(_ sheet: TagManagementSheet)
 }
 
 protocol TagSelectionVC: UIViewController {

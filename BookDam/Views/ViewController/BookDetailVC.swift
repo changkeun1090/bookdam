@@ -8,7 +8,7 @@
 import UIKit
 
 class BookDetailVC: UIViewController {
-    
+
     private var book: Book?
     private var bookLink: String?
     private var isSaved = false
@@ -442,13 +442,12 @@ class BookDetailVC: UIViewController {
 
 // MARK: - TagManagementSheetDelegate
 
-extension BookDetailVC: TagManagementSheetDelegate {
-    
-    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>) {
-        selectedTagIds = tags        
+extension BookDetailVC: TagSelectionVCDelegate {
+    func tagSelectionVC(_ controller: UIViewController, didUpdateSelectedTags tags: Set<UUID>) {
+        selectedTagIds = tags
     }
     
-    func tagManagementSheetDidSave(_ sheet: TagManagementSheet) {
+    func tagSelectionVCDidSave(_ sheet: TagManagementSheet) {
         guard let currentBook = book else {
             print("No book data to save")
             return
@@ -470,7 +469,7 @@ extension BookDetailVC: TagManagementSheetDelegate {
         
     }
     
-    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet) {
+    func tagSelectionVCDidCancel(_ sheet: TagManagementSheet) {
     }
     
     func didSaveBook(_ sheet: TagManagementSheet, isSaved: Bool = false) {
@@ -482,8 +481,9 @@ extension BookDetailVC: TagManagementSheetDelegate {
                         if isSaved {
                             self.updateLayoutForTags()
                             self.tagCollectionView.reloadData()
-                        }
-                        self.navigationController?.popToRootViewController(animated: true)
+                        } else {
+                            self.navigationController?.popToRootViewController(animated: true)
+                        }                                                
                     }
                 }
         }

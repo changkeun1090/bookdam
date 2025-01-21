@@ -8,20 +8,18 @@
 import Foundation
 import UIKit
 
-protocol TagManagementSheetDelegate: AnyObject {
-    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>)
-    func tagManagementSheetDidSave(_ sheet: TagManagementSheet)
-    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet)
-}
+//protocol TagManagementSheetDelegate: AnyObject {
+//    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>)
+//    func tagManagementSheetDidSave(_ sheet: TagManagementSheet)
+//    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet)
+//}
 
-class TagManagementSheet: UIViewController {
-
+class TagManagementSheet: UIViewController, TagSelectionVC {
+    
     let tagManager = TagManager.shared
-    weak var delegate: TagManagementSheetDelegate?
-    
+    weak var delegate: TagSelectionVCDelegate?
     private var initialSelectedTagIds: Set<UUID>
-    private var selectedTagIds: Set<UUID>
-    
+    var selectedTagIds: Set<UUID>
     private var tags: [Tag] = []
 
     private let containerView: UIView = {
@@ -42,20 +40,15 @@ class TagManagementSheet: UIViewController {
         return label
     }()
     
-    private lazy var collectionView: UICollectionView = {
-        let layout = LeftAlignedFlowLayout()
-        layout.minimumInteritemSpacing = Constants.Layout.smMargin
-        layout.minimumLineSpacing = Constants.Layout.mdMargin
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: TagCollectionViewCell.identifier)
-        collectionView.allowsMultipleSelection = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
+    lazy var collectionView: UICollectionView = {
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
+        cv.backgroundColor = .clear
+        cv.delegate = self
+        cv.dataSource = self
+        cv.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: TagCollectionViewCell.identifier)
+        cv.allowsMultipleSelection = true
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        return cv
     }()
     
     private lazy var addButton: UIButton = {
@@ -139,18 +132,6 @@ class TagManagementSheet: UIViewController {
         ])
     }
     
-    private func configureSheet() {
-        modalPresentationStyle = .pageSheet
-        
-        if let sheet = sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-            sheet.preferredCornerRadius = 12
-//            sheet.prefersScrollingExpandsWhenScrolled = true
-            sheet.prefersEdgeAttachedInCompactHeight = true
-        }
-    }
-    
     // MARK: - Data Loading
     private func loadTags() {
         tagManager.delegate = self
@@ -218,17 +199,14 @@ class TagManagementSheet: UIViewController {
     
     @objc private func cancelButtonTapped() {
         selectedTagIds = initialSelectedTagIds
-        
         loadTags()
-        
-        delegate?.tagManagementSheetDidCancel(self)
+        delegate?.tagSelectionVCDidCancel(self)
         dismiss(animated: true)
     }
     
     @objc private func saveButtonTapped() {
-        delegate?.tagManagementSheet(self, didUpdateSelectedTags: selectedTagIds)
-        delegate?.tagManagementSheetDidSave(self)
-//        dismiss(animated: true)
+        delegate?.tagSelectionVC(self, didUpdateSelectedTags: selectedTagIds)
+        delegate?.tagSelectionVCDidSave(self)
     }
 }
 

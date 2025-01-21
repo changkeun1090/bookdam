@@ -330,7 +330,6 @@ extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
 // MARK: - Tag Filtering
 
 extension BooksVC: TagSelectionVCDelegate {
-    
     @objc func tagButtonTapped() {
         let filterSheet = TagFilterSheet(selectedTagIds: bookManager.appliedTagFilters)
         filterSheet.delegate = self
@@ -342,4 +341,7 @@ extension BooksVC: TagSelectionVCDelegate {
         
         bookCardCollectionVC.reloadData(with: filteredBooks)
     }
+    
+    func tagSelectionVCDidSave(_ sheet: TagManagementSheet) {}
+    func tagSelectionVCDidCancel(_ sheet: TagManagementSheet) {}
 }
