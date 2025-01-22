@@ -33,7 +33,7 @@ enum MoreSection: Int, CaseIterable {
         case .tagManagement:
             return [.tagManagement]
         case .displayMode:
-            return [.displayMode, .textSize]
+            return [.displayMode]
         case .feedback:
             return [.notificationTime, .emailNotification, .appReview]
         case .appInfo:
@@ -166,9 +166,15 @@ extension MoreVC: UITableViewDelegate {
         
         let section = MoreSection(rawValue: indexPath.section)!
         let row = section.rows[indexPath.row]
+        
         if row == .tagManagement {
             let tagListVC = TagListVC()
             navigationController?.pushViewController(tagListVC, animated: true)
+        }
+        
+        if row == .displayMode {
+            let displayModeVC = DisplayModeVC()
+            navigationController?.pushViewController(displayModeVC, animated: true)
         }
         
     }

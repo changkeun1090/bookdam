@@ -23,6 +23,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.makeKeyAndVisible()
         
+        let savedMode = UserDefaultsManager.shared.displayMode
+        window?.overrideUserInterfaceStyle = savedMode.interfaceStyle
+        
         configureNavigationBar()
     }
     
