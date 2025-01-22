@@ -171,7 +171,6 @@ class BooksVC: UIViewController {
         }
         
         // 일반모드
-        print("----", isSearching, isSelectMode, "----")
         navigationItem.leftBarButtonItem = tagBarButton
         navigationItem.rightBarButtonItems = [moreBarButton, searchBarButton]
         navigationItem.searchController = nil
@@ -304,8 +303,7 @@ extension BooksVC: BookManagerDelegate {
 
 // MARK: - BooksDeletionDelegate
 extension BooksVC: BooksVCDelegate {
-    func backToHome() {
-        print("BACK TO HOME------")
+    func backToHome() {        
         isSearching = false
     }
     

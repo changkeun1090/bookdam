@@ -42,7 +42,6 @@ class BookManager {
     
     // MARK: - Public Methods
     
-    /// Fetches all books from CoreData and updates the local storage
     func loadBooks() {
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
             self.books = bookEntities
@@ -68,50 +67,46 @@ class BookManager {
 //        sortBooks(by: currentSortOrder, isFiltered: true)
         delegate?.bookManager(self, didUpdateBooks: filteredBooks)
     }
-    
-    /// Deletes books with given ISBNs
-    /// - Parameter isbns: Set of ISBNs to delete
+
+    /*
     func deleteBooks(with isbns: Set<String>) {
-        // Delete from CoreData
+        
         isbns.forEach { isbn in
             CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
         }
         
-        // Remove from local arrays
         books.removeAll { isbns.contains($0.isbn) }
         filteredBooks.removeAll { isbns.contains($0.isbn) }
         
-        // Notify delegate about deletion
         delegate?.bookManager(self, didDeleteBooks: isbns)
     }
+     */
     
-    /// Deletes a single book by ISBN
-    /// - Parameter isbn: ISBN of the book to delete
+    func deleteBooks(with isbns: Set<String>) {
+        // Ensure UI updates happen on main thread
+        DispatchQueue.main.async { [weak self] in
+            isbns.forEach { isbn in
+                CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
+            }
+            self?.loadBooks() // Refresh the books array after all deletions
+            self?.delegate?.bookManager(self!, didDeleteBooks: isbns)
+        }
+    }
     func deleteBook(with isbn: String) {
         deleteBooks(with: Set([isbn]))
     }
-    
-    /// Changes the sort order of books
-    /// - Parameter order: New sort order to apply
+
     func changeSortOrder(to order: SortOrder) {
         currentSortOrder = order
         sortBooks(by: order)
         delegate?.bookManager(self, didUpdateBooks: books)
     }
     
-    /// Returns current books array based on search state
-    /// - Parameter isSearching: Whether the app is in search mode
-    /// - Returns: Appropriate books array
     func getCurrentBooks(isSearching: Bool) -> [Book] {
         return isSearching ? filteredBooks : books
     }
     
     // MARK: - Private Methods
-    
-    /// Sorts books based on given order
-    /// - Parameters:
-    ///   - order: Sort order to apply
-    ///   - isFiltered: Whether to sort filtered books or all books
     private func sortBooks(by order: SortOrder, isFiltered: Bool = false) {
         let _ = isFiltered ? filteredBooks : books
         
@@ -154,5 +149,23 @@ class BookManager {
     func clearTagFilters() {
         appliedTagFilters.removeAll()
         loadBooks() // This will trigger delegate update with all books
+    }
+}
+
+// MARK: - CloudKit
+extension BookManager {
+    func handleCloudKitChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStoreRemoteChange),
+            name: .NSPersistentStoreRemoteChange,
+            object: nil
+        )
+    }
+    
+    @objc private func handleStoreRemoteChange(_ notification: Notification) {
+        DispatchQueue.main.async { [weak self] in
+            self?.loadBooks()
+        }
     }
 }

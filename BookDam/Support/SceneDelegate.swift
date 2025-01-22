@@ -21,8 +21,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.rootViewController = TabBarController()
         
-        window?.makeKeyAndVisible()
+        window?.makeKeyAndVisible()                
         
+        // iClound 정상작동 하는지 확인
+        CloudKitManager.shared.checkiCloudStatus { isAvailable in
+            if !isAvailable {
+                self.showICloudAlert(in: windowScene)
+            }
+        }
+        
+        // iClound 테스트용도 
+        CloudKitManager.shared.checkiCloudStatus { isAvailable in
+            if isAvailable {
+                print("✅ iCloud is available and user is signed in")
+            } else {
+                print("❌ iCloud is not available")
+            }
+        }
+        
+        // 디스플레이모드 불러오기
         let savedMode = UserDefaultsManager.shared.displayMode
         window?.overrideUserInterfaceStyle = savedMode.interfaceStyle
         
@@ -66,6 +83,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
-
+    private func showICloudAlert(in scene: UIWindowScene) {
+        let alert = UIAlertController(
+            title: "iCloud Not Available",
+            message: "Please sign in to your iCloud account to enable syncing.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        scene.windows.first?.rootViewController?.present(alert, animated: true)
+    }
+    
 }
 

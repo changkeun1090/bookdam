@@ -13,13 +13,29 @@ import UIKit
 class CoreDataManager {
 
     static let shared = CoreDataManager()
+    let persistentContainer: NSPersistentCloudKitContainer
 
-    private init() {}
-    
-    // MARK: - Persistent Container
-    private var persistentContainer: NSPersistentContainer {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        return appDelegate.persistentContainer
+    private init() {
+        // MARK: - Persistent Container
+        persistentContainer = NSPersistentCloudKitContainer(name: "BookDam")
+        
+        // Configure the persistent store
+        guard let description = persistentContainer.persistentStoreDescriptions.first else {
+            fatalError("Failed to retrieve a persistent store description.")
+        }
+        
+        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+        
+        persistentContainer.loadPersistentStores { description, error in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        }
+        
+        // Enable automatic cloud sync
+        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+        persistentContainer.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     }
 
     // MARK: - Save Book
@@ -198,18 +214,14 @@ class CoreDataManager {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         
-        // Filter the BookEntity by ISBN
         fetchRequest.predicate = NSPredicate(format: "isbn == %@", isbn)
         
         do {
-            // Fetch the book with the given ISBN
             let books = try context.fetch(fetchRequest)
             
-            // If the book exists, delete it
             if let bookToDelete = books.first {
                 context.delete(bookToDelete)
                 
-                // Save the context after deletion
                 try context.save()
                 print("Book deleted successfully.")
             } else {
@@ -220,7 +232,6 @@ class CoreDataManager {
         }
     }
 
-    
     // MARK: - Fetch Book by ISBN
     func fetchBookByISBN(isbn: String) -> BookEntity? {
         let context = persistentContainer.viewContext
@@ -423,5 +434,27 @@ extension BookEntity {
                 )
             }
         )
+    }
+}
+
+// MARK: - CloudKit
+
+extension CoreDataManager {
+    func handleSyncConflicts() {
+        let context = persistentContainer.viewContext
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(managedObjectContextDidSave),
+            name: NSNotification.Name.NSManagedObjectContextDidSave,
+            object: nil
+        )
+    }
+    
+    @objc private func managedObjectContextDidSave(_ notification: Notification) {
+        persistentContainer.viewContext.perform {
+            self.persistentContainer.viewContext.mergeChanges(fromContextDidSave: notification)
+        }
     }
 }

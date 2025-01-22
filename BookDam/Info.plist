@@ -31,6 +31,13 @@
 		</dict>
 	</dict>
 	<key>UIBackgroundModes</key>
-	<array/>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.changkeun.bookdam.refresh</string>
+    </array>
 </dict>
 </plist>

@@ -97,6 +97,10 @@ struct Constants {
         }
     }
     
+    struct Systems {
+        static let iCloudContainer = "iCloud.com.changkeun.BookDam"
+    }
+    
     struct Configuration {
         static let icon = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
         static let largeIcon = UIImage.SymbolConfiguration(pointSize: 36, weight: .regular)

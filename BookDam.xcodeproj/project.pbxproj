@@ -18,6 +18,7 @@
 		BD4397912D3F66ED003061CA /* HeaderContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4397902D3F66ED003061CA /* HeaderContainerView.swift */; };
 		BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */; };
 		BD5C18E32D38659300BE78BC /* ButtonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E22D38659300BE78BC /* ButtonFactory.swift */; };
+		BD6139212D40C3A800D341BF /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD6139202D40C3A800D341BF /* CloudKitManager.swift */; };
 		BD756DC02D275B17004FA956 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DBF2D275B17004FA956 /* Constant.swift */; };
 		BD756DC32D2769E6004FA956 /* BookCardCollectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DC22D2769E6004FA956 /* BookCardCollectionVC.swift */; };
 		BD756DC52D27A082004FA956 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD756DC42D27A082004FA956 /* Book.swift */; };
@@ -68,6 +69,7 @@
 		BD4397902D3F66ED003061CA /* HeaderContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderContainerView.swift; sourceTree = "<group>"; };
 		BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedFlowLayout.swift; sourceTree = "<group>"; };
 		BD5C18E22D38659300BE78BC /* ButtonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFactory.swift; sourceTree = "<group>"; };
+		BD6139202D40C3A800D341BF /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
 		BD756DBF2D275B17004FA956 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		BD756DC22D2769E6004FA956 /* BookCardCollectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCardCollectionVC.swift; sourceTree = "<group>"; };
 		BD756DC42D27A082004FA956 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 		BDD88EBF2D403C21004033E4 /* MoreVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreVC.swift; sourceTree = "<group>"; };
 		BDD88EC12D404A7C004033E4 /* TagListingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagListingVC.swift; sourceTree = "<group>"; };
 		BDD88EC42D406CE7004033E4 /* DisplayModeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayModeVC.swift; sourceTree = "<group>"; };
+		BDD88EC62D40770B004033E4 /* BookDam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookDam.entitlements; sourceTree = "<group>"; };
 		BDDB4C542D307CAF005B6701 /* UIViewController + Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + Ext.swift"; sourceTree = "<group>"; };
 		BDF57DF02D2C7555006D9BBD /* BookListTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListTableVC.swift; sourceTree = "<group>"; };
 		BDF57DF22D2C81DD006D9BBD /* BookListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookListCell.swift; sourceTree = "<group>"; };
@@ -192,6 +195,7 @@
 		BD8A33922D2736C700641D7D = {
 			isa = PBXGroup;
 			children = (
+				BDD88EC62D40770B004033E4 /* BookDam.entitlements */,
 				BD8A339D2D2736C700641D7D /* BookDam */,
 				BD8A339C2D2736C700641D7D /* Products */,
 			);
@@ -268,6 +272,7 @@
 				BDD686FE2D34BF4E00F6FF91 /* UserDefaultManager.swift */,
 				BDD687062D34E2A000F6FF91 /* BookManager.swift */,
 				BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */,
+				BD6139202D40C3A800D341BF /* CloudKitManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -440,6 +445,7 @@
 				BDD88EC22D404A7C004033E4 /* TagListingVC.swift in Sources */,
 				BDD686FF2D34BF4E00F6FF91 /* UserDefaultManager.swift in Sources */,
 				BDCD1E692D35E22200224B0F /* NavigationButtonFactory.swift in Sources */,
+				BD6139212D40C3A800D341BF /* CloudKitManager.swift in Sources */,
 				BD8A33C02D274C4500641D7D /* InfoVC.swift in Sources */,
 				BD9B623F2D31E04300AC3176 /* CoreDataManager.swift in Sources */,
 				BDCEFB312D37119300F2FA0C /* TagManagementSheet.swift in Sources */,
