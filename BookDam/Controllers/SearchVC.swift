@@ -35,6 +35,7 @@ class SearchVC: DataLoadingVC {
         super.viewDidLoad()
         view.backgroundColor = Constants.Colors.mainBackground        
         setupUI()
+        setupSearchController()
     }
     
     private func setupUI() {
@@ -48,7 +49,6 @@ class SearchVC: DataLoadingVC {
           }
                 
         setupQuoteView()
-        setupSearchController()
         setupBookListTable()
         self.bookListTableVC.view.isHidden = true
     }
@@ -78,6 +78,9 @@ class SearchVC: DataLoadingVC {
         
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
+        
+        navigationItem.backButtonTitle = "돌아가기"
+        navigationController?.navigationBar.tintColor = Constants.Colors.accent
     }
     
     private func setupBookListTable() {
