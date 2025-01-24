@@ -220,6 +220,7 @@ extension BookCardCollectionVC: UICollectionViewDelegate {
             
             let selectedBook = books[indexPath.row]
             let bookDetailVC = BookDetailVC()
+            print("BETWEEN---------------")
             bookDetailVC.configure(with: selectedBook, isSaved: true)
             bookDetailVC.hidesBottomBarWhenPushed = true
             bookDetailVC.delegate = self.parent as? BooksVCDelegate

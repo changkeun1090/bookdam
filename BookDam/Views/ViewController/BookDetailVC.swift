@@ -152,6 +152,8 @@ class BookDetailVC: UIViewController {
     private let tagContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+//        view.layer.borderWidth = 1
+//        view.layer.borderColor = UIColor.red.cgColor
         return view
     }()
     
@@ -167,7 +169,6 @@ class BookDetailVC: UIViewController {
         collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .clear
-//        collectionView.backgroundColor = .systemBrown
 
         return collectionView
     }()
@@ -175,19 +176,20 @@ class BookDetailVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("VIEW DID LOAD---------------")
+        
         view.backgroundColor = Constants.Colors.mainBackground
         
         setupNavigationBar()
         setupCollectionView()
         setupUI()
-        addTapGestureToLinkLabel()
+        
         updateTagContainerBottomConstraint()
+        addTapGestureToLinkLabel()
     }
     
     private func setupNavigationBar() {
         navigationItem.title = .none
-//        navigationItem.backButtonTitle = "돌아가기"
-//        navigationController?.navigationBar.tintColor = Constants.Colors.accent
         if #available(iOS 16.0, *) {
             navigationItem.backAction = UIAction { [weak self] _ in
                 self?.backButtonTapped()
@@ -214,6 +216,7 @@ class BookDetailVC: UIViewController {
     private func setupCollectionView() {
         tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: TagCollectionViewCell.identifier)
         tagCollectionView.dataSource = self
+        tagCollectionView.delegate = self
     }
     
     private func setupUI() {
@@ -286,10 +289,10 @@ class BookDetailVC: UIViewController {
             tagCollectionView.trailingAnchor.constraint(equalTo: tagContainerView.trailingAnchor),
             tagCollectionView.bottomAnchor.constraint(equalTo: tagContainerView.bottomAnchor),
         ])
-        
-        tagCollectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: 0)
+                
+        tagCollectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: 1000)
         tagCollectionViewHeightConstraint?.isActive = true
-        
+                
         NSLayoutConstraint.activate([
             descriptionHeaderLabel.topAnchor.constraint(equalTo: tagContainerView.bottomAnchor, constant: 0),
             descriptionHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
@@ -340,6 +343,14 @@ class BookDetailVC: UIViewController {
         
         configureBookData(book)
         tagCollectionView.reloadData()
+        
+        print("CONFIGURE---------------")
+        
+        // Add this
+        tagCollectionView.layoutIfNeeded()
+//        DispatchQueue.main.async {
+//            self.updateCollectionViewHeight()
+//        }
     }
 
 
@@ -426,10 +437,20 @@ class BookDetailVC: UIViewController {
         return tagCollectionView.collectionViewLayout.collectionViewContentSize.height
     }
     
-    private func updateCollectionViewHeight() {
+    private func updateCollectionViewHeight(isTagsEmpty: Bool = false) {
 
-        tagCollectionViewHeightConstraint?.constant = tagCollectionView.collectionViewLayout.collectionViewContentSize.height + 8
+        var height: CGFloat = 0
+        
+        if isTagsEmpty {
+            height = 0
+        } else {
+            height = tagCollectionView.collectionViewLayout.collectionViewContentSize.height
+        }
                 
+        tagCollectionViewHeightConstraint?.constant = height
+                
+        print("-----HEIGHT-----: ", height)
+        
         view.layoutIfNeeded()
     }
     
@@ -504,10 +525,19 @@ extension BookDetailVC: TagSelectionVCDelegate {
 
 extension BookDetailVC: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        DispatchQueue.main.async {
-            self.updateCollectionViewHeight()
+        print("DATA SOURCE -----------------------", self.book?.tags?.count ?? 0)
+        
+        guard let tags = book?.tags else {
+            updateCollectionViewHeight(isTagsEmpty: true)
+            return 0
         }
-        return book?.tags?.count ?? 0
+        
+        if tags.isEmpty {
+            updateCollectionViewHeight(isTagsEmpty: true)
+            return 0
+        }
+        
+        return tags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -523,9 +553,19 @@ extension BookDetailVC: UICollectionViewDataSource {
         cell.configure(with: tag)        
         
         collectionView.allowsSelection = false
+        
+        print("DELEGATE -----------------------")
 
         return cell
     }
 }
 
-
+extension BookDetailVC: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        print("WiLL DISPLAY -----------------------", indexPath.item, book?.tags?.count ?? 0)
+        if indexPath.item == (book?.tags?.count ?? 0) - 1 {
+            print("LAST DISPLAY -----------------------")
+            updateCollectionViewHeight()
+        }
+    }
+}
