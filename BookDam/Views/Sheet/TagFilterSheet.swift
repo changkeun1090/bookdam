@@ -203,7 +203,9 @@ extension TagFilterSheet: UICollectionViewDelegate {
 extension TagFilterSheet: TagManagerDelegate {
     func tagManager(_ manager: TagManager, didUpdateTags tags: [Tag]) {
         self.tags = tags
-        collectionView.reloadData()
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
     }
     
     func tagManager(_ manager: TagManager, didDeleteTags ids: Set<UUID>) {

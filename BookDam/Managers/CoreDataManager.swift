@@ -162,6 +162,14 @@ class CoreDataManager {
     // MARK: - Fetch Books
     func fetchBooks() -> [Book]? {
         let context = persistentContainer.viewContext
+        
+        // Ensure we're on the main thread when accessing context
+        if !Thread.isMainThread {
+            return DispatchQueue.main.sync {
+                return self.fetchBooks()
+            }
+        }
+        
         let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
 
         do {
@@ -266,6 +274,7 @@ class CoreDataManager {
         // If tagEntities is nil, return nil
         guard let tagEntities = tagEntities else { return nil }
         
+        /*
         // Convert the NSSet to an array of TagEntity objects
         let tagEntityArray = tagEntities.allObjects as? [TagEntity] ?? []
         
@@ -279,6 +288,26 @@ class CoreDataManager {
         }
         
         // If the resulting array is empty, return nil. Otherwise, return the array
+        return tags.isEmpty ? nil : tags
+         */
+        
+        // More safely convert the NSSet to an array
+        let tagEntityArray = (tagEntities.allObjects as NSArray).compactMap { $0 as? TagEntity }
+        
+        // Map TagEntity objects to Tag models
+        let tags = tagEntityArray.compactMap { tagEntity -> Tag? in
+            guard let id = tagEntity.id,
+                  let name = tagEntity.name else {
+                return nil
+            }
+            
+            return Tag(
+                id: id,
+                name: name,
+                createdAt: tagEntity.createdAt ?? Date()
+            )
+        }
+        
         return tags.isEmpty ? nil : tags
     }
     

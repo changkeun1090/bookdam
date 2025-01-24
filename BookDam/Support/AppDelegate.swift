@@ -74,7 +74,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
-                 try context.save()
+                // Ensure we're on the main thread
+                if Thread.isMainThread {
+                    try context.save()
+                } else {
+                    DispatchQueue.main.sync {
+                        try? context.save()
+                    }
+                }
              } catch {
                  let nserror = error as NSError
                  fatalError("Unresolved error \(nserror), \(nserror.userInfo)")

@@ -326,6 +326,7 @@ extension BooksVC: UISearchResultsUpdating, UISearchBarDelegate {
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
             guard let self = self,
                   self.isSearching else { return }
+            
             self.bookManager.filterBooks(with: searchText)
         }
     }

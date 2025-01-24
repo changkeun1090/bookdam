@@ -141,7 +141,7 @@ class BookManager {
             }
             
             let bookTagIds = Set(bookTags.map { $0.id })
-            return !tagIds.isDisjoint(with: bookTagIds)
+            return tagIds.isSubset(of: bookTagIds)
         }
     }
     

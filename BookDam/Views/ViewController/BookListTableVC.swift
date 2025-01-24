@@ -72,6 +72,10 @@ class BookListTableVC: UITableViewController {
             switch result {
             case .success(let books):
                 
+                if books.count == 0 {
+                    print("EMPTY-------------------")
+                }
+                
                 if books.count < 20 {
                     self.hasMoreFollowers = false
                 }
@@ -81,6 +85,7 @@ class BookListTableVC: UITableViewController {
                 } else {
                     self.books.append(contentsOf: books)
                 }
+                
                 
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
