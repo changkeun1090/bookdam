@@ -9,7 +9,6 @@ import UIKit
 
 class QuotesView: UIView {
     
-    
     var quoteLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "GowunDodum-Regular", size: 16)
@@ -66,7 +65,7 @@ class QuotesView: UIView {
     func getRandomQuotes() {
         if let randomQuote = bookQuotes.randomElement() {
             quoteLabel.text = randomQuote.quote
-            authorLabel.text = randomQuote.author
+            authorLabel.text = randomQuote.from
         }
     }
 }

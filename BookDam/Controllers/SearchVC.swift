@@ -38,6 +38,10 @@ class SearchVC: DataLoadingVC {
         setupSearchController()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        quoteView.getRandomQuotes()        
+    }
+    
     private func setupUI() {
         
         bookListTableVC.dismissLoadingViewClosure = { [weak self] in
@@ -69,16 +73,8 @@ class SearchVC: DataLoadingVC {
     
     private func setupSearchController() {
         searchController.searchBar.delegate = self
-        
-        let barcodeImage = UIImage(systemName: "barcode.viewfinder")
-        searchController.searchBar.showsBookmarkButton = true
-
-        searchController.searchBar.setImage(barcodeImage, for: .bookmark, state: .normal)
-        searchController.searchBar.showsBookmarkButton = true
-        
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
-        
         navigationItem.backButtonTitle = "돌아가기"
         navigationController?.navigationBar.tintColor = Constants.Colors.accent
     }
@@ -97,11 +93,20 @@ class SearchVC: DataLoadingVC {
         ])
         
     }
+    
+    func scrollToTop() {
+        self.quoteViewHeightConstraint.constant = 300
+        self.quoteView.alpha = 1
+        self.bookListTableVC.view.isHidden = true
+        self.books = []
+        self.bookListTableVC.books = self.books
+        self.bookListTableVC.tableView.reloadData()
+        self.searchController.searchBar.text = ""
+    }
 }
 
 extension SearchVC: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-         self.searchController.searchBar.showsBookmarkButton = false
          self.quoteViewHeightConstraint.constant = 0
          self.bookListTableVC.view.isHidden = false
          self.quoteView.alpha = 0
@@ -110,7 +115,6 @@ extension SearchVC: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
           UIView.animate(withDuration: 0.5) {
-              self.searchController.searchBar.showsBookmarkButton = true
               self.quoteViewHeightConstraint.constant = 300
               self.quoteView.alpha = 1
               self.bookListTableVC.view.isHidden = true
@@ -121,7 +125,6 @@ extension SearchVC: UISearchBarDelegate {
       }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        
         if let searchText = searchBar.text, !searchText.isEmpty {
             self.books = []
             self.bookListTableVC.books = self.books

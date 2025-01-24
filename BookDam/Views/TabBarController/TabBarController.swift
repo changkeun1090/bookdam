@@ -16,7 +16,7 @@ class TabBarController: UITabBarController {
         UITabBar.appearance().tintColor = Constants.Colors.accent      
         UITabBar.appearance().barTintColor = Constants.Colors.mainBackground
         UITabBar.appearance().unselectedItemTintColor = Constants.Colors.subText
-        UITabBar.appearance().backgroundColor = Constants.Colors.subBackground
+        UITabBar.appearance().backgroundColor = Constants.Colors.mainBackground
         
         viewControllers = [createBookNC(), createSearchNC(), createMoreNC()]
     }
@@ -37,7 +37,7 @@ class TabBarController: UITabBarController {
     
     func createMoreNC() -> UINavigationController {
         let moreVC = MoreVC()
-        let infoIcon = UIImage(systemName: "ellipsis.circle")
+        let infoIcon = UIImage(systemName: "list.bullet")
         moreVC.tabBarItem = UITabBarItem(title: nil, image: infoIcon , tag: 2)
         return UINavigationController(rootViewController: moreVC)
     }
@@ -55,6 +55,11 @@ extension TabBarController: UITabBarControllerDelegate {
                     // Tell BooksVC to scroll to top
                     booksVC.scrollToTop()
                 }
+                
+                if let searchVC = navController.viewControllers.first as? SearchVC {
+                    searchVC.scrollToTop()
+                }
+                
             }
         }
         return true

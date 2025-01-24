@@ -189,6 +189,9 @@ extension MoreVC: UITableViewDelegate {
         case .appReview:
             handleAppReview()
             
+        case .frequently:
+            handleFrequently()
+            
         default:
             break
         }
@@ -199,28 +202,30 @@ extension MoreVC: UITableViewDelegate {
 
 extension MoreVC {
     
+    private func handleFrequently() {
+        let link = "https://abounding-plate-68e.notion.site/18536d45e5408083acfde9507e047f3b?pvs=4"
+        if let url = URL(string: link) {
+            presentSafariVC(with: url)
+        }
+    }
+    
     private func handleAppReview() {
-        // During development, you'll need to replace this with your app's ID
-        let appId = "333903271"
+        let appId = "333903271" // 트위터
         
-        // First, try to open the App Store directly to the review writing page
         let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?action=write-review")
         
         if let url = writeReviewURL, UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [:]) { success in
                 if !success {
-                    // Fallback to regular App Store URL if the direct review URL fails
                     self.openAppStorePage(appId: appId)
                 }
             }
         } else {
-            // Fallback to regular App Store URL
             openAppStorePage(appId: appId)
         }
     }
 
     private func openAppStorePage(appId: String) {
-        // Regular App Store URL as fallback
         if let url = URL(string: "https://apps.apple.com/app/id\(appId)") {
             UIApplication.shared.open(url)
         }
