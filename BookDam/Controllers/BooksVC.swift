@@ -156,7 +156,7 @@ class BooksVC: UIViewController {
         if isSelectMode {
             navigationItem.leftBarButtonItem = selectCancelBarButton
             let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-            spacer.width = Constants.Layout.mdMargin
+            spacer.width = Constants.Layout.gutter
             navigationItem.rightBarButtonItems = [deleteBarButton, spacer, selectAllBarButton]
             navigationItem.searchController = nil
             return

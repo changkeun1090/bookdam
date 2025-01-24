@@ -148,12 +148,16 @@ class BookDetailVC: UIViewController {
         return stackView
     }()
     
+    private lazy var editButton = ButtonFactory.createNavTextButton(title: "편집", style:.accent, target: self , action: #selector(editButtonTapped))
+
+    private lazy var deleteButton = ButtonFactory.createNavTextButton(title: "삭제", style:.warning, target: self , action: #selector(removeButtonTapped))
+        
+    private lazy var saveButton = ButtonFactory.createNavTextButton(title: "저장", style:.accent, target: self , action: #selector(saveButtonTapped))
+    
     // MARK: UI - Tag
     private let tagContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-//        view.layer.borderWidth = 1
-//        view.layer.borderColor = UIColor.red.cgColor
         return view
     }()
     
@@ -175,9 +179,7 @@ class BookDetailVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("VIEW DID LOAD---------------")
-        
+                
         view.backgroundColor = Constants.Colors.mainBackground
         
         setupNavigationBar()
@@ -197,17 +199,11 @@ class BookDetailVC: UIViewController {
         }
 
         if isSaved {
+            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+            spacer.width = Constants.Layout.gutter
             
-            let editButton = ButtonFactory.createNavTextButton(title: "편집", style:.accent, target: self , action: #selector(editButtonTapped))
-  
-            let deleteButton = ButtonFactory.createNavTextButton(title: "삭제", style:.warning, target: self , action: #selector(removeButtonTapped))
-            
-            deleteButton.tintColor = Constants.Colors.warning
-            navigationItem.rightBarButtonItems = [deleteButton, editButton]
+            navigationItem.rightBarButtonItems = [deleteButton, spacer, editButton]
         } else {
-            
-            let saveButton = ButtonFactory.createNavTextButton(title: "저장", style:.accent, target: self , action: #selector(saveButtonTapped))
-            
             navigationItem.rightBarButtonItem = saveButton
         }
         
@@ -343,14 +339,8 @@ class BookDetailVC: UIViewController {
         
         configureBookData(book)
         tagCollectionView.reloadData()
-        
-        print("CONFIGURE---------------")
-        
-        // Add this
         tagCollectionView.layoutIfNeeded()
-//        DispatchQueue.main.async {
-//            self.updateCollectionViewHeight()
-//        }
+
     }
 
 
@@ -448,9 +438,7 @@ class BookDetailVC: UIViewController {
         }
                 
         tagCollectionViewHeightConstraint?.constant = height
-                
-        print("-----HEIGHT-----: ", height)
-        
+                        
         view.layoutIfNeeded()
     }
     
@@ -554,17 +542,13 @@ extension BookDetailVC: UICollectionViewDataSource {
         
         collectionView.allowsSelection = false
         
-        print("DELEGATE -----------------------")
-
         return cell
     }
 }
 
 extension BookDetailVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        print("WiLL DISPLAY -----------------------", indexPath.item, book?.tags?.count ?? 0)
         if indexPath.item == (book?.tags?.count ?? 0) - 1 {
-            print("LAST DISPLAY -----------------------")
             updateCollectionViewHeight()
         }
     }
