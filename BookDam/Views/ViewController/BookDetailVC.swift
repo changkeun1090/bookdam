@@ -493,12 +493,13 @@ extension BookDetailVC: TagSelectionVCDelegate {
                    
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     sheet.dismiss(animated: true) {
-                        if isSaved {
-                            self.updateLayoutForTags()
-                            self.tagCollectionView.reloadData()
-                        } else {
-                            self.navigationController?.popToRootViewController(animated: true)
-                        }
+                        self.navigationController?.popToRootViewController(animated: true)
+//                        if isSaved {
+//                            self.updateLayoutForTags()
+//                            self.tagCollectionView.reloadData()
+//                        } else {
+//                            self.navigationController?.popToRootViewController(animated: true)
+//                        }
                     }
                 }
         }
