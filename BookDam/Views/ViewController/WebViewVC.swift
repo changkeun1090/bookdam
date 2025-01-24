@@ -24,10 +24,8 @@ class WebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupNavigationBar()
-        
         view.addSubview(webView)
-        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.translatesAutoresizingMaskIntoConstraints = false        
         
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),

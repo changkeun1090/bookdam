@@ -7,18 +7,17 @@
 
 import Foundation
 import UIKit
+import MessageUI
+import StoreKit
 
 // MARK: - Section Model
 enum MoreSection: Int, CaseIterable {
-    case tagManagement
     case setting
     case feedback
     case appInfo
     
     var title: String? {
         switch self {
-        case .tagManagement:
-            return nil
         case .setting:
             return nil
         case .feedback:
@@ -30,14 +29,12 @@ enum MoreSection: Int, CaseIterable {
     
     var rows: [MoreRow] {
         switch self {
-        case .tagManagement:
-            return [.tagManagement]
         case .setting:
-            return [.displaySetting, .cloudSnyc]
+            return [.tagManagement, .displaySetting]
         case .feedback:
-            return [.notificationTime, .emailNotification, .appReview]
+            return [.sendFeedback, .sendEmail, .appReview]
         case .appInfo:
-            return [.frequently, .appVersion]
+            return [.frequently, .cloudSnyc]
         }
     }
 }
@@ -47,8 +44,8 @@ enum MoreRow {
     case tagManagement
     case displaySetting
     case textSize
-    case notificationTime
-    case emailNotification
+    case sendFeedback
+    case sendEmail
     case appReview
     case frequently
     case appVersion
@@ -63,16 +60,16 @@ enum MoreRow {
             return "디스플레이 모드"
         case .textSize:
             return "텍스트 크기"
-        case .notificationTime:
-            return "의견 보내기"
-        case .emailNotification:
+        case .sendFeedback:
+            return "피드백 보내기"
+        case .sendEmail:
             return "메일 보내기"
         case .appReview:
             return "앱 평점 남기기"
         case .frequently:
             return "자주하는 질문"
         case .cloudSnyc:
-            return "iCloud 동기화 하기"
+            return "데이터 동기화"
         case .appVersion:
             return "앱 버전"
         }
@@ -128,7 +125,7 @@ class MoreVC: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Layout.layoutMargin),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -182,6 +179,15 @@ extension MoreVC: UITableViewDelegate {
             
         case .cloudSnyc:
             handleCloudSync()
+        
+        case .sendEmail:
+            handleEmail()
+            
+        case .sendFeedback:
+            handleFeedback()
+            
+        case .appReview:
+            handleAppReview()
             
         default:
             break
@@ -193,8 +199,42 @@ extension MoreVC: UITableViewDelegate {
 
 extension MoreVC {
     
+    private func handleAppReview() {
+        // During development, you'll need to replace this with your app's ID
+        let appId = "333903271"
+        
+        // First, try to open the App Store directly to the review writing page
+        let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?action=write-review")
+        
+        if let url = writeReviewURL, UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:]) { success in
+                if !success {
+                    // Fallback to regular App Store URL if the direct review URL fails
+                    self.openAppStorePage(appId: appId)
+                }
+            }
+        } else {
+            // Fallback to regular App Store URL
+            openAppStorePage(appId: appId)
+        }
+    }
+
+    private func openAppStorePage(appId: String) {
+        // Regular App Store URL as fallback
+        if let url = URL(string: "https://apps.apple.com/app/id\(appId)") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    private func handleFeedback() {
+        let link = "https://forms.gle/ZnZBKqYQqwuevnHWA"
+        if let url = URL(string: link) {
+            presentSafariVC(with: url)
+        }
+    }
+    
     private func handleCloudSync() {
-        // Show loading indicator
+        
         let loadingAlert = UIAlertController(
             title: nil,
             message: "동기화 중...",
@@ -237,5 +277,76 @@ extension MoreVC {
                 }
             }
         }
+    }
+}
+
+extension MoreVC: MFMailComposeViewControllerDelegate {
+    
+    private func handleEmail() {
+        // First check if device can send emails
+        if MFMailComposeViewController.canSendMail() {
+            let mailComposer = MFMailComposeViewController()
+            mailComposer.mailComposeDelegate = self
+            
+            // Configure the email content
+            mailComposer.setToRecipients(["kenz3tudio@gmail.com"])
+            mailComposer.setSubject("[책담] 문의사항")
+            
+            // You might want to add some default content or device information
+            let emailBody = """
+                        
+            ----------
+            App Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
+            Device: \(UIDevice.current.model)
+            iOS Version: \(UIDevice.current.systemVersion)
+            """
+            
+            mailComposer.setMessageBody(emailBody, isHTML: false)
+            
+            // Present the mail composer
+            present(mailComposer, animated: true, completion: nil)
+        } else {
+            // Handle the case when email is not configured
+            showEmailNotAvailableAlert()
+        }
+    }
+    
+    // Add this method to handle completion of email sending
+    func mailComposeController(_ controller: MFMailComposeViewController,
+                             didFinishWith result: MFMailComposeResult,
+                             error: Error?) {
+        // Dismiss the mail composer
+        controller.dismiss(animated: true) {
+            switch result {
+            case .sent:
+                self.showAlert(title: "메일 전송 완료", message: "메일이 성공적으로 전송되었습니다.")
+            case .failed:
+                self.showAlert(title: "메일 전송 실패", message: "메일 전송에 실패했습니다. 다시 시도해주세요.")
+            default:
+                break
+            }
+        }
+    }
+    
+    // Helper method to show alert when email is not available
+    private func showEmailNotAvailableAlert() {
+        let alert = UIAlertController(
+            title: "이메일을 보낼 수 없습니다",
+            message: "이 기기에서 이메일 기능을 사용할 수 없습니다. 이메일 설정을 확인해주세요.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+    
+    // Helper method for showing alerts
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }

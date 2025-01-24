@@ -305,7 +305,7 @@ class BookDetailVC: UIViewController {
         NSLayoutConstraint.activate([
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
-            linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.layoutMargin)
         ])
                                     
  
@@ -420,12 +420,6 @@ class BookDetailVC: UIViewController {
         tagSheet.delegate = self
         present(tagSheet, animated: true)
     }
-
-    private func calculateCollectionViewHeight() -> CGFloat {
-        tagCollectionView.layoutIfNeeded()
-        
-        return tagCollectionView.collectionViewLayout.collectionViewContentSize.height
-    }
     
     private func updateCollectionViewHeight(isTagsEmpty: Bool = false) {
 
@@ -471,18 +465,21 @@ extension BookDetailVC: TagSelectionVCDelegate {
             return
         }
         
-        // 새로 저장하는 경우
+        // 새로운 책 저장
         guard isSaved else {
             CoreDataManager.shared.saveBookWithTags(book: currentBook, tagIds: selectedTagIds)
             didSaveBook(sheet)
             return
         }
         
-        // 이미 저장된 경우
+        // 이미 저장된 책 편집
         CoreDataManager.shared.updateBookWithTags(book: currentBook, tagIds: selectedTagIds)
         if let updatedBook = CoreDataManager.shared.fetchBookByISBN(isbn: currentBook.isbn)?.toBook() {
             self.book = updatedBook
             didSaveBook(sheet, isSaved: true)
+            
+            
+            
         }
         
     }
