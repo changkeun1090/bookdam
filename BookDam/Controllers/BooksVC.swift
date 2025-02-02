@@ -170,6 +170,8 @@ class BooksVC: UIViewController {
             return
         }
         
+        moreBarButton.menu = self.createMoreButtonMenu()
+        
         // 일반모드
         navigationItem.leftBarButtonItem = tagBarButton
         navigationItem.rightBarButtonItems = [moreBarButton, searchBarButton]
@@ -289,7 +291,6 @@ extension BooksVC: BookManagerDelegate {
     func bookManager(_ manager: BookManager, didUpdateBooks books: [Book]) {
         DispatchQueue.main.async {
             self.bookCardCollectionVC.reloadData(with: books)
-            self.moreBarButton.menu = self.createMoreButtonMenu()
         }
     }
     
