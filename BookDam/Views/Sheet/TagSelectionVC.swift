@@ -24,7 +24,6 @@ protocol TagSelectionVC: UIViewController {
     func setupBaseUI()
     func configureSheet()
     func createCollectionViewLayout() -> UICollectionViewLayout
-
 }
 
 extension TagSelectionVC {

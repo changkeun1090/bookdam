@@ -10,8 +10,11 @@ import UIKit
 
 struct Constants {
     struct Colors {
-        static let mainBackground = UIColor.secondarySystemBackground
-        static let subBackground = UIColor.tertiarySystemBackground
+//        static let mainBackground = UIColor.secondarySystemBackground
+//        static let subBackground = UIColor.tertiarySystemBackground
+        
+        static let mainBackground = UIColor.systemBackground
+        static let subBackground = UIColor.secondarySystemBackground
         
         static let tagBackground = UIColor.secondarySystemFill
         static let tagText = UIColor.secondaryLabel
