@@ -67,7 +67,6 @@ class TagManagementSheet: UIViewController, TagSelectionVC {
         ButtonFactory.createTextButton(title: "취소", target: self, action: #selector(cancelButtonTapped))
     }()
     
-    
     // MARK: - Initialization
     init(selectedTagIds: Set<UUID> = []) {
         self.selectedTagIds = selectedTagIds

@@ -50,12 +50,20 @@ class TagCollectionViewCell: UICollectionViewCell {
         contentView.clipsToBounds = true
         contentView.addSubview(tagLabel)
         
+        // Add these lines to ensure proper content sizing
+        tagLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        tagLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        tagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        tagLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
+        
         NSLayoutConstraint.activate([
             tagLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             tagLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             tagLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             tagLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
         ])
+//        contentView.widthAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true        
     }
     
     // MARK: - Configuration
