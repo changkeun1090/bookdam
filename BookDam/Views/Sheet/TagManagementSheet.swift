@@ -8,12 +8,6 @@
 import Foundation
 import UIKit
 
-//protocol TagManagementSheetDelegate: AnyObject {
-//    func tagManagementSheet(_ sheet: TagManagementSheet, didUpdateSelectedTags tags: Set<UUID>)
-//    func tagManagementSheetDidSave(_ sheet: TagManagementSheet)
-//    func tagManagementSheetDidCancel(_ sheet: TagManagementSheet)
-//}
-
 class TagManagementSheet: UIViewController, TagSelectionVC {
     
     let tagManager = TagManager.shared

@@ -15,13 +15,12 @@ protocol TagSelectionVCDelegate: AnyObject {
 }
 
 protocol TagSelectionVC: UIViewController {
-    // Properties
+    
     var selectedTagIds: Set<UUID> { get set }
     var tagManager: TagManager { get }
     var collectionView: UICollectionView { get }
     var delegate: TagSelectionVCDelegate? { get set }
-    
-    // Setup methods
+        
     func setupBaseUI()
     func configureSheet()
     func createCollectionViewLayout() -> UICollectionViewLayout
@@ -59,6 +58,8 @@ extension TagSelectionVC {
     
     func configureSheet() {
         modalPresentationStyle = .pageSheet
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.showsHorizontalScrollIndicator = false
         
         if let sheet = sheetPresentationController {
             sheet.detents = [.medium()]

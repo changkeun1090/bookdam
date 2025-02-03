@@ -117,7 +117,6 @@ class BooksVC: DataLoadingVC {
     private func setupInitialState() {
         view.backgroundColor = Constants.Colors.mainBackground
         bookManager.delegate = self
-        moreBarButton.menu = self.createMoreButtonMenu()
     }
    
     private func setupBookCardCollectionVC() {
@@ -201,7 +200,6 @@ class BooksVC: DataLoadingVC {
             self?.enterSelectMode()
         }
         
-        // Create sort actions
         let currentSortOrder = UserDefaultsManager.shared.sortOrder
         
         let newestAction = UIAction(
@@ -262,7 +260,7 @@ class BooksVC: DataLoadingVC {
                 self.showLoadingView()
             } else {
                 self.dismissLoadingView()
-            }                
+            }
         }
         
     }
@@ -312,6 +310,7 @@ extension BooksVC: BookManagerDelegate {
         DispatchQueue.main.async {
             self.bookCardCollectionVC.reloadData(with: books)
             self.isLoading = false
+            self.moreBarButton.menu = self.createMoreButtonMenu()
         }
     }
     

@@ -24,11 +24,14 @@ class TagManager {
     // MARK: - Properties
     static let shared = TagManager()
     weak var delegate: TagManagerDelegate?
+    private let bookManager: BookManager
     
     private(set) var tags: [Tag] = []
+    private var tagUsageCounts: [UUID: Int] = [:]
     
     // MARK: - Initialization
     private init() {
+        self.bookManager = .shared
         loadTags()
     }
     
@@ -36,7 +39,7 @@ class TagManager {
     func loadTags() {        
         if let tagEntities = CoreDataManager.shared.fetchTags() {
             self.tags = tagEntities
-            delegate?.tagManager(self, didUpdateTags: tags)
+            updateTagsWithUsageOrder()
         }
     }
     
@@ -78,5 +81,37 @@ class TagManager {
     func removeTag(tagId: UUID, fromBook bookISBN: String) {
         CoreDataManager.shared.removeTag(tagId: tagId, fromBook: bookISBN)
         loadTags()
+    }
+    
+    private func updateTagsWithUsageOrder() {
+        calculateTagUsage()
+        sortTagsByUsage()
+        delegate?.tagManager(self, didUpdateTags: tags)
+    }
+
+    private func calculateTagUsage() {
+        tagUsageCounts.removeAll()
+        
+        for book in bookManager.books {
+            guard let bookTags = book.tags else { continue }
+            for tag in bookTags {
+                tagUsageCounts[tag.id, default: 0] += 1
+            }
+        }
+    }
+
+    private func sortTagsByUsage() {
+        tags.sort { firstTag, secondTag in
+            // First sort by usage count (descending)
+            let firstCount = tagUsageCounts[firstTag.id] ?? 0
+            let secondCount = tagUsageCounts[secondTag.id] ?? 0
+            
+            if firstCount != secondCount {
+                return firstCount > secondCount
+            }
+            
+            // If usage counts are equal, sort by name
+            return firstTag.name.localizedStandardCompare(secondTag.name) == .orderedAscending
+        }
     }
 }

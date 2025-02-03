@@ -8,7 +8,6 @@
 import Foundation
 import CoreData
 
-// Protocol to notify about book changes
 protocol BookManagerDelegate: AnyObject {
     func bookManager(_ manager: BookManager, didUpdateBooks books: [Book])
     func bookManager(_ manager: BookManager, didDeleteBooks isbns: Set<String>)
@@ -45,21 +44,7 @@ class BookManager {
     
     func loadBooks() {
         print("LOAD BOOKS---------------")
-//        
-//        guard !isLoadingBooks else { return }        
-//        isLoadingBooks = true
-//        
-//        if let bookEntities = CoreDataManager.shared.fetchBooks() {
-//            self.books = bookEntities
-//            sortBooks(by: currentSortOrder)
-//            DispatchQueue.main.async { [weak self] in
-//                guard let self = self else { return }
-//                self.delegate?.bookManager(self, didUpdateBooks: books)
-//                self.isLoadingBooks = false
-//            }
-//        }
         
-        // If initial sync is not done, sync first then fetch
         if !isInitialSyncComplete {
             CloudKitManager.shared.triggerSync { [weak self] error in
                 if let error = error {
@@ -70,7 +55,6 @@ class BookManager {
                 self?.fetchAndUpdateBooks()
             }
         } else {
-            // After initial sync, just fetch local data
             fetchAndUpdateBooks()
         }
     }
@@ -102,17 +86,15 @@ class BookManager {
             book.publisher.lowercased().contains(lowercasedText)
         }
                 
-//        sortBooks(by: currentSortOrder, isFiltered: true)
         delegate?.bookManager(self, didUpdateBooks: filteredBooks)
     }
     
     func deleteBooks(with isbns: Set<String>) {
-        // Ensure UI updates happen on main thread
         DispatchQueue.main.async { [weak self] in
             isbns.forEach { isbn in
                 CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
             }
-            self?.loadBooks() // Refresh the books array after all deletions
+            self?.loadBooks()
             self?.delegate?.bookManager(self!, didDeleteBooks: isbns)
         }
     }
@@ -169,10 +151,9 @@ class BookManager {
         }
     }
     
-    // Optional: Method to clear filters
     func clearTagFilters() {
         appliedTagFilters.removeAll()
-        loadBooks() // This will trigger delegate update with all books
+        loadBooks()
     }
 }
 
@@ -193,15 +174,12 @@ extension BookManager {
         let context = CoreDataManager.shared.persistentContainer.newBackgroundContext()
         context.performAndWait {
             do {
-                // Get history transactions since last check
                 let request = NSPersistentHistoryChangeRequest.fetchHistory(after: lastHistoryToken)
                 let result = try context.execute(request) as? NSPersistentHistoryResult
                 guard let transactions = result?.result as? [NSPersistentHistoryTransaction] else { return }
                 
-                // Check if any changes affect our entities
                 let hasRelevantChanges = transactions.contains { transaction in
                     transaction.changes?.contains { change in
-                        // Check if change involves BookEntity or TagEntity
                         return change.changedObjectID.entity.name == "BookEntity" ||
                         change.changedObjectID.entity.name == "TagEntity"
                     } ?? false
@@ -211,7 +189,6 @@ extension BookManager {
                     loadBooks()
                 }
                 
-                // Update token
                 lastHistoryToken = transactions.last?.token
                 
             } catch {
@@ -222,18 +199,3 @@ extension BookManager {
         }
     }
 }
-
-
-/*
-func deleteBooks(with isbns: Set<String>) {
-    
-    isbns.forEach { isbn in
-        CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
-    }
-    
-    books.removeAll { isbns.contains($0.isbn) }
-    filteredBooks.removeAll { isbns.contains($0.isbn) }
-    
-    delegate?.bookManager(self, didDeleteBooks: isbns)
-}
- */
