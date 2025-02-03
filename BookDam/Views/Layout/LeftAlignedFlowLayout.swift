@@ -9,8 +9,6 @@ import Foundation
 import UIKit
 
 final class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
-    
-    private let fixedHeight: CGFloat = 36 // Adjust this value as needed
 
     // MARK: - Layout Attributes
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {

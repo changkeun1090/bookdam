@@ -23,6 +23,7 @@ class TagCollectionViewCell: UICollectionViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.adjustsFontSizeToFitWidth = false
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
     
@@ -50,7 +51,6 @@ class TagCollectionViewCell: UICollectionViewCell {
         contentView.clipsToBounds = true
         contentView.addSubview(tagLabel)
         
-        // Add these lines to ensure proper content sizing
         tagLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         tagLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
         tagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -63,7 +63,7 @@ class TagCollectionViewCell: UICollectionViewCell {
             tagLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             tagLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
         ])
-//        contentView.widthAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true        
+        contentView.widthAnchor.constraint(lessThanOrEqualToConstant: UIScreen.main.bounds.width * 0.4).isActive = true
     }
     
     // MARK: - Configuration

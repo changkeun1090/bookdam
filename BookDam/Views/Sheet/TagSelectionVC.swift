@@ -28,7 +28,6 @@ protocol TagSelectionVC: UIViewController {
 
 extension TagSelectionVC {
     func setupBaseUI() {
-        view.backgroundColor = Constants.Colors.subBackground
         
         let containerView = UIView()
         containerView.backgroundColor = Constants.Colors.mainBackground
@@ -48,11 +47,11 @@ extension TagSelectionVC {
     }
     
     func createCollectionViewLayout() -> UICollectionViewLayout {
-        let layout = LeftAlignedFlowLayout()
+        let layout = LeftAlignedFlowLayout()        
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
         layout.minimumLineSpacing = Constants.Layout.mdMargin
 //        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        layout.estimatedItemSize = CGSize(width: 100, height: 40)
+        layout.estimatedItemSize = CGSize(width: 100, height: 36)
         return layout
     }
     
