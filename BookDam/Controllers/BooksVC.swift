@@ -13,7 +13,7 @@ protocol BooksVCDelegate: AnyObject {
     func backToHome()
 }
 
-class BooksVC: UIViewController {
+class BooksVC: DataLoadingVC {
     
     // MARK: - Properties
     private var searchController: UISearchController!
@@ -29,6 +29,12 @@ class BooksVC: UIViewController {
     private var isSelectMode = false {
         didSet {
             updateNavigationItems()
+        }
+    }
+    
+    private var isLoading = false {
+        didSet {
+            updateLoadingState()
         }
     }
     
@@ -102,13 +108,16 @@ class BooksVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        bookManager.loadBooks()        
+        print("ViewWillAppear--------------")
+        isLoading = true
+        bookManager.loadBooks()
     }
     
     // MARK: - Setup Methods
     private func setupInitialState() {
         view.backgroundColor = Constants.Colors.mainBackground
         bookManager.delegate = self
+        moreBarButton.menu = self.createMoreButtonMenu()
     }
    
     private func setupBookCardCollectionVC() {
@@ -169,8 +178,6 @@ class BooksVC: UIViewController {
             showSearchController()
             return
         }
-        
-        moreBarButton.menu = self.createMoreButtonMenu()
         
         // 일반모드
         navigationItem.leftBarButtonItem = tagBarButton
@@ -248,6 +255,18 @@ class BooksVC: UIViewController {
         deleteBarButton.tintColor = deleteBarButton.isEnabled ? Constants.Colors.warning : Constants.Colors.warning.withAlphaComponent(0.5)
     }
     
+    private func updateLoadingState() {
+
+        DispatchQueue.main.async {
+            if self.isLoading {
+                self.showLoadingView()
+            } else {
+                self.dismissLoadingView()
+            }                
+        }
+        
+    }
+    
     // MARK: - Button Actions
     
     func scrollToTop() {
@@ -289,8 +308,10 @@ class BooksVC: UIViewController {
 // MARK: - BookManagerDelegate
 extension BooksVC: BookManagerDelegate {
     func bookManager(_ manager: BookManager, didUpdateBooks books: [Book]) {
+        print("DID UPDATE--------------------")
         DispatchQueue.main.async {
             self.bookCardCollectionVC.reloadData(with: books)
+            self.isLoading = false
         }
     }
     

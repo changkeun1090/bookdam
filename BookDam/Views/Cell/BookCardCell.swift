@@ -106,7 +106,7 @@ class BookCardCell: UICollectionViewCell {
         if selected {
             selectionIndicator.image = UIImage(systemName: "checkmark.circle.fill")
             coverImageView.layer.borderColor = Constants.Colors.accent.cgColor
-            coverImageView.layer.borderWidth = 1
+            coverImageView.layer.borderWidth = 1.5
         } else {
             selectionIndicator.image = UIImage(systemName: "circle")
             coverImageView.layer.borderWidth = 0

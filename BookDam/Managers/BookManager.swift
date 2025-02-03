@@ -17,11 +17,12 @@ protocol BookManagerDelegate: AnyObject {
 class BookManager {
     
     // MARK: - Properties
+    private var isLoadingBooks = false
+    private var lastHistoryToken: NSPersistentHistoryToken?
+    private var isInitialSyncComplete = false
     
-    // Singleton instance for global access
     static let shared = BookManager()
     
-    // Delegate to notify about changes
     weak var delegate: BookManagerDelegate?
     
     private(set) var books: [Book] = []
@@ -43,10 +44,47 @@ class BookManager {
     // MARK: - Public Methods
     
     func loadBooks() {
+        print("LOAD BOOKS---------------")
+//        
+//        guard !isLoadingBooks else { return }        
+//        isLoadingBooks = true
+//        
+//        if let bookEntities = CoreDataManager.shared.fetchBooks() {
+//            self.books = bookEntities
+//            sortBooks(by: currentSortOrder)
+//            DispatchQueue.main.async { [weak self] in
+//                guard let self = self else { return }
+//                self.delegate?.bookManager(self, didUpdateBooks: books)
+//                self.isLoadingBooks = false
+//            }
+//        }
+        
+        // If initial sync is not done, sync first then fetch
+        if !isInitialSyncComplete {
+            CloudKitManager.shared.triggerSync { [weak self] error in
+                if let error = error {
+                    print("Initial sync failed: \(error)")
+                }
+                
+                self?.isInitialSyncComplete = true
+                self?.fetchAndUpdateBooks()
+            }
+        } else {
+            // After initial sync, just fetch local data
+            fetchAndUpdateBooks()
+        }
+    }
+    
+    private func fetchAndUpdateBooks() {
+        print("FETCH ADN UPDATE---------------")
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
             self.books = bookEntities
             sortBooks(by: currentSortOrder)
-            delegate?.bookManager(self, didUpdateBooks: books)
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.delegate?.bookManager(self, didUpdateBooks: books)
+            }
         }
     }
         
@@ -67,20 +105,6 @@ class BookManager {
 //        sortBooks(by: currentSortOrder, isFiltered: true)
         delegate?.bookManager(self, didUpdateBooks: filteredBooks)
     }
-
-    /*
-    func deleteBooks(with isbns: Set<String>) {
-        
-        isbns.forEach { isbn in
-            CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
-        }
-        
-        books.removeAll { isbns.contains($0.isbn) }
-        filteredBooks.removeAll { isbns.contains($0.isbn) }
-        
-        delegate?.bookManager(self, didDeleteBooks: isbns)
-    }
-     */
     
     func deleteBooks(with isbns: Set<String>) {
         // Ensure UI updates happen on main thread
@@ -164,8 +188,52 @@ extension BookManager {
     }
     
     @objc private func handleStoreRemoteChange(_ notification: Notification) {
-        DispatchQueue.main.async { [weak self] in
-            self?.loadBooks()
+        guard let store = CoreDataManager.shared.persistentContainer.persistentStoreCoordinator.persistentStores.first else { return }
+        
+        let context = CoreDataManager.shared.persistentContainer.newBackgroundContext()
+        context.performAndWait {
+            do {
+                // Get history transactions since last check
+                let request = NSPersistentHistoryChangeRequest.fetchHistory(after: lastHistoryToken)
+                let result = try context.execute(request) as? NSPersistentHistoryResult
+                guard let transactions = result?.result as? [NSPersistentHistoryTransaction] else { return }
+                
+                // Check if any changes affect our entities
+                let hasRelevantChanges = transactions.contains { transaction in
+                    transaction.changes?.contains { change in
+                        // Check if change involves BookEntity or TagEntity
+                        return change.changedObjectID.entity.name == "BookEntity" ||
+                        change.changedObjectID.entity.name == "TagEntity"
+                    } ?? false
+                }
+                
+                if hasRelevantChanges {
+                    loadBooks()
+                }
+                
+                // Update token
+                lastHistoryToken = transactions.last?.token
+                
+            } catch {
+                print("Error checking history: \(error)")
+                loadBooks()
+            }
+            
         }
     }
 }
+
+
+/*
+func deleteBooks(with isbns: Set<String>) {
+    
+    isbns.forEach { isbn in
+        CoreDataManager.shared.deleteBookwithIsbn(by: isbn)
+    }
+    
+    books.removeAll { isbns.contains($0.isbn) }
+    filteredBooks.removeAll { isbns.contains($0.isbn) }
+    
+    delegate?.bookManager(self, didDeleteBooks: isbns)
+}
+ */

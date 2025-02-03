@@ -7,6 +7,7 @@
 
 import Foundation
 import CloudKit
+import CoreData
 
 extension Notification.Name {
     static let cloudKitSyncStatusChanged = Notification.Name("cloudKitSyncStatusChanged")
@@ -15,7 +16,9 @@ extension Notification.Name {
 
 class CloudKitManager {
     static let shared = CloudKitManager()
-    
+    private var debounceTimer: Timer?
+    private var lastHistoryToken: NSPersistentHistoryToken?
+
     private(set) var isSyncing = false {
         didSet {
             NotificationCenter.default.post(
@@ -31,6 +34,7 @@ class CloudKitManager {
     }
     
     private func setupNotifications() {
+        print("setupNotifications-------------------")
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleStoreRemoteChange),
@@ -40,9 +44,42 @@ class CloudKitManager {
     }
     
     @objc private func handleStoreRemoteChange(_ notification: Notification) {
-        // Notify relevant managers about changes
-        BookManager.shared.loadBooks()
-        TagManager.shared.loadTags()
+        print("handleStoreRemoteChange-------------------")
+        debounceTimer?.invalidate()
+        
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            self?.processPendingChanges()
+        }
+    }
+    
+    private func processPendingChanges() {
+        let context = CoreDataManager.shared.persistentContainer.newBackgroundContext()
+        context.performAndWait {
+            do {
+                let request = NSPersistentHistoryChangeRequest.fetchHistory(after: lastHistoryToken)
+                let result = try context.execute(request) as? NSPersistentHistoryResult
+                guard let transactions = result?.result as? [NSPersistentHistoryTransaction] else { return }
+                
+                // Check if any changes affect our entities
+                let hasRelevantChanges = transactions.contains { transaction in
+                    transaction.changes?.contains { change in
+                        return change.changedObjectID.entity.name == "BookEntity" ||
+                               change.changedObjectID.entity.name == "TagEntity"
+                    } ?? false
+                }
+                
+                if hasRelevantChanges {
+                    BookManager.shared.loadBooks()
+                    TagManager.shared.loadTags()
+                }
+                
+                // Update token
+                lastHistoryToken = transactions.last?.token
+                
+            } catch {
+                print("Error checking history: \(error)")
+            }
+        }
     }
     
     func checkiCloudStatus(completion: @escaping (Bool) -> Void) {
@@ -59,7 +96,7 @@ class CloudKitManager {
     }
     
     func triggerSync(completion: @escaping (Error?) -> Void) {
-        CloudKitManager.shared.checkiCloudStatus { [weak self] isAvailable in
+        checkiCloudStatus { [weak self] isAvailable in
             guard let self = self else { return }
             
             if isAvailable {
@@ -80,7 +117,7 @@ class CloudKitManager {
                 }
                 
                 // Give some time for the sync to propagate
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     self.isSyncing = false
                     completion(nil)
                 }

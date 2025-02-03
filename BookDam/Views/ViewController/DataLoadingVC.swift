@@ -9,27 +9,34 @@ import UIKit
 
 class DataLoadingVC: UIViewController {
     
-    var containerView: UIView!
+    var containerView: UIView?
     
     func showLoadingView() {
-        containerView = UIView(frame: view.bounds)
+        // Check if container view already exists
+        guard containerView == nil else { return }
         
-        view.addSubview(containerView)
+        // Create new container and store it in a local constant
+        let container = UIView(frame: view.bounds)
         
-        containerView.backgroundColor = .systemBackground
-        containerView.alpha = 0
+        // Store in the optional property
+        containerView = container
+        
+        view.addSubview(container)
+        
+        container.backgroundColor = .systemBackground
+        container.alpha = 0
         
         UIView.animate(withDuration: 0.3) {
-            self.containerView.alpha = 0.8
+            container.alpha = 0.8
         }
         
         let activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(activityIndicator)
+        container.addSubview(activityIndicator)
         
         NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: container.centerXAnchor),
         ])
         
         activityIndicator.startAnimating()
@@ -37,7 +44,7 @@ class DataLoadingVC: UIViewController {
     
     func dismissLoadingView() {
         DispatchQueue.main.async {
-            self.containerView.removeFromSuperview()
+            self.containerView?.removeFromSuperview()
             self.containerView = nil
         }
     }

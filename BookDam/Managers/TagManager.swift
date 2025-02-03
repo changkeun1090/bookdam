@@ -33,7 +33,7 @@ class TagManager {
     }
     
     // MARK: - Public Methods    
-    func loadTags() {
+    func loadTags() {        
         if let tagEntities = CoreDataManager.shared.fetchTags() {
             self.tags = tagEntities
             delegate?.tagManager(self, didUpdateTags: tags)

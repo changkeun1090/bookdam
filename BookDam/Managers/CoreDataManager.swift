@@ -168,21 +168,12 @@ class CoreDataManager {
     // MARK: - Fetch Books
     func fetchBooks() -> [Book]? {
         return ensureMainThread {
-            let context = persistentContainer.viewContext
-            
-            // Ensure we're on the main thread when accessing context
-            if !Thread.isMainThread {
-                return DispatchQueue.main.sync {
-                    return self.fetchBooks()
-                }
-            }
-            
+            let context = persistentContainer.viewContext            
             let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
             
             do {
                 let results = try context.fetch(fetchRequest)
                 return results.compactMap { entity in
-                    // Since Core Data attributes are now optional, we need to verify required fields exist
                     guard let title = entity.title,
                           let author = entity.author,
                           let isbn = entity.isbn,
@@ -488,12 +479,21 @@ extension CoreDataManager {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(managedObjectContextDidSave),
-            name: NSNotification.Name.NSManagedObjectContextDidSave,
-            object: nil
+            name: .NSPersistentStoreRemoteChange,
+            object: persistentContainer.persistentStoreCoordinator
         )
     }
     
     @objc private func managedObjectContextDidSave(_ notification: Notification) {
+        // Check if the changes actually affect our entities
+        guard let userInfo = notification.userInfo,
+              let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>,
+              let updates = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject>,
+              let deletes = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>,
+              !inserts.isEmpty || !updates.isEmpty || !deletes.isEmpty else {
+            return
+        }
+        
         persistentContainer.viewContext.perform {
             self.persistentContainer.viewContext.mergeChanges(fromContextDidSave: notification)
         }
