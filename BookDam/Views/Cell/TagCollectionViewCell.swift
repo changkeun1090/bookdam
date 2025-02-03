@@ -23,7 +23,6 @@ class TagCollectionViewCell: UICollectionViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.adjustsFontSizeToFitWidth = false
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
     
@@ -87,4 +86,9 @@ class TagCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.tagId = nil
+        self.isTagSelected = false
+    }
 }

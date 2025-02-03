@@ -50,8 +50,7 @@ extension TagSelectionVC {
         let layout = LeftAlignedFlowLayout()        
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
         layout.minimumLineSpacing = Constants.Layout.mdMargin
-//        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        layout.estimatedItemSize = CGSize(width: 100, height: 36)
+        layout.estimatedItemSize = CGSize(width: 60, height: 32)
         return layout
     }
     

@@ -223,7 +223,7 @@ extension TagManagementSheet: UICollectionViewDataSource {
         if isTagSelected {
             collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
         }
-                    
+        
         return cell
     }
     

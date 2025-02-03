@@ -165,10 +165,8 @@ class BookDetailVC: UIViewController {
         let layout = LeftAlignedFlowLayout()
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
         layout.minimumLineSpacing = Constants.Layout.smMargin
+        layout.estimatedItemSize = CGSize(width: 60, height: 32)
         
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-//        layout.sectionInset = UIEdgeInsets(top: Constants.Layout.smMargin, left: 0, bottom: Constants.Layout.smMargin, right: 0)
-            
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false

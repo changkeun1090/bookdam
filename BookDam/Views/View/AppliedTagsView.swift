@@ -24,7 +24,7 @@ class AppliedTagsView: UIView {
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.estimatedItemSize = CGSize(width: 60, height: 32)
         layout.minimumInteritemSpacing = 8
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
