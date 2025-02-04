@@ -157,7 +157,8 @@ extension String {
         let additionalAuthorsCount = cleanedAuthors.count - 1
         
         // Construct the result string
-        return "\(firstAuthor) 외 \(additionalAuthorsCount)명"
+//        return "\(firstAuthor) 외 \(additionalAuthorsCount)명"
+        return "\(firstAuthor)"
     }
     
     // Format the pubDate by adding a leading "| " separator

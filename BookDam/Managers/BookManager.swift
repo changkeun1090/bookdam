@@ -47,8 +47,6 @@ class BookManager {
     // MARK: - Public Methods
     
     func loadBooks() {
-        print("LOAD BOOKS---------------")
-        
         if !isInitialSyncComplete {
             CloudKitManager.shared.triggerSync { [weak self] error in
                 if let error = error {
@@ -64,7 +62,6 @@ class BookManager {
     }
     
     private func fetchAndUpdateBooks() {
-        print("FETCH ADN UPDATE---------------")
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
             self.books = bookEntities
             sortBooks(by: currentSortOrder)

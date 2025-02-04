@@ -306,7 +306,7 @@ class BookDetailVC: UIViewController {
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.gutter)
-        ])                                    
+        ])
     }
     
     @objc private func saveButtonTapped() {
@@ -502,12 +502,6 @@ extension BookDetailVC: TagSelectionVCDelegate {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     sheet.dismiss(animated: true) {
                         self.navigationController?.popToRootViewController(animated: true)
-//                        if isSaved {
-//                            self.updateLayoutForTags()
-//                            self.tagCollectionView.reloadData()
-//                        } else {
-//                            self.navigationController?.popToRootViewController(animated: true)
-//                        }
                     }
                 }
         }
@@ -519,7 +513,6 @@ extension BookDetailVC: TagSelectionVCDelegate {
 
 extension BookDetailVC: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("DATA SOURCE -----------------------", self.book?.tags?.count ?? 0)
         
         guard let tags = book?.tags else {
             updateCollectionViewHeight(isTagsEmpty: true)

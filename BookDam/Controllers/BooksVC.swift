@@ -108,7 +108,6 @@ class BooksVC: DataLoadingVC {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("ViewWillAppear--------------")
         isLoading = true
         bookManager.loadBooks()
     }
@@ -306,7 +305,6 @@ class BooksVC: DataLoadingVC {
 // MARK: - BookManagerDelegate
 extension BooksVC: BookManagerDelegate {
     func bookManager(_ manager: BookManager, didUpdateBooks books: [Book]) {
-        print("DID UPDATE--------------------")
         DispatchQueue.main.async {
             self.bookCardCollectionVC.reloadData(with: books)
             self.isLoading = false

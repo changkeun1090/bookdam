@@ -72,10 +72,6 @@ class BookListTableVC: UITableViewController {
             switch result {
             case .success(let books):
                 
-                if books.count == 0 {
-                    print("EMPTY-------------------")
-                }
-                
                 if books.count < 20 {
                     self.hasMoreFollowers = false
                 }

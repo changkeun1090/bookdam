@@ -34,7 +34,6 @@ class CloudKitManager {
     }
     
     private func setupNotifications() {
-        print("setupNotifications-------------------")
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleStoreRemoteChange),
@@ -44,7 +43,6 @@ class CloudKitManager {
     }
     
     @objc private func handleStoreRemoteChange(_ notification: Notification) {
-        print("handleStoreRemoteChange-------------------")
         debounceTimer?.invalidate()
         
         debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
