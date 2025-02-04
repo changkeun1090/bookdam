@@ -10,10 +10,9 @@
 		BD0D28F12D2B21E400299966 /* Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0D28F02D2B21E400299966 /* Quotes.swift */; };
 		BD1F4F652D29D10800C8D3E0 /* IconButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1F4F642D29D10800C8D3E0 /* IconButton.swift */; };
 		BD1F4F682D2A079F00C8D3E0 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1F4F672D2A079F00C8D3E0 /* NetworkManager.swift */; };
+		BD2E483B2D519B0E00C2F116 /* ReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2E483A2D519B0E00C2F116 /* ReviewManager.swift */; };
 		BD4162092D2E414D00F8C285 /* WebViewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4162082D2E414D00F8C285 /* WebViewVC.swift */; };
 		BD41620B2D2E489200F8C285 /* DataLoadingVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */; };
-		BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */; };
-		BD42687F2D2CF75800C89DCD /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = BD42687E2D2CF75800C89DCD /* SwiftSoup */; };
 		BD43978F2D3F5B85003061CA /* AppliedTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD43978E2D3F5B85003061CA /* AppliedTagsView.swift */; };
 		BD4397912D3F66ED003061CA /* HeaderContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4397902D3F66ED003061CA /* HeaderContainerView.swift */; };
 		BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */; };
@@ -62,10 +61,10 @@
 		BD0D28F02D2B21E400299966 /* Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quotes.swift; sourceTree = "<group>"; };
 		BD1F4F642D29D10800C8D3E0 /* IconButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconButton.swift; sourceTree = "<group>"; };
 		BD1F4F672D2A079F00C8D3E0 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		BD2E483A2D519B0E00C2F116 /* ReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewManager.swift; sourceTree = "<group>"; };
 		BD3C78BF2D28855F004662CB /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; usesTabs = 0; };
 		BD4162082D2E414D00F8C285 /* WebViewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewVC.swift; sourceTree = "<group>"; };
 		BD41620A2D2E489200F8C285 /* DataLoadingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoadingVC.swift; sourceTree = "<group>"; };
-		BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetcher.swift; sourceTree = "<group>"; };
 		BD43978E2D3F5B85003061CA /* AppliedTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppliedTagsView.swift; sourceTree = "<group>"; };
 		BD4397902D3F66ED003061CA /* HeaderContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderContainerView.swift; sourceTree = "<group>"; };
 		BD5C18E02D37653D00BE78BC /* LeftAlignedFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedFlowLayout.swift; sourceTree = "<group>"; };
@@ -119,7 +118,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD42687F2D2CF75800C89DCD /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +273,7 @@
 				BDD687062D34E2A000F6FF91 /* BookManager.swift */,
 				BDCEFB2C2D370E2F00F2FA0C /* TagManager.swift */,
 				BD6139202D40C3A800D341BF /* CloudKitManager.swift */,
+				BD2E483A2D519B0E00C2F116 /* ReviewManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -284,7 +283,6 @@
 			children = (
 				BD756DBF2D275B17004FA956 /* Constant.swift */,
 				BD0D28F02D2B21E400299966 /* Quotes.swift */,
-				BD42687B2D2CF24500C89DCD /* ImageFetcher.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -354,7 +352,6 @@
 			);
 			name = BookDam;
 			packageProductDependencies = (
-				BD42687E2D2CF75800C89DCD /* SwiftSoup */,
 			);
 			productName = BookDam;
 			productReference = BD8A339B2D2736C700641D7D /* BookDam.app */;
@@ -385,7 +382,6 @@
 			);
 			mainGroup = BD8A33922D2736C700641D7D;
 			packageReferences = (
-				BD42687D2D2CF75800C89DCD /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
 			productRefGroup = BD8A339C2D2736C700641D7D /* Products */;
 			projectDirPath = "";
@@ -425,6 +421,7 @@
 				BD5C18E12D37653E00BE78BC /* LeftAlignedFlowLayout.swift in Sources */,
 				BD756DCA2D27B1FD004FA956 /* BookCardCell.swift in Sources */,
 				BD8B7D262D3EFB4E00F529B7 /* TagFilterSheet.swift in Sources */,
+				BD2E483B2D519B0E00C2F116 /* ReviewManager.swift in Sources */,
 				BD1F4F682D2A079F00C8D3E0 /* NetworkManager.swift in Sources */,
 				BD1F4F652D29D10800C8D3E0 /* IconButton.swift in Sources */,
 				BDF57DF32D2C81DD006D9BBD /* BookListCell.swift in Sources */,
@@ -432,7 +429,6 @@
 				BDD2C39F2D2B50DC009796AF /* Label+Ext.swift in Sources */,
 				BD8A339F2D2736C700641D7D /* AppDelegate.swift in Sources */,
 				BD756DC02D275B17004FA956 /* Constant.swift in Sources */,
-				BD42687C2D2CF24500C89DCD /* ImageFetcher.swift in Sources */,
 				BD8B7D282D3EFEBD00F529B7 /* TagSelectionVC.swift in Sources */,
 				BDCEFB272D36FC9A00F2FA0C /* Tag.swift in Sources */,
 				BD4397912D3F66ED003061CA /* HeaderContainerView.swift in Sources */,
@@ -612,8 +608,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -648,8 +644,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -689,25 +685,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		BD42687D2D2CF75800C89DCD /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 2.7.6;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		BD42687E2D2CF75800C89DCD /* SwiftSoup */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD42687D2D2CF75800C89DCD /* XCRemoteSwiftPackageReference "SwiftSoup" */;
-			productName = SwiftSoup;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		BD8A33A72D2736C700641D7D /* BookDam.xcdatamodeld */ = {

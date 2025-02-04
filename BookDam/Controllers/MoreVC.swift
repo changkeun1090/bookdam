@@ -34,7 +34,7 @@ enum MoreSection: Int, CaseIterable {
         case .feedback:
             return [.sendFeedback, .sendEmail, .appReview]
         case .appInfo:
-            return [.frequently, .cloudSnyc]
+            return [.notice, .frequently]
         }
     }
 }
@@ -43,45 +43,56 @@ enum MoreSection: Int, CaseIterable {
 enum MoreRow {
     case tagManagement
     case displaySetting
-    case textSize
     case sendFeedback
     case sendEmail
     case appReview
     case frequently
-    case appVersion
     case cloudSnyc
+    case notice
     
     
     var title: String {
         switch self {
         case .tagManagement:
-            return "모든 태그 관리"
+            return "태그 관리"
         case .displaySetting:
-            return "디스플레이 모드"
-        case .textSize:
-            return "텍스트 크기"
+            return "화면 테마"
         case .sendFeedback:
-            return "피드백 보내기"
+            return "의견 남기기"
         case .sendEmail:
             return "메일 보내기"
         case .appReview:
-            return "앱 평점 남기기"
+            return "평점 남기기"
+        case .notice:
+            return "공지 사항"
         case .frequently:
             return "자주하는 질문"
         case .cloudSnyc:
             return "데이터 동기화"
-        case .appVersion:
-            return "앱 버전"
         }
     }
     
     var accessoryType: UITableViewCell.AccessoryType {
         switch self {
-        case .displaySetting, .textSize, .tagManagement:
+        case .displaySetting, .tagManagement:
             return .disclosureIndicator
         default:
             return .none
         }
+    }
+}
+
+extension Bundle {
+    var appVersion: String {
+        return object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+    }
+    
+    var buildNumber: String {
+        return object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+    }
+    
+    var fullVersion: String {
+        return "\(appVersion) (\(buildNumber))"
     }
 }
 
@@ -95,6 +106,28 @@ class MoreVC: UIViewController {
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.backgroundColor = Constants.Colors.mainBackground
+        
+        // Add footer view
+        let footerLabel = UILabel()
+        footerLabel.text = "버전 \(Bundle.main.appVersion)"
+        footerLabel.font = Constants.Fonts.smallBody
+        footerLabel.textColor = Constants.Colors.subText
+        footerLabel.textAlignment = .right
+        
+        // Add padding to footer
+        let footerContainer = UIView()
+        footerContainer.addSubview(footerLabel)
+        footerLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            footerLabel.topAnchor.constraint(equalTo: footerContainer.topAnchor, constant: Constants.Layout.extraSmMargin),
+            footerLabel.leadingAnchor.constraint(equalTo: footerContainer.leadingAnchor, constant: Constants.Layout.layoutMargin),
+            footerLabel.trailingAnchor.constraint(equalTo: footerContainer.trailingAnchor, constant: -Constants.Layout.layoutMargin),
+            footerLabel.heightAnchor.constraint(equalToConstant: 16)
+        ])
+        
+        tableView.tableFooterView = footerContainer
+        
+        
         return tableView
     }()
     
@@ -189,6 +222,9 @@ extension MoreVC: UITableViewDelegate {
         case .appReview:
             handleAppReview()
             
+        case .notice:
+            handleNotice()
+            
         case .frequently:
             handleFrequently()
             
@@ -209,19 +245,32 @@ extension MoreVC {
         }
     }
     
+    private func handleNotice() {
+        let link = "https://abounding-plate-68e.notion.site/19036d45e5408051a97cda4b4b53c1e9?pvs=4"
+        if let url = URL(string: link) {
+            presentSafariVC(with: url)
+        }
+    }
+    
+//    private func handleAppReview() {
+//        let appId = "333903271" // 트위터
+//        
+//        let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?action=write-review")
+//        
+//        if let url = writeReviewURL, UIApplication.shared.canOpenURL(url) {
+//            UIApplication.shared.open(url, options: [:]) { success in
+//                if !success {
+//                    self.openAppStorePage(appId: appId)
+//                }
+//            }
+//        } else {
+//            openAppStorePage(appId: appId)
+//        }
+//    }
+    
     private func handleAppReview() {
-        let appId = "333903271" // 트위터
-        
-        let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?action=write-review")
-        
-        if let url = writeReviewURL, UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:]) { success in
-                if !success {
-                    self.openAppStorePage(appId: appId)
-                }
-            }
-        } else {
-            openAppStorePage(appId: appId)
+        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            SKStoreReviewController.requestReview(in: scene)
         }
     }
 

@@ -306,9 +306,7 @@ class BookDetailVC: UIViewController {
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.gutter)
-        ])
-                                    
- 
+        ])                                    
     }
     
     @objc private func saveButtonTapped() {

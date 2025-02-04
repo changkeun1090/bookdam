@@ -20,6 +20,10 @@ class BookManager {
     private var lastHistoryToken: NSPersistentHistoryToken?
     private var isInitialSyncComplete = false
     
+    private let reviewTriggerCount = 15
+    private let userDefaults = UserDefaults.standard
+    private let lastBookCountKey = "lastBookCount"
+    
     static let shared = BookManager()
     
     weak var delegate: BookManagerDelegate?
@@ -64,6 +68,9 @@ class BookManager {
         if let bookEntities = CoreDataManager.shared.fetchBooks() {
             self.books = bookEntities
             sortBooks(by: currentSortOrder)
+            
+            // Check for review trigger
+             checkReviewTrigger()
             
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -154,6 +161,19 @@ class BookManager {
     func clearTagFilters() {
         appliedTagFilters.removeAll()
         loadBooks()
+    }
+    
+    private func checkReviewTrigger() {
+        let lastCount = userDefaults.integer(forKey: lastBookCountKey)
+        let currentCount = books.count
+        
+        // Save current count for next comparison
+        userDefaults.set(currentCount, forKey: lastBookCountKey)
+        
+        // Check if we've crossed the threshold
+        if lastCount < reviewTriggerCount && currentCount >= reviewTriggerCount {
+            ReviewManager.shared.requestReviewIfNeeded()
+        }
     }
 }
 
