@@ -80,9 +80,9 @@ class BookDetailVC: UIViewController {
     
     private let authorLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.Fonts.smallBody
+        label.font = Constants.Fonts.smallBodyBold
         label.numberOfLines = 1
-        label.textColor = Constants.Colors.subText
+//        label.textColor = Constants.Colors.mainText
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -106,6 +106,7 @@ class BookDetailVC: UIViewController {
     private let descriptionHeaderLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.Fonts.bodyBold
+//        label.textColor = Constants.Colors.mainText
         label.text = "책소개"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -113,17 +114,18 @@ class BookDetailVC: UIViewController {
     
     private let bookDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.Fonts.smallBody
+        label.font = Constants.Fonts.body
         label.textColor = Constants.Colors.subText
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
+        
         return label
     }()
     
     private let linkLabel: UILabel = {
         let label = UILabel()
-        let text = "자세히보기"
+        let text = "자세히보기 (알라딘)"
         label.font = Constants.Fonts.smallBody
         label.textColor = Constants.Colors.subText
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -303,7 +305,7 @@ class BookDetailVC: UIViewController {
         NSLayoutConstraint.activate([
             linkLabel.topAnchor.constraint(equalTo: bookDescriptionLabel.bottomAnchor, constant: Constants.Layout.layoutMargin),
             linkLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
-            linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.layoutMargin)
+            linkLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.gutter)
         ])
                                     
  
@@ -356,7 +358,17 @@ class BookDetailVC: UIViewController {
         }
                 
         if let description = book.bookDescription {
-            bookDescriptionLabel.text = description.decodedHTML()
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = 6
+            bookDescriptionLabel.attributedText = NSAttributedString(
+                string: description.decodedHTML(),
+                attributes: [
+                    .paragraphStyle: paragraphStyle,
+                    .font: Constants.Fonts.body,
+                    .foregroundColor: Constants.Colors.subText
+                ]
+            )
+            
         } else {
             bookDescriptionLabel.text = ""
         }

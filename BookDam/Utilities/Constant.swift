@@ -24,7 +24,7 @@ struct Constants {
         static let accent = UIColor.systemBlue
         static let warning = UIColor.systemRed
         
-        static let mainText = UIColor.darkText        
+        static let darkText = UIColor.darkText        
         static let subText = UIColor.systemGray
         
         static let border = UIColor.systemGray
