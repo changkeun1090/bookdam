@@ -32,6 +32,11 @@ class TagManager {
     // MARK: - Initialization
     private init() {
         self.bookManager = .shared
+        
+        if isFirstLaunch() {
+            createDefaultTags()
+        }
+        
         loadTags()
     }
     
@@ -112,6 +117,39 @@ class TagManager {
             
             // If usage counts are equal, sort by name
             return firstTag.name.localizedStandardCompare(secondTag.name) == .orderedAscending
+        }
+    }
+    
+    private func isFirstLaunch() -> Bool {
+        let defaults = UserDefaults.standard
+        let hasLaunchedBefore = defaults.bool(forKey: "hasLaunchedBefore")
+        
+        if !hasLaunchedBefore {
+            defaults.set(true, forKey: "hasLaunchedBefore")
+            return true
+        }
+        return false
+    }
+    
+    private func createDefaultTags() {
+        let defaultTags = [
+            "소설",
+            "자기계발",
+            "재테크",
+            "에세이",
+            "과학",
+            "철학",
+            "인문",
+            "역사"
+        ]
+        
+        for tagName in defaultTags {
+            if !tags.contains(where: { $0.name.lowercased() == tagName.lowercased() }) {
+                let result = createTag(name: tagName)
+                if result != .success {
+                    print("Failed to create default tag: \(tagName)")
+                }
+            }
         }
     }
 }

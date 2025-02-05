@@ -28,7 +28,7 @@ class TagManagementSheet: UIViewController, TagSelectionVC {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "태그 지정하기(선택)"
+        label.text = "태그 지정 (선택사항)"
         label.font = Constants.Fonts.bodyBold
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -113,6 +113,7 @@ class TagManagementSheet: UIViewController, TagSelectionVC {
             collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.layoutMargin),
             collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             collectionView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -Constants.Layout.layoutMargin),
+            collectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200),
             
             addButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: Constants.Layout.layoutMargin),
             addButton.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor, constant: -Constants.Layout.layoutMargin),
