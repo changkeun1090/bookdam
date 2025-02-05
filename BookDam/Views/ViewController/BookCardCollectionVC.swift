@@ -81,13 +81,11 @@ class BookCardCollectionVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            // Add constraints for countLabel
             countLabel.topAnchor.constraint(equalTo: headerContainer.topAnchor),
             countLabel.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
             countLabel.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
             countLabel.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor),
             
-            // Add constraints for appliedTagsView
             appliedTagsView.topAnchor.constraint(equalTo: headerContainer.topAnchor),
             appliedTagsView.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
             appliedTagsView.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
@@ -288,9 +286,9 @@ extension BookCardCollectionVC: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
-        let (cardWidth, cardHeight) = Constants.Size.calculateImageSize()
+        let (imageWidth, imageHeight) = Constants.BookImageSize.calculate(type: .card)
         
-        return CGSize(width: cardWidth, height: cardHeight)
+        return CGSize(width: imageWidth, height: imageHeight)
     }
 }
 

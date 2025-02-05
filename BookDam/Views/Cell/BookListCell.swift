@@ -99,7 +99,7 @@ class BookListCell: UITableViewCell {
     
     private func setupConstraints() {
                 
-        let (imageWidth, imageHeight) = Constants.Size.calculateImageSize()
+        let (imageWidth, imageHeight) = Constants.BookImageSize.calculate(type: .card)
         
         NSLayoutConstraint.activate([
             coverImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),

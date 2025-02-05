@@ -40,8 +40,9 @@ class BookListTableVC: UITableViewController {
     }
         
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let (_, imageHeight) = Constants.Size.calculateImageSize()
         
+        let (_, imageHeight) = Constants.BookImageSize.calculate(type: .card)
+
         let cellHeight = imageHeight + Constants.Layout.smMargin*2
         
         // Return the height of the image

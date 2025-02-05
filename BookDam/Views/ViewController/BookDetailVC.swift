@@ -106,7 +106,6 @@ class BookDetailVC: UIViewController {
     private let descriptionHeaderLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.Fonts.bodyBold
-//        label.textColor = Constants.Colors.mainText
         label.text = "책소개"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -234,8 +233,8 @@ class BookDetailVC: UIViewController {
         contentView.addSubview(bookDescriptionLabel)
         contentView.addSubview(linkLabel)
         
-        let (imageWidth, imageHeight) = Constants.Size.calculateImageSize(itemCount: 2)
-
+        let (imageWidth, imageHeight) = Constants.BookImageSize.calculate(type: .detail)
+        
         NSLayoutConstraint.activate([
            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

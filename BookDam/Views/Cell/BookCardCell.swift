@@ -35,9 +35,9 @@ class BookCardCell: UICollectionViewCell {
     private let selectionIndicator: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "circle")
-        imageView.tintColor = Constants.Colors.accent // Using your app's accent color
+        imageView.tintColor = Constants.Colors.accent
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.isHidden = true // Hidden by default
+        imageView.isHidden = true
         return imageView
     }()
     

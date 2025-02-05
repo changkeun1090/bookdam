@@ -32,7 +32,7 @@ struct Constants {
     
     struct Layout {
         static let layoutMargin: CGFloat = 16
-        static let gutter: CGFloat = 24
+        static let gutter: CGFloat = 16
         
         static let extraSmMargin: CGFloat = 4
         static let smMargin: CGFloat = 8
@@ -66,35 +66,55 @@ struct Constants {
         static let xmark = "x.circle"
     }
     
-    struct Size {
-        // Static function to calculate the image size based on fixed screen width
-        static func calculateImageSize(padding: CGFloat = Constants.Layout.layoutMargin * 2, gutter: CGFloat = Constants.Layout.gutter, itemCount:CGFloat = 3) -> (width: CGFloat, height: CGFloat) {
-            
-            // Get the fixed screen width
-            let containerWidth = UIScreen.main.bounds.width
-            
-            // Calculate total spacing between items
-            let totalSpacing = padding + (gutter * (itemCount - 1))
-            
-            // Calculate item width based on the container's width (fixed screen width)
-            let itemWidth = floor((containerWidth - totalSpacing) / itemCount)
-            
-            // Calculate item height based on a fixed aspect ratio (40:27)
-            let itemHeight = itemWidth * (125.0 / 85.0)
-            
-            return (itemWidth, itemHeight)
+    enum DeviceType {
+        case phone
+        case pad
+        
+        static var current: DeviceType {
+            return UIDevice.current.userInterfaceIdiom == .pad ? .pad : .phone
         }
         
-        static func calculateImageSizeWithWidth(for containerWidth: CGFloat, padding: CGFloat = 16 * 2, gutter: CGFloat = 16, itemCount: CGFloat = 3) -> (width: CGFloat, height: CGFloat) {
+        var columnCount: (card: CGFloat, detail: CGFloat) {
+            switch self {
+            case .phone:
+                return (card: 3, detail: 2)
+            case .pad:
+                return (card: 4, detail: 3)
+            }
+        }
+    }
+    
+    // MARK: - Book Image Size
+    
+    enum BookImageType {
+        case card
+        case detail
+        
+        var columnCount: CGFloat {
+            switch DeviceType.current {
+            case .phone:
+                return self == .card ? 3 : 2
+            case .pad:
+                return self == .card ? 4 : 3
+            }
+        }
+    }
+
+    struct BookImageSize {
+        static let aspectRatio: CGFloat = 125.0 / 85.0
+        
+        static func calculate(
+            type: BookImageType,
+            gutter: CGFloat = Constants.Layout.gutter
+        ) -> (width: CGFloat, height: CGFloat) {
             
-            // Calculate total spacing between items
-            let totalSpacing = padding + (gutter * (itemCount - 1))
+            let padding = Constants.Layout.layoutMargin * 2
+            let gutter = DeviceType.current == .pad ? 24 : Constants.Layout.gutter
+            let containerWidth = UIScreen.main.bounds.width
             
-            // Calculate item width based on the container's width
-            let itemWidth = floor((containerWidth - totalSpacing) / itemCount)
-            
-            // Calculate item height based on a fixed aspect ratio (40:27)
-            let itemHeight = itemWidth * (40.0 / 27.0)
+            let totalSpacing = padding + (gutter * (type.columnCount - 1))
+            let itemWidth = floor((containerWidth - totalSpacing) / type.columnCount)
+            let itemHeight = itemWidth * aspectRatio
             
             return (itemWidth, itemHeight)
         }
