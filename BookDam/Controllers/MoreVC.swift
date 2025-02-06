@@ -109,7 +109,7 @@ class MoreVC: UIViewController {
         
         // Add footer view
         let footerLabel = UILabel()
-        footerLabel.text = "버전 \(Bundle.main.fullVersion)"
+        footerLabel.text = "버전 \(Bundle.main.appVersion)"
         footerLabel.font = Constants.Fonts.smallBody
         footerLabel.textColor = Constants.Colors.subText
         footerLabel.textAlignment = .right
