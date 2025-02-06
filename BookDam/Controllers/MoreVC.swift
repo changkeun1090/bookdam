@@ -226,10 +226,8 @@ extension MoreVC: UITableViewDelegate {
             handleNotice()
             
         case .frequently:
-            handleFrequently()
-            
-        default:
-            break
+//            handleFrequently()
+            handleCloudSync()
         }
         
     }

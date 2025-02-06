@@ -19,7 +19,7 @@ class BookDetailVC: UIViewController {
     
     private var tagCollectionViewHeightConstraint: NSLayoutConstraint?
     private var tagContainerMarginBottom: CGFloat {
-        return book?.tags?.isEmpty ?? true ? 0 : Constants.Layout.lgMargin
+        return book?.tags?.isEmpty ?? true ? Constants.Layout.layoutMargin : Constants.Layout.layoutMargin
     }
     private var tagContainerBottomConstraint: NSLayoutConstraint?
 
@@ -168,6 +168,9 @@ class BookDetailVC: UIViewController {
         layout.minimumLineSpacing = Constants.Layout.smMargin
         layout.estimatedItemSize = CGSize(width: 60, height: 32)
         
+        // Add this line to set padding
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -274,10 +277,10 @@ class BookDetailVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            tagContainerView.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.lgMargin),
+            tagContainerView.topAnchor.constraint(equalTo: subInfoStackView.bottomAnchor, constant: Constants.Layout.layoutMargin),
             tagContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.layoutMargin),
             tagContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
-            tagContainerView.bottomAnchor.constraint(equalTo: descriptionHeaderLabel.topAnchor, constant: -tagContainerMarginBottom),
+            tagContainerView.bottomAnchor.constraint(equalTo: descriptionHeaderLabel.topAnchor, constant: -Constants.Layout.layoutMargin*2),
 
             tagCollectionView.topAnchor.constraint(equalTo: tagContainerView.topAnchor),
             tagCollectionView.leadingAnchor.constraint(equalTo: tagContainerView.leadingAnchor),

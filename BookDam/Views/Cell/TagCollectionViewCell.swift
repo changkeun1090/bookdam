@@ -46,7 +46,7 @@ class TagCollectionViewCell: UICollectionViewCell {
     // MARK: - UI Setup
     private func setupUI() {
         contentView.backgroundColor = Constants.Colors.tagBackground
-        contentView.layer.cornerRadius = 15
+        contentView.layer.cornerRadius = 12
         contentView.clipsToBounds = true
         contentView.addSubview(tagLabel)
         
