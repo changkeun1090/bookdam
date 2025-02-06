@@ -8,10 +8,60 @@
 import Foundation
 import UIKit
 
+enum DeviceType {
+    case phone
+    case padMini      // iPad mini
+    case padRegular   // Regular iPad and iPad Air
+    case padLarge     // iPad Pro 12.9"
+    
+    static var current: DeviceType {
+        let device = UIDevice.current
+        guard device.userInterfaceIdiom == .pad else { return .phone }
+        
+        let screenWidth = UIScreen.main.bounds.width
+        switch screenWidth {
+        case ..<745:  return .padMini     // iPad mini width: 744 points
+        case ..<1024: return .padRegular  // Regular iPad width: 810 points
+        default:      return .padLarge    // iPad Pro 12.9" width: 1024+ points
+        }
+    }
+    
+    var fontScale: CGFloat {
+        switch self {
+        case .phone:      return 1.0
+        case .padMini:    return 1.2
+        case .padRegular: return 1.4
+        case .padLarge:   return 1.6
+        }
+    }
+    
+    var columnCount: (card: CGFloat, detail: CGFloat) {
+        switch self {
+        case .phone:
+            return (card: 3, detail: 2)
+        case .padMini, .padRegular:
+            return (card: 4, detail: 3)
+        case .padLarge:
+            return (card: 5, detail: 3)
+        }
+    }
+    
+    var gutter: CGFloat {
+        switch self {
+        case .phone:
+            return Constants.Layout.gutter
+        case .padMini:
+            return 20
+        case .padRegular:
+            return 24
+        case .padLarge:
+            return 24
+        }
+    }
+}
+
 struct Constants {
     struct Colors {
-//        static let mainBackground = UIColor.secondarySystemBackground
-//        static let subBackground = UIColor.tertiarySystemBackground
         
         static let mainBackground = UIColor.systemBackground
         static let subBackground = UIColor.secondarySystemBackground
@@ -40,17 +90,58 @@ struct Constants {
         static let lgMargin: CGFloat = 32
     }
     
+    enum FontSize {
+        case title
+        case largeBody
+        case body
+        case smallBody
+        
+        private var baseSize: CGFloat {
+            switch self {
+            case .title:      return 24
+            case .largeBody:  return 20
+            case .body:       return 16
+            case .smallBody:  return 14
+            }
+        }
+        
+        var size: CGFloat {
+            return baseSize * DeviceType.current.fontScale
+        }
+    }
+
     struct Fonts {
-        static let title = UIFont.systemFont(ofSize: 24, weight: .bold)
+        // Title
+        static var title: UIFont {
+            .systemFont(ofSize: FontSize.title.size, weight: .bold)
+        }
         
-        static let largeBody = UIFont.systemFont(ofSize: 20, weight: .regular)
-        static let largeBodyBold = UIFont.systemFont(ofSize: 20, weight: .bold)
+        // Large Body
+        static var largeBody: UIFont {
+            .systemFont(ofSize: FontSize.largeBody.size, weight: .regular)
+        }
         
-        static let body = UIFont.systemFont(ofSize: 16, weight: .regular)
-        static let bodyBold = UIFont.systemFont(ofSize: 16, weight: .bold)
+        static var largeBodyBold: UIFont {
+            .systemFont(ofSize: FontSize.largeBody.size, weight: .bold)
+        }
         
-        static let smallBody = UIFont.systemFont(ofSize: 14, weight: .regular)
-        static let smallBodyBold = UIFont.systemFont(ofSize: 14, weight: .bold)
+        // Body
+        static var body: UIFont {
+            .systemFont(ofSize: FontSize.body.size, weight: .regular)
+        }
+        
+        static var bodyBold: UIFont {
+            .systemFont(ofSize: FontSize.body.size, weight: .bold)
+        }
+        
+        // Small Body
+        static var smallBody: UIFont {
+            .systemFont(ofSize: FontSize.smallBody.size, weight: .regular)
+        }
+        
+        static var smallBodyBold: UIFont {
+            .systemFont(ofSize: FontSize.smallBody.size, weight: .bold)
+        }
     }
     
     struct Icons {
@@ -65,25 +156,7 @@ struct Constants {
         static let addTag = "plus.app"
         static let xmark = "x.circle"
     }
-    
-    enum DeviceType {
-        case phone
-        case pad
-        
-        static var current: DeviceType {
-            return UIDevice.current.userInterfaceIdiom == .pad ? .pad : .phone
-        }
-        
-        var columnCount: (card: CGFloat, detail: CGFloat) {
-            switch self {
-            case .phone:
-                return (card: 3, detail: 2)
-            case .pad:
-                return (card: 4, detail: 3)
-            }
-        }
-    }
-    
+
     // MARK: - Book Image Size
     
     enum BookImageType {
@@ -94,8 +167,10 @@ struct Constants {
             switch DeviceType.current {
             case .phone:
                 return self == .card ? 3 : 2
-            case .pad:
+            case .padMini, .padRegular:
                 return self == .card ? 4 : 3
+            case .padLarge:
+                return self == .card ? 5 : 4
             }
         }
     }
@@ -104,12 +179,13 @@ struct Constants {
         static let aspectRatio: CGFloat = 125.0 / 85.0
         
         static func calculate(
-            type: BookImageType,
-            gutter: CGFloat = Constants.Layout.gutter
+            type: BookImageType
         ) -> (width: CGFloat, height: CGFloat) {
             
             let padding = Constants.Layout.layoutMargin * 2
-            let gutter = DeviceType.current == .pad ? 24 : Constants.Layout.gutter
+            
+            let gutter = DeviceType.current.gutter
+            
             let containerWidth = UIScreen.main.bounds.width
             
             let totalSpacing = padding + (gutter * (type.columnCount - 1))
