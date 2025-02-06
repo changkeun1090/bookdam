@@ -21,7 +21,7 @@ class BookListTableVC: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.delegate = self // Setting the delegate here
+        tableView.delegate = self
         view.backgroundColor = Constants.Colors.mainBackground
         self.tableView.register(BookListCell.self, forCellReuseIdentifier: "BookListCell")
     }
@@ -45,8 +45,7 @@ class BookListTableVC: UITableViewController {
 
         let cellHeight = imageHeight + Constants.Layout.smMargin*2
         
-        // Return the height of the image
-        return cellHeight // Add some padding for title and labels
+        return cellHeight 
     }
     
     // Handle the cell tap to navigate to BookDetailVC
@@ -56,6 +55,14 @@ class BookListTableVC: UITableViewController {
         bookDetailVC.configure(with: selectedBook)
         bookDetailVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(bookDetailVC, animated: true)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alertController, animated: true)
+        }
     }
     
     func searchBook(query: String) {
@@ -73,6 +80,13 @@ class BookListTableVC: UITableViewController {
             switch result {
             case .success(let books):
                 
+                if books.isEmpty && page == 1 {
+                          self.showAlert(
+                              title: "검색 결과 없음",
+                              message: "'\(query)'에 대한 검색 결과가 없습니다."
+                          )
+                      }
+                
                 if books.count < 20 {
                     self.hasMoreFollowers = false
                 }
@@ -82,16 +96,15 @@ class BookListTableVC: UITableViewController {
                 } else {
                     self.books.append(contentsOf: books)
                 }
-                
-                
+                                
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
-                    self.dismissLoadingViewClosure?() // Call dismiss closure after books are fetched                    
+                    self.dismissLoadingViewClosure?()
                     self.isLoading = false
                 }
             case .failure(let error):
                 print("Error fetching books: \(error.localizedDescription)")
-                self.dismissLoadingViewClosure?() // Call dismiss closure after books are fetched
+                self.dismissLoadingViewClosure?()
             }
         }
     }
@@ -101,7 +114,6 @@ class BookListTableVC: UITableViewController {
         let contentOffsetY = scrollView.contentOffset.y
         let screenHeight = scrollView.frame.size.height
         
-        // If the bottom of the table view is within a threshold of the bottom of the screen
         if contentOffsetY + screenHeight >= contentHeight - 100 { // 100 is the threshold to trigger loading more
 
             if !isLoading && !books.isEmpty && hasMoreFollowers { // Avoid multiple requests at once
