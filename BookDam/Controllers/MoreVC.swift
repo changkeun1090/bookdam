@@ -34,7 +34,7 @@ enum MoreSection: Int, CaseIterable {
         case .feedback:
             return [.sendFeedback, .sendEmail, .appReview]
         case .appInfo:
-            return [.notice, .frequently]
+            return [.frequently, .cloudSnyc]
         }
     }
 }
@@ -226,10 +226,8 @@ extension MoreVC: UITableViewDelegate {
             handleNotice()
             
         case .frequently:
-//            handleFrequently()
-            handleCloudSync()
+            handleFrequently()
         }
-        
     }
 
 }
@@ -237,7 +235,8 @@ extension MoreVC: UITableViewDelegate {
 extension MoreVC {
     
     private func handleFrequently() {
-        let link = "https://abounding-plate-68e.notion.site/18536d45e5408083acfde9507e047f3b?pvs=4"
+//        let link = "https://abounding-plate-68e.notion.site/18536d45e5408083acfde9507e047f3b?pvs=4"
+        let link = "https://abounding-plate-68e.notion.site/19036d45e5408051a97cda4b4b53c1e9?pvs=4"
         if let url = URL(string: link) {
             presentSafariVC(with: url)
         }
