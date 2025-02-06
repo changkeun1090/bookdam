@@ -92,7 +92,7 @@ extension Bundle {
     }
     
     var fullVersion: String {
-        return "\(appVersion) (\(buildNumber))"
+        return "\(appVersion).\(buildNumber)"
     }
 }
 
@@ -109,7 +109,7 @@ class MoreVC: UIViewController {
         
         // Add footer view
         let footerLabel = UILabel()
-        footerLabel.text = "버전 \(Bundle.main.appVersion)"
+        footerLabel.text = "버전 \(Bundle.main.fullVersion)"
         footerLabel.font = Constants.Fonts.smallBody
         footerLabel.textColor = Constants.Colors.subText
         footerLabel.textAlignment = .right
