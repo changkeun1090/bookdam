@@ -89,7 +89,6 @@ class TagFilterSheet: UIViewController, TagSelectionVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBaseUI()
-//        setupCollectionView()
         configureSheet()
         setupConstraints()
         loadTags()

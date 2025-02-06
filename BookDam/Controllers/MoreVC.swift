@@ -140,7 +140,7 @@ class MoreVC: UIViewController {
         
         setupUI()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
@@ -251,22 +251,6 @@ extension MoreVC {
             presentSafariVC(with: url)
         }
     }
-    
-//    private func handleAppReview() {
-//        let appId = "333903271" // 트위터
-//        
-//        let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?action=write-review")
-//        
-//        if let url = writeReviewURL, UIApplication.shared.canOpenURL(url) {
-//            UIApplication.shared.open(url, options: [:]) { success in
-//                if !success {
-//                    self.openAppStorePage(appId: appId)
-//                }
-//            }
-//        } else {
-//            openAppStorePage(appId: appId)
-//        }
-//    }
     
     private func handleAppReview() {
         if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
@@ -403,4 +387,5 @@ extension MoreVC: MFMailComposeViewControllerDelegate {
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
+
 }

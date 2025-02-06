@@ -46,22 +46,26 @@ class TabBarController: UITabBarController {
 // MARK: - UITabBarControllerDelegate
 extension TabBarController: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        // Check if we're tapping the same tab we're currently on
         if viewController == tabBarController.selectedViewController {
-            // Get the navigation controller
             if let navController = viewController as? UINavigationController {
-                // Get the root view controller (BooksVC)
+                
                 if let booksVC = navController.viewControllers.first as? BooksVC {
-                    // Tell BooksVC to scroll to top
                     booksVC.scrollToTop()
                 }
                 
                 if let searchVC = navController.viewControllers.first as? SearchVC {
                     searchVC.scrollToTop()
                 }
-                
             }
         }
         return true
     }
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let navController = viewController as? UINavigationController {
+            navController.popToRootViewController(animated: false)
+        }
+    }
 }
+
+

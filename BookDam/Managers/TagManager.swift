@@ -33,9 +33,9 @@ class TagManager {
     private init() {
         self.bookManager = .shared
         
-        if isFirstLaunch() {
-            createDefaultTags()
-        }
+//        if isFirstLaunch() {
+//            createDefaultTags()
+//        }
         
         loadTags()
     }

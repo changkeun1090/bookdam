@@ -113,7 +113,7 @@ class TagManagementSheet: UIViewController, TagSelectionVC {
             collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.layoutMargin),
             collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             collectionView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -Constants.Layout.layoutMargin),
-            collectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200),
+//            collectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 150),
             
             addButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: Constants.Layout.layoutMargin),
             addButton.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor, constant: -Constants.Layout.layoutMargin),
@@ -122,7 +122,6 @@ class TagManagementSheet: UIViewController, TagSelectionVC {
             buttonStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.layoutMargin),
             buttonStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.layoutMargin),
             buttonStackView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.layoutMargin),
-//            buttonStackView.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     

@@ -49,7 +49,7 @@ extension TagSelectionVC {
     func createCollectionViewLayout() -> UICollectionViewLayout {
         let layout = LeftAlignedFlowLayout()        
         layout.minimumInteritemSpacing = Constants.Layout.smMargin
-        layout.minimumLineSpacing = Constants.Layout.mdMargin
+        layout.minimumLineSpacing = Constants.Layout.smMargin
         layout.estimatedItemSize = CGSize(width: 60, height: 32)
         return layout
     }
